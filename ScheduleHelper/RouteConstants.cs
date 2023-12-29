@@ -1,0 +1,9 @@
+﻿namespace ScheduleHelper.UI
+{
+    public static class RouteConstants
+    {
+        public const string AddNewTask = "/addNewTask";
+        public const string UpdateTask = "/editTask";
+        public const string ShowTasksList = "/";
+    }
+}

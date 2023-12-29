@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ScheduleHelper.Core.DTO;
 
+
 namespace ScheduleHelper.UI.Controllers
 {
     public class TasksController : Controller
@@ -8,7 +9,7 @@ namespace ScheduleHelper.UI.Controllers
 
         string taskslistTitle = "Tasks list";
         
-        [Route("/")]
+        [Route(RouteConstants.ShowTasksList)]
         public async Task<IActionResult> TasksList()
         {
             ViewBag.Title = taskslistTitle;
@@ -16,19 +17,30 @@ namespace ScheduleHelper.UI.Controllers
         }
 
 
-        [Route("/addNewTask")]
+        [Route(RouteConstants.AddNewTask)]
+        [HttpGet]
         public async Task<IActionResult> AddNewTask()
         {
             ViewBag.Title = "New task";
+            ViewBag.formHref = RouteConstants.AddNewTask;
             return View("EditTask",new SingleTaskDTO());
         }
 
-
-        [Route("/EditTask")]
-        public async Task<IActionResult> EditTask(SingleTaskDTO taskToEdit)
+        [Route(RouteConstants.AddNewTask)]
+        [HttpPost]
+        public async Task<IActionResult> AddNewTask(SingleTaskDTO newTask)
         {
             ViewBag.Title = taskslistTitle;
-            return RedirectToAction("TasksList");
+
+            return RedirectToAction(nameof(TasksController.TasksList));
+        }
+
+
+        [Route(RouteConstants.UpdateTask)]
+        public async Task<IActionResult> EditTask(SingleTaskDTO taskToUpdate)
+        {
+            ViewBag.Title = taskslistTitle;
+            return RedirectToAction(nameof(TasksController.TasksList));
         }
     }
 }

@@ -1,14 +1,14 @@
 ﻿@using ScheduleHelper.Core.DTO;
 
 @model SingleTaskDTO 
-<form action="/EditTask" method="post">
+<form action=@ViewBag.formHref method="post">
     <label for="Name">Taks name:</label>
     <input asp-for="Name" />
 
     <br />
 
     <label >Pole liczbowe:</label>
-    <input type="number" asp-for="Time" />
+    <input type="number" step="0.5" asp-for="Time" />
 
     <br />
 
@@ -18,7 +18,3 @@
 <a href="/">back</a>
 
 
-<script src="~/js/IntOnlyInInput.js"></script>
-<script>
-    IntOnlyInInput("Time");
-</script>
