@@ -1,0 +1,24 @@
+﻿@using ScheduleHelper.Core.DTO;
+
+@model SingleTaskDTO 
+<form action="/EditTask" method="post">
+    <label for="Name">Taks name:</label>
+    <input asp-for="Name" />
+
+    <br />
+
+    <label >Pole liczbowe:</label>
+    <input type="number" asp-for="Time" />
+
+    <br />
+
+    <input type="submit" value="Save" />
+</form>
+
+<a href="/">back</a>
+
+
+<script src="~/js/IntOnlyInInput.js"></script>
+<script>
+    IntOnlyInInput("Time");
+</script>

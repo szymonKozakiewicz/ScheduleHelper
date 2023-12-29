@@ -11,10 +11,10 @@ using Xunit;
 
 namespace ScheduleHelper.IntegrationTests
 {
-    public class TasksListControllerIntegrationTests:IClassFixture<WebApplicationFactory<Program>>
+    public class TasksControllerIntegrationTests:IClassFixture<WebApplicationFactory<Program>>
     {
         HttpClient client;
-        public TasksListControllerIntegrationTests(WebApplicationFactory<Program> factory)
+        public TasksControllerIntegrationTests(WebApplicationFactory<Program> factory)
         {
             client = factory.CreateClient();
         }
@@ -26,6 +26,15 @@ namespace ScheduleHelper.IntegrationTests
             response.Should().BeSuccessful();
 
             
+        }
+
+        [Fact]
+        public async Task AddNewTask_ShouldReturnView()
+        {
+            HttpResponseMessage response = await client.GetAsync("/addNewTask");
+            response.Should().BeSuccessful();
+
+
         }
     }
 }
