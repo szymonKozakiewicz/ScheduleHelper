@@ -24,4 +24,8 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ScheduleHelper.Core\ScheduleHelper.Core.csproj" />
+  </ItemGroup>
+
 </Project>

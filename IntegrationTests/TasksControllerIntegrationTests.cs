@@ -1,6 +1,9 @@
 ﻿using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.VisualStudio.TestPlatform.TestHost;
+using Newtonsoft.Json;
+using ScheduleHelper.Core.DTO;
+using ScheduleHelper.UI;
 using ScheduleHelper.UI.Controllers;
 using System;
 using System.Collections.Generic;
@@ -22,7 +25,7 @@ namespace ScheduleHelper.IntegrationTests
         [Fact]
         public async Task GetTasksListView_ShouldReturnView()
         {
-            HttpResponseMessage response = await client.GetAsync("/");
+            HttpResponseMessage response = await client.GetAsync(RouteConstants.ShowTasksList);
             response.Should().BeSuccessful();
 
             
@@ -31,8 +34,26 @@ namespace ScheduleHelper.IntegrationTests
         [Fact]
         public async Task AddNewTask_ShouldReturnView()
         {
-            HttpResponseMessage response = await client.GetAsync("/addNewTask");
+            HttpResponseMessage response = await client.GetAsync(RouteConstants.AddNewTask);
             response.Should().BeSuccessful();
+
+
+        }
+
+
+        [Fact]
+        public async Task AddNewTask_ForValidTask_StatusShouldBeCreated()
+        {
+            var model = new SingleTaskDTO()
+            {
+                Name= "Test",
+                Time=30
+
+            };
+            var contentStr = $"Name={model.Name}&Time={model.Time}";
+            HttpContent httpContent = new StringContent(contentStr, UnicodeEncoding.UTF8, "application/x-www-form-urlencoded");
+            HttpResponseMessage response = await client.PostAsync(RouteConstants.AddNewTask, httpContent);
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.Created);
 
 
         }
