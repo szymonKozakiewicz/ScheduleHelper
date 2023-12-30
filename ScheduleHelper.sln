@@ -15,7 +15,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScheduleHelper.ControllerTe
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScheduleHelper.IntegrationTests", "IntegrationTests\ScheduleHelper.IntegrationTests.csproj", "{07FB62FB-9E13-4BDD-A847-E387E9EC8F85}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScheduleHelper.Core", "ScheduleHelper.Core\ScheduleHelper.Core.csproj", "{59F1FFCA-2969-4B22-AF2B-EAA31A28A9BC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScheduleHelper.Core", "ScheduleHelper.Core\ScheduleHelper.Core.csproj", "{59F1FFCA-2969-4B22-AF2B-EAA31A28A9BC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "Infrastructure\Infrastructure.csproj", "{EAF8F033-7274-4137-A2C8-32A8606301AF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -43,6 +45,10 @@ Global
 		{59F1FFCA-2969-4B22-AF2B-EAA31A28A9BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{59F1FFCA-2969-4B22-AF2B-EAA31A28A9BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{59F1FFCA-2969-4B22-AF2B-EAA31A28A9BC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EAF8F033-7274-4137-A2C8-32A8606301AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EAF8F033-7274-4137-A2C8-32A8606301AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EAF8F033-7274-4137-A2C8-32A8606301AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EAF8F033-7274-4137-A2C8-32A8606301AF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -53,6 +59,7 @@ Global
 		{BA563DB4-97A4-4C36-99D2-47400A038B95} = {EAC75D95-FD8E-43D8-91A3-A7EABAAED1C2}
 		{07FB62FB-9E13-4BDD-A847-E387E9EC8F85} = {EAC75D95-FD8E-43D8-91A3-A7EABAAED1C2}
 		{59F1FFCA-2969-4B22-AF2B-EAA31A28A9BC} = {68A35EAB-5643-4EB1-98B6-22F50A79BAB7}
+		{EAF8F033-7274-4137-A2C8-32A8606301AF} = {68A35EAB-5643-4EB1-98B6-22F50A79BAB7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {EF5BA107-4C4A-45B3-8516-96D5B11BBFCF}

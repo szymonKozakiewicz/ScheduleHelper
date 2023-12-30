@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
     <ProjectReference Include="..\ScheduleHelper.Core\ScheduleHelper.Core.csproj" />
   </ItemGroup>
 

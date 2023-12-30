@@ -10,7 +10,7 @@ namespace ScheduleHelper.Core.DTO
     {
 
         public string Name { get; set; }
-        public int Time { get; set; }
+        public double Time { get; set; }
         public SingleTaskDTO() {
             Name = "";
             Time = 1;
