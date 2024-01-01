@@ -12,7 +12,7 @@ namespace ScheduleHelper.Core.Domain.Entities
     {
         public string Name { get; set; }
         public double TimeMin { get; set; }
-        Guid Id { get; set; }
+        public Guid Id { get; set; }
 
     }
 }

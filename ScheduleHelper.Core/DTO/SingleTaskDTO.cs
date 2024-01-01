@@ -15,5 +15,7 @@ namespace ScheduleHelper.Core.DTO
             Name = "";
             Time = 1;
         }
+
+        
     }
 }

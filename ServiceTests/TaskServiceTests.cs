@@ -1,6 +1,7 @@
 ﻿using Moq;
 using ScheduleHelper.Core.Domain.Entities;
 using ScheduleHelper.Core.Domain.RepositoryContracts;
+using ScheduleHelper.Core.DTO;
 using ScheduleHelper.Core.Services;
 using System;
 using System.Collections.Generic;
@@ -22,13 +23,13 @@ namespace ScheduleHelper.ServiceTests
             repositoryMock.Setup(mock => mock.AddNewTask(It.IsAny<SingleTask>()));
             ITaskRespository taskRespository = repositoryMock.Object;
             _taskService=new TaskService(taskRespository);
-            var model = new SingleTask()
+            var model = new SingleTaskDTO()
             {
                 Name = "Test",
-                TimeMin = 23
+                Time = 23
             };
 
-            taskRespository.AddNewTask(model);
+            _taskService.AddNewTask(model);
             repositoryMock.Verify(mock => mock.AddNewTask(It.IsAny<SingleTask>()), Times.Once);
 
 
