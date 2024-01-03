@@ -33,7 +33,7 @@ namespace ScheduleHelper.ServiceTests
             repositoryMock.Setup(mock => mock.AddNewTask(It.IsAny<SingleTask>()));
             
 
-            var model = new SingleTaskDTO()
+            var model = new TaskCreateDTO()
             {
                 Name = "Test",
                 Time = 23
@@ -66,9 +66,9 @@ namespace ScheduleHelper.ServiceTests
 
 
             resultList.Count.Should().Be(3);
-            resultList.Should().Contain(covertSingleTaskToSingleTaskDTO(task1));
-            resultList.Should().Contain(covertSingleTaskToSingleTaskDTO(task2));
-            resultList.Should().Contain(covertSingleTaskToSingleTaskDTO(task3));
+            resultList.Should().Contain(covertSingleTaskToTaskGetDTO(task1));
+            resultList.Should().Contain(covertSingleTaskToTaskGetDTO(task2));
+            resultList.Should().Contain(covertSingleTaskToTaskGetDTO(task3));
 
         }
     }

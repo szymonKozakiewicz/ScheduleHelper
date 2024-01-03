@@ -31,7 +31,7 @@ namespace ScheduleHelper.ControllerTests
 
             var result=(ViewResult)await controller.AddNewTask();
 
-            result.ViewData.Model.Should().BeOfType<SingleTaskDTO>();
+            result.ViewData.Model.Should().BeOfType<TaskCreateDTO>();
         }
 
         [Fact]
@@ -40,7 +40,7 @@ namespace ScheduleHelper.ControllerTests
             SetupMockForAddNewTaskMethodFromService();
 
             var controller = new TasksController(_taskService);
-            var model = new SingleTaskDTO()
+            var model = new TaskCreateDTO()
             {
                 Name = "test",
                 Time = 7
@@ -53,7 +53,7 @@ namespace ScheduleHelper.ControllerTests
 
 
 
-            _taskServiceMock.Verify(mock => mock.AddNewTask(It.IsAny<SingleTaskDTO>()), Times.Once);
+            _taskServiceMock.Verify(mock => mock.AddNewTask(It.IsAny<TaskCreateDTO>()), Times.Once);
 
         }
 
@@ -61,7 +61,7 @@ namespace ScheduleHelper.ControllerTests
         {
             _taskServiceMock = new Mock<ITaskService>();
             _taskService = _taskServiceMock.Object;
-            _taskServiceMock.Setup(mock => mock.AddNewTask(It.IsAny<SingleTaskDTO>()));
+            _taskServiceMock.Setup(mock => mock.AddNewTask(It.IsAny<TaskCreateDTO>()));
         }
 
         private static void setMockForResponseStatus(TasksController controller)

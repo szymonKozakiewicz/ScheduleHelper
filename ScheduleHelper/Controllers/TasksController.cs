@@ -19,11 +19,11 @@ namespace ScheduleHelper.UI.Controllers
         [Route(RouteConstants.ShowTasksList)]
         public async Task<IActionResult> TasksList()
         {
-            List<SingleTaskDTO> tasks=await _taskService.GetTasksList();
+            List<TaskGetDTO> tasks=await _taskService.GetTasksList();
 
 
             ViewBag.Title = _taskslistTitle;
-            return View();
+            return View(tasks);
         }
 
 
@@ -33,12 +33,12 @@ namespace ScheduleHelper.UI.Controllers
         {
             ViewBag.Title = "New task";
             ViewBag.formHref = RouteConstants.AddNewTask;
-            return View("EditTask",new SingleTaskDTO());
+            return View("EditTask",new TaskCreateDTO());
         }
 
         [Route(RouteConstants.AddNewTask)]
         [HttpPost]
-        public async Task<IActionResult> AddNewTask(SingleTaskDTO newTask)
+        public async Task<IActionResult> AddNewTask(TaskCreateDTO newTask)
         {
             ViewBag.Title = "Operation status";
             Response.StatusCode = (int)HttpStatusCode.Created;
@@ -59,11 +59,21 @@ namespace ScheduleHelper.UI.Controllers
 
 
         [Route(RouteConstants.UpdateTask)]
-        public async Task<IActionResult> EditTask(SingleTaskDTO taskToUpdate)
+        public async Task<IActionResult> EditTask(TaskCreateDTO taskToUpdate)
         {
             ViewBag.Title = _taskslistTitle;
 
            
+            return RedirectToAction(nameof(TasksController.TasksList));
+        }
+
+
+        [Route(RouteConstants.DeleteTask)]
+        public async Task<IActionResult> DeleteTask(TaskCreateDTO taskToUpdate)
+        {
+            ViewBag.Title = _taskslistTitle;
+
+
             return RedirectToAction(nameof(TasksController.TasksList));
         }
     }

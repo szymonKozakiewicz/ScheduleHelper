@@ -1,4 +1,28 @@
-﻿
+﻿@using ScheduleHelper.Core.DTO;
+@model List<TaskGetDTO>
 <h1>Tasks List</h1>
+<table>
+    <thead>
+        <tr>
+            <th>Task name</th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var task in Model)
+        {
+            
+            var editRoute = RouteConstants.UpdateTask + "?id=" + task.Id;
+            var deleteRoute = RouteConstants.DeleteTask + "?id=" + task.Id;
+            
+            <tr>
+                <td>@task.Name</td>
+                <td> <a href=@editRoute style="color: blue">Edit</a> </td>
+                <td> <a href=@deleteRoute style="color: red">Delete</a> </td>
+            </tr>
+        }
+    </tbody>
+</table>
 <a href=@RouteConstants.AddNewTask>Add new task</a>
 

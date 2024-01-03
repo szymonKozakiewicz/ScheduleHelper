@@ -44,7 +44,7 @@ namespace ScheduleHelper.IntegrationTests
         [Fact]
         public async Task AddNewTask_ForValidTask_StatusShouldBeCreated()
         {
-            var model = new SingleTaskDTO()
+            var model = new TaskCreateDTO()
             {
                 Name= "Test",
                 Time=30

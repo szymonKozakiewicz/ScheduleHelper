@@ -5,5 +5,6 @@
         public const string AddNewTask = "/addNewTask";
         public const string UpdateTask = "/editTask";
         public const string ShowTasksList = "/";
+        public const string DeleteTask = "/deleteTask";
     }
 }

@@ -10,18 +10,28 @@ namespace ScheduleHelper.Core.Services.Helpers
 {
     public class SingleTaskConvertHelper
     {
-        public static SingleTask covertSingleTaskDtoToSingleTask(SingleTaskDTO taskDTO)
+        public static SingleTask covertSingleTaskDtoToSingleTask(TaskCreateDTO taskDTO)
         {
             return new SingleTask(taskDTO.Name, taskDTO.Time);
      
         }
 
-        public static SingleTaskDTO covertSingleTaskToSingleTaskDTO(SingleTask task)
+        public static TaskCreateDTO covertSingleTaskToTaskCreateDTO(SingleTask task)
         {
-            return new SingleTaskDTO()
+            return new TaskCreateDTO()
             {
                 Name = task.Name,
                 Time = task.TimeMin
+            };
+        }
+
+        public static TaskGetDTO covertSingleTaskToTaskGetDTO(SingleTask task)
+        {
+            return new TaskGetDTO()
+            {
+                Name = task.Name,
+                Time = task.TimeMin,
+                Id=task.Id
             };
         }
     }

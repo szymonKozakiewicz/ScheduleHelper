@@ -6,19 +6,20 @@ using System.Threading.Tasks;
 
 namespace ScheduleHelper.Core.DTO
 {
-    public class SingleTaskDTO
+    public class TaskCreateDTO
     {
 
         public string Name { get; set; }
         public double Time { get; set; }
-        public SingleTaskDTO() {
+
+        public TaskCreateDTO() {
             Name = "";
             Time = 1;
         }
 
         public override bool Equals(object? obj)
         {
-            return obj is SingleTaskDTO dTO &&
+            return obj is TaskCreateDTO dTO &&
                    Name == dTO.Name &&
                    Time == dTO.Time;
         }

@@ -23,17 +23,17 @@ namespace ScheduleHelper.Core.Services
         {
             _taskRepository = taskRespository;
         }
-        public async Task AddNewTask(SingleTaskDTO taskDTO)
+        public async Task AddNewTask(TaskCreateDTO taskDTO)
         {
             SingleTask newTask = covertSingleTaskDtoToSingleTask(taskDTO);
             //TODO: validation
             await _taskRepository.AddNewTask(newTask);
         }
 
-        public async Task<List<SingleTaskDTO>> GetTasksList()
+        public async Task<List<TaskGetDTO>> GetTasksList()
         {
            var tasksList =await _taskRepository.GetTasks();
-           var tasksDTOList=tasksList.Select(task=>covertSingleTaskToSingleTaskDTO(task))
+           var tasksDTOList=tasksList.Select(task=>covertSingleTaskToTaskGetDTO(task))
                 .ToList();
             return tasksDTOList;
         }
