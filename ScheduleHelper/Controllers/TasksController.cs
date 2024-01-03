@@ -19,6 +19,9 @@ namespace ScheduleHelper.UI.Controllers
         [Route(RouteConstants.ShowTasksList)]
         public async Task<IActionResult> TasksList()
         {
+            await _taskService.GetTasksList();
+
+
             ViewBag.Title = _taskslistTitle;
             return View();
         }
@@ -42,7 +45,7 @@ namespace ScheduleHelper.UI.Controllers
 
             try
             {
-                _taskService.AddNewTask(newTask);
+                await _taskService.AddNewTask(newTask);
             }
             catch (Exception ex)
             {

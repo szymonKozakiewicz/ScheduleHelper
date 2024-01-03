@@ -6,7 +6,7 @@ namespace ScheduleHelper.Core.ServiceContracts
 {
     public interface ITaskService
     {
-        public void AddNewTask(SingleTaskDTO taskDTO);
+        public Task AddNewTask(SingleTaskDTO taskDTO);
 
     }
 }

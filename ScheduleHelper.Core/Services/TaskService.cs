@@ -21,11 +21,11 @@ namespace ScheduleHelper.Core.Services
         {
             _taskRepository = taskRespository;
         }
-        public async void AddNewTask(SingleTaskDTO taskDTO)
+        public async Task AddNewTask(SingleTaskDTO taskDTO)
         {
             SingleTask newTask = covertSingleTaskDtoToSingleTask(taskDTO);
             //TODO: validation
-            _taskRepository.AddNewTask(newTask);
+            await _taskRepository.AddNewTask(newTask);
         }
 
         private SingleTask covertSingleTaskDtoToSingleTask(SingleTaskDTO taskDTO)
