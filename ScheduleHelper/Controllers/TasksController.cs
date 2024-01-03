@@ -19,7 +19,7 @@ namespace ScheduleHelper.UI.Controllers
         [Route(RouteConstants.ShowTasksList)]
         public async Task<IActionResult> TasksList()
         {
-            await _taskService.GetTasksList();
+            List<SingleTaskDTO> tasks=await _taskService.GetTasksList();
 
 
             ViewBag.Title = _taskslistTitle;

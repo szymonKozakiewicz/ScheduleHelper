@@ -11,5 +11,6 @@ namespace ScheduleHelper.Core.Domain.RepositoryContracts
     public interface ITaskRespository
     {
         public Task AddNewTask(SingleTask task);
+        public Task<List<SingleTask>> GetTasks();
     }
 }

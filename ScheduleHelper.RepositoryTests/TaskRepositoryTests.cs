@@ -23,12 +23,9 @@ namespace ScheduleHelper.RepositoryTests
             builder.UseInMemoryDatabase("ScheduleHelperDb");
             using (var dbcontext=new MyDbContext(builder.Options))
             {
+                clearDatabase(dbcontext);
                 ITaskRespository taskRespository = new TaskRepository(dbcontext);
-                var newTask = new SingleTask()
-                {
-                    Name = "Test",
-                    TimeMin = 23
-                };
+                var newTask = new SingleTask("Test", 23);
 
 
                 //act
@@ -42,5 +39,45 @@ namespace ScheduleHelper.RepositoryTests
 
         }
 
+
+        [Fact]
+        public async Task GetTasks_ForGivenTasksInDb_ShouldReturnsTasksFromDb()
+        {
+            var builder = new DbContextOptionsBuilder<MyDbContext>();
+            builder.UseInMemoryDatabase("ScheduleHelperDb");
+            using (var dbcontext = new MyDbContext(builder.Options))
+            {
+                // Clear the database before executing the test
+                clearDatabase(dbcontext);
+                ITaskRespository taskRespository = new TaskRepository(dbcontext);
+                var task1 = new SingleTask("test1", 15);
+                SingleTask task2 = new SingleTask("test2", 14);
+                SingleTask task3 = new SingleTask("test3", 12.3);
+                dbcontext.Add(task1);
+                dbcontext.Add(task2);
+                dbcontext.Add(task3);
+                dbcontext.SaveChanges();
+
+
+
+                //act
+                var resultList = await taskRespository.GetTasks();
+
+
+                //assert
+                resultList.Should().HaveCount(3);
+                resultList.Should().Contain(task1);
+                resultList.Should().Contain(task2);
+                resultList.Should().Contain(task3);
+
+            }
+
+        }
+
+        private static void clearDatabase(MyDbContext dbcontext)
+        {
+            dbcontext.Database.EnsureDeleted();
+            dbcontext.Database.EnsureCreated();
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using ScheduleHelper.Core.Domain.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using ScheduleHelper.Core.Domain.Entities;
 using ScheduleHelper.Core.Domain.RepositoryContracts;
 using ScheduleHelper.Infrastructure;
 using System;
@@ -20,6 +21,11 @@ namespace Infrastructure.Repositories
         {
             await _dbContext.AddAsync(task);
             await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task<List<SingleTask>> GetTasks()
+        {
+            return await _dbContext.SingleTask.ToListAsync();
         }
     }
 }

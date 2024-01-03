@@ -16,6 +16,16 @@ namespace ScheduleHelper.Core.DTO
             Time = 1;
         }
 
-        
+        public override bool Equals(object? obj)
+        {
+            return obj is SingleTaskDTO dTO &&
+                   Name == dTO.Name &&
+                   Time == dTO.Time;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Name, Time);
+        }
     }
 }

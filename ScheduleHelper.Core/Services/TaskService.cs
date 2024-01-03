@@ -2,11 +2,13 @@
 using ScheduleHelper.Core.Domain.RepositoryContracts;
 using ScheduleHelper.Core.DTO;
 using ScheduleHelper.Core.ServiceContracts;
+using ScheduleHelper.Core.Services.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static ScheduleHelper.Core.Services.Helpers.SingleTaskConvertHelper;
 
 namespace ScheduleHelper.Core.Services
 {
@@ -28,13 +30,12 @@ namespace ScheduleHelper.Core.Services
             await _taskRepository.AddNewTask(newTask);
         }
 
-        private SingleTask covertSingleTaskDtoToSingleTask(SingleTaskDTO taskDTO)
+        public async Task<List<SingleTaskDTO>> GetTasksList()
         {
-            return new SingleTask()
-            {
-                Name = taskDTO.Name,
-                TimeMin = taskDTO.Time
-            };
+           var tasksList =await _taskRepository.GetTasks();
+           var tasksDTOList=tasksList.Select(task=>covertSingleTaskToSingleTaskDTO(task))
+                .ToList();
+            return tasksDTOList;
         }
     }
 }

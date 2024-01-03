@@ -14,5 +14,22 @@ namespace ScheduleHelper.Core.Domain.Entities
         public double TimeMin { get; set; }
         public Guid Id { get; set; }
 
+        public SingleTask(string name, double timeMin)
+        {
+            Name = name;
+            TimeMin = timeMin;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is SingleTask task &&
+                   Name == task.Name &&
+                   TimeMin == task.TimeMin;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Name, TimeMin);
+        }
     }
 }
