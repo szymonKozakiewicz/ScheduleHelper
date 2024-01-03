@@ -1,5 +1,6 @@
 ﻿using ScheduleHelper.Core.Domain.Entities;
 using ScheduleHelper.Core.Domain.RepositoryContracts;
+using ScheduleHelper.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,13 +11,15 @@ namespace Infrastructure.Repositories
 {
     public class TaskRepository : ITaskRespository
     {
-        public TaskRepository()
+        private MyDbContext _dbContext;
+        public TaskRepository(MyDbContext dbContext)
         {
-            
+            _dbContext = dbContext;
         }
-        public Task AddNewTask(SingleTask task)
+        public async Task AddNewTask(SingleTask task)
         {
-            throw new NotImplementedException();
+            await _dbContext.AddAsync(task);
+            await _dbContext.SaveChangesAsync();
         }
     }
 }

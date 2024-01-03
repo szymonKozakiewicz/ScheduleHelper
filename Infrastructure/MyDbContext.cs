@@ -11,7 +11,7 @@ namespace ScheduleHelper.Infrastructure
 {
     public class MyDbContext:DbContext
     {
-        DbSet<SingleTask> singleTask;
+        public DbSet<SingleTask> SingleTask { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
