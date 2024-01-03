@@ -8,5 +8,6 @@ namespace ScheduleHelper.Core.ServiceContracts
     {
         public Task AddNewTask(TaskCreateDTO taskDTO);
         public Task<List<TaskGetDTO>> GetTasksList();
+        Task RemoveTaskWithId(Guid taskToDeleteId);
     }
 }

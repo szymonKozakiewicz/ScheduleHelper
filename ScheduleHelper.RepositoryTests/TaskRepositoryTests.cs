@@ -16,11 +16,17 @@ namespace ScheduleHelper.RepositoryTests
 {
     public class TaskRepositoryTests
     {
+        DbContextOptionsBuilder<MyDbContext> builder;
+        public TaskRepositoryTests()
+        {
+            builder = new DbContextOptionsBuilder<MyDbContext>();
+            builder.UseInMemoryDatabase("ScheduleHelperDb");
+        }
+
         [Fact]
         public async Task AddNewTask_ForValidTask_ExpectThatTaskWillBeAddedToDatabase()
         {
-            var builder = new DbContextOptionsBuilder<MyDbContext>();
-            builder.UseInMemoryDatabase("ScheduleHelperDb");
+            
             using (var dbcontext=new MyDbContext(builder.Options))
             {
                 clearDatabase(dbcontext);
@@ -43,8 +49,7 @@ namespace ScheduleHelper.RepositoryTests
         [Fact]
         public async Task GetTasks_ForGivenTasksInDb_ShouldReturnsTasksFromDb()
         {
-            var builder = new DbContextOptionsBuilder<MyDbContext>();
-            builder.UseInMemoryDatabase("ScheduleHelperDb");
+
             using (var dbcontext = new MyDbContext(builder.Options))
             {
                 // Clear the database before executing the test
@@ -72,6 +77,32 @@ namespace ScheduleHelper.RepositoryTests
 
             }
 
+        }
+
+        [Fact]
+        public async Task RemoveTaskWithId_ForValidId_shouldRemoveTaskFromDb()
+        {
+            using (var dbcontext = new MyDbContext(builder.Options))
+            {
+                // Clear the database before executing the test
+                clearDatabase(dbcontext);
+                ITaskRespository taskRespository = new TaskRepository(dbcontext);
+                var task1 = new SingleTask("test1", 15);
+                dbcontext.Add(task1);
+                dbcontext.SaveChanges();
+
+
+
+                //act
+                await taskRespository.RemoveTaskWithId(task1.Id);
+
+
+                //assert
+
+                dbcontext.SingleTask.ToList().Should().BeEmpty();
+
+
+            }
         }
 
         private static void clearDatabase(MyDbContext dbcontext)

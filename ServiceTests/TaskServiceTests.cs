@@ -40,6 +40,9 @@ namespace ScheduleHelper.ServiceTests
             };
 
             await _taskService.AddNewTask(model);
+
+
+            //assert
             repositoryMock.Verify(mock => mock.AddNewTask(It.IsAny<SingleTask>()), Times.Once);
 
 
@@ -69,6 +72,22 @@ namespace ScheduleHelper.ServiceTests
             resultList.Should().Contain(covertSingleTaskToTaskGetDTO(task1));
             resultList.Should().Contain(covertSingleTaskToTaskGetDTO(task2));
             resultList.Should().Contain(covertSingleTaskToTaskGetDTO(task3));
+
+        }
+
+        [Fact]
+        public async Task RemoveTaskWithId_ForValidId_RepositoryMehodRemoveTaskWithIdShouldBeCalled()
+        {
+            Guid id = new Guid("B6FA49D1-7FFA-44A7-8859-BE5FC94FBDF2");
+            repositoryMock.Setup(mock => mock.RemoveTaskWithId(It.IsAny<Guid>()));
+
+
+            await _taskService.RemoveTaskWithId(id);
+
+
+            //assert
+            repositoryMock.Verify(mock => mock.RemoveTaskWithId(It.IsAny<Guid>()), Times.Once);
+
 
         }
     }

@@ -41,15 +41,16 @@ namespace ScheduleHelper.UI.Controllers
         public async Task<IActionResult> AddNewTask(TaskCreateDTO newTask)
         {
             ViewBag.Title = "Operation status";
-            Response.StatusCode = (int)HttpStatusCode.Created;
+            
 
             try
             {
                 await _taskService.AddNewTask(newTask);
+                Response.StatusCode = (int)HttpStatusCode.Created;
             }
             catch (Exception ex)
             {
-                //TODO handle expection and ,ake test for it
+                //TODO handle expection and make test for it
             }
 
 
@@ -69,12 +70,27 @@ namespace ScheduleHelper.UI.Controllers
 
 
         [Route(RouteConstants.DeleteTask)]
-        public async Task<IActionResult> DeleteTask(TaskCreateDTO taskToUpdate)
+        public async Task<IActionResult> DeleteTask(Guid taskToDeleteId)
         {
             ViewBag.Title = _taskslistTitle;
+            try
+            {
+                //TODO validation of ID?
+                await _taskService.RemoveTaskWithId(taskToDeleteId);
+                Response.StatusCode = (int)HttpStatusCode.OK;
+                ViewBag.OperationStatus = "Task deleted!";
+                
+            }
+            catch (Exception ex)
+            {
+                ViewBag.OperationStatus = "Operation failed!";
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                
+
+            }
+            return View("OperationStatus");
 
 
-            return RedirectToAction(nameof(TasksController.TasksList));
         }
     }
 }

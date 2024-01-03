@@ -57,5 +57,20 @@ namespace ScheduleHelper.IntegrationTests
 
 
         }
+
+
+        [Fact]
+        public async Task DeleteTask_ForValidId_StatusShouldBeNoContent()
+        {
+            Guid id = new Guid("B6FA49D1-7FFA-44A7-8859-BE5FC94FBDF2");
+
+
+
+            string route=RouteConstants.DeleteTask+ "?taskToDeleteId=" + id.ToString();
+            HttpResponseMessage response = await client.GetAsync(route);
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.NoContent);
+
+
+        }
     }
 }

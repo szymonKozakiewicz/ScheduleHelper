@@ -14,7 +14,7 @@
         {
             
             var editRoute = RouteConstants.UpdateTask + "?id=" + task.Id;
-            var deleteRoute = RouteConstants.DeleteTask + "?id=" + task.Id;
+            var deleteRoute = RouteConstants.DeleteTask + "?taskToDeleteId=" + task.Id;
             
             <tr>
                 <td>@task.Name</td>

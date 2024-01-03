@@ -37,5 +37,10 @@ namespace ScheduleHelper.Core.Services
                 .ToList();
             return tasksDTOList;
         }
+
+        public async Task RemoveTaskWithId(Guid taskToDeleteId)
+        {
+            await _taskRepository.RemoveTaskWithId(taskToDeleteId);
+        }
     }
 }

@@ -27,5 +27,13 @@ namespace Infrastructure.Repositories
         {
             return await _dbContext.SingleTask.ToListAsync();
         }
+
+        public async Task RemoveTaskWithId(Guid id)
+        {
+
+            var taskToRemove=await _dbContext.SingleTask.FindAsync(id);
+            _dbContext.SingleTask.Remove(taskToRemove);
+            _dbContext.SaveChangesAsync();
+        }
     }
 }
