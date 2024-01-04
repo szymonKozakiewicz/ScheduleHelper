@@ -22,6 +22,11 @@ namespace ScheduleHelper.ControllerTests
         
         Mock<ITaskService> _taskServiceMock;
 
+        public TaskControllerTests()
+        {
+            _taskServiceMock = new Mock<ITaskService>();
+            _taskService = _taskServiceMock.Object;
+        }
 
         [Fact]
         public async Task AddNewTask_IsModelCorrect()
@@ -45,7 +50,7 @@ namespace ScheduleHelper.ControllerTests
                 Name = "test",
                 Time = 7
             };
-            setMockForResponseStatus(controller);
+            setMockForResponseStatus(controller, HttpStatusCode.Created);
 
 
 
@@ -57,17 +62,62 @@ namespace ScheduleHelper.ControllerTests
 
         }
 
+
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(-1)]
+        [InlineData(-0.5)]
+        public async Task AddNewTask_forInvalidTask_ShouldNotCallAddNewTaskMethodOfTaskService(double time)
+        {
+            SetupMockForAddNewTaskMethodFromService();
+
+            var controller = new TasksController(_taskService);
+            var model = new TaskCreateDTO()
+            {
+                Name = "test",
+                Time = time
+            };
+            setMockForResponseStatus(controller,HttpStatusCode.Created);
+
+
+
+            await controller.AddNewTask(model);
+
+
+
+            _taskServiceMock.Verify(mock => mock.AddNewTask(It.IsAny<TaskCreateDTO>()), Times.Never);
+
+        }
+
+
+        [Fact]
+        public async Task DeleteTask_ForValidId_ShouldCallMethodRemoveTaskWithId()
+        {
+            _taskServiceMock.Setup(mock => mock.RemoveTaskWithId(It.IsAny<Guid>()));
+            
+            var idToDelete = new Guid("05EB870B-B102-4E5F-B04F-17671345E956");
+            var controller = new TasksController(_taskService);
+            setMockForResponseStatus(controller, HttpStatusCode.OK);
+
+
+            await controller.DeleteTask(idToDelete);
+
+
+            _taskServiceMock.Verify(mock => mock.RemoveTaskWithId(It.IsAny<Guid>()), Times.Once);
+        }
+
+
         private void SetupMockForAddNewTaskMethodFromService()
         {
-            _taskServiceMock = new Mock<ITaskService>();
-            _taskService = _taskServiceMock.Object;
+
             _taskServiceMock.Setup(mock => mock.AddNewTask(It.IsAny<TaskCreateDTO>()));
         }
 
-        private static void setMockForResponseStatus(TasksController controller)
+        private static void setMockForResponseStatus(TasksController controller,HttpStatusCode status)
         {
             var httpResponseMock = new Mock<HttpResponse>();
-            httpResponseMock.SetupSet(r => r.StatusCode = (int)HttpStatusCode.Created);
+            httpResponseMock.SetupSet(r => r.StatusCode = (int)status);
             var httpContextMock = new Mock<HttpContext>();
             httpContextMock.Setup(mock => mock.Response).Returns(httpResponseMock.Object);
 
