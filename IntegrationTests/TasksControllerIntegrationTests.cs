@@ -17,12 +17,12 @@ using Xunit;
 
 namespace ScheduleHelper.IntegrationTests
 {
-    public class TasksControllerIntegrationTests:IClassFixture<WebApplicationFactory<Program>>
+    public class TasksControllerIntegrationTests:IClassFixture<InMemoryWebApplicationFactory>
     {
         HttpClient _client;
         MyDbContext _dbContext;
         IServiceScope scope;
-        public TasksControllerIntegrationTests(WebApplicationFactory<Program> factory)
+        public TasksControllerIntegrationTests(InMemoryWebApplicationFactory factory)
         {
             _client = factory.CreateClient();
 
