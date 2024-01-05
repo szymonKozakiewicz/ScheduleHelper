@@ -33,6 +33,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Infrastructure\ScheduleHelper.Infrastructure.csproj" />
+    <ProjectReference Include="..\ScheduleHelper.Core\ScheduleHelper.Core.csproj" />
     <ProjectReference Include="..\ScheduleHelper\ScheduleHelper.UI.csproj" />
   </ItemGroup>
 

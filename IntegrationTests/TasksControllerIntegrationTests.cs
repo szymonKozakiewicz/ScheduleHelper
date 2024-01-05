@@ -1,8 +1,11 @@
 ﻿using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestPlatform.TestHost;
 using Newtonsoft.Json;
+using ScheduleHelper.Core.Domain.Entities;
 using ScheduleHelper.Core.DTO;
+using ScheduleHelper.Infrastructure;
 using ScheduleHelper.UI;
 using ScheduleHelper.UI.Controllers;
 using System;
@@ -16,16 +19,24 @@ namespace ScheduleHelper.IntegrationTests
 {
     public class TasksControllerIntegrationTests:IClassFixture<WebApplicationFactory<Program>>
     {
-        HttpClient client;
+        HttpClient _client;
+        MyDbContext _dbContext;
+        IServiceScope scope;
         public TasksControllerIntegrationTests(WebApplicationFactory<Program> factory)
         {
-            client = factory.CreateClient();
+            _client = factory.CreateClient();
+
+            scope = factory.Services.CreateScope();
+            
+               
+            _dbContext = scope.ServiceProvider.GetRequiredService<MyDbContext>();
+            
         }
 
         [Fact]
         public async Task GetTasksListView_ShouldReturnView()
         {
-            HttpResponseMessage response = await client.GetAsync(RouteConstants.ShowTasksList);
+            HttpResponseMessage response = await _client.GetAsync(RouteConstants.ShowTasksList);
             response.Should().BeSuccessful();
 
             
@@ -34,7 +45,7 @@ namespace ScheduleHelper.IntegrationTests
         [Fact]
         public async Task AddNewTask_ShouldReturnView()
         {
-            HttpResponseMessage response = await client.GetAsync(RouteConstants.AddNewTask);
+            HttpResponseMessage response = await _client.GetAsync(RouteConstants.AddNewTask);
             response.Should().BeSuccessful();
 
 
@@ -52,7 +63,7 @@ namespace ScheduleHelper.IntegrationTests
             };
             var contentStr = $"Name={model.Name}&Time={model.Time}";
             HttpContent httpContent = new StringContent(contentStr, UnicodeEncoding.UTF8, "application/x-www-form-urlencoded");
-            HttpResponseMessage response = await client.PostAsync(RouteConstants.AddNewTask, httpContent);
+            HttpResponseMessage response = await _client.PostAsync(RouteConstants.AddNewTask, httpContent);
             response.StatusCode.Should().Be(System.Net.HttpStatusCode.Created);
 
 
@@ -62,14 +73,22 @@ namespace ScheduleHelper.IntegrationTests
         [Fact]
         public async Task DeleteTask_ForValidId_StatusShouldBeNoContent()
         {
-            Guid id = new Guid("B6FA49D1-7FFA-44A7-8859-BE5FC94FBDF2");
+            
+            var testTask = new SingleTask("Test", 234);
+            _dbContext.Add(testTask);
+            _dbContext.SaveChanges();
+
+            string route=RouteConstants.DeleteTask+ "?taskToDeleteId=" + testTask.Id.ToString();
+            var result=_dbContext.SingleTask.Find(testTask.Id);
+            HttpResponseMessage response = await _client.GetAsync(route);
 
 
-            string route=RouteConstants.DeleteTask+ "?taskToDeleteId=" + id.ToString();
-            HttpResponseMessage response = await client.GetAsync(route);
-            response.StatusCode.Should().Be(System.Net.HttpStatusCode.NoContent);
+            //assert
+            result.Should().NotBeNull();//making sure that object was part of db
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
 
 
         }
+
     }
 }
