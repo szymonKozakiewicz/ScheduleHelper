@@ -1,5 +1,7 @@
-﻿using System;
+﻿using ScheduleHelper.Core.Validators;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,8 +10,10 @@ namespace ScheduleHelper.Core.DTO
 {
     public class TaskCreateDTO
     {
-
+        [Required]
         public string Name { get; set; }
+        [Required]
+        [MoreThanZeroValidation]
         public double Time { get; set; }
 
         public TaskCreateDTO() {

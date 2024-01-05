@@ -42,7 +42,8 @@ namespace ScheduleHelper.UI.Controllers
         {
             ViewBag.Title = "Operation status";
 
-            if (newTask.Time <= 0)
+            int minimalTimeValue = 0;
+            if (!ValidationHelper.ValidateObject(newTask))
             {
                 ViewBag.OperationStatus = "Operation Failed!";
                 Response.StatusCode = (int)HttpStatusCode.BadRequest;
@@ -53,12 +54,14 @@ namespace ScheduleHelper.UI.Controllers
             {
                 await _taskService.AddNewTask(newTask);
                 Response.StatusCode = (int)HttpStatusCode.Created;
+                ViewBag.OperationStatus = "Task created!";
             }
             catch (Exception ex)
             {
-                //TODO handle expection and make test for it
+                ViewBag.OperationStatus = "Operation failed!";
+                Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             }
-            ViewBag.OperationStatus = "Task created!";
+            
             
 
             

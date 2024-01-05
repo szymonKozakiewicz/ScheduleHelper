@@ -37,7 +37,7 @@ namespace Infrastructure.Repositories
                 throw new ArgumentException("There is no task with such id in Db");
             }
             _dbContext.SingleTask.Remove(taskToRemove);
-            _dbContext.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync();
         }
     }
 }
