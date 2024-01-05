@@ -61,9 +61,13 @@ namespace ScheduleHelper.IntegrationTests
                 Time=30
 
             };
-            var contentStr = $"Name={model.Name}&Time={model.Time}";
-            HttpContent httpContent = new StringContent(contentStr, UnicodeEncoding.UTF8, "application/x-www-form-urlencoded");
+            HttpContent httpContent = PrepareHttpContentForAddNewTaksRequest(model);
+            
+            
             HttpResponseMessage response = await _client.PostAsync(RouteConstants.AddNewTask, httpContent);
+            
+            
+            
             response.StatusCode.Should().Be(System.Net.HttpStatusCode.Created);
 
 
@@ -71,7 +75,28 @@ namespace ScheduleHelper.IntegrationTests
 
 
         [Fact]
-        public async Task DeleteTask_ForValidId_StatusShouldBeNoContent()
+        public async Task AddNewTask_ForInvalidTask_StatusShouldBadRequest()
+        {
+            var model = new TaskCreateDTO()
+            {
+                Name = "Test",
+                Time = -20
+
+            };
+            HttpContent httpContent = PrepareHttpContentForAddNewTaksRequest(model);
+
+
+            HttpResponseMessage response = await _client.PostAsync(RouteConstants.AddNewTask, httpContent);
+
+
+
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+
+
+        }
+
+        [Fact]
+        public async Task DeleteTask_ForValidId_StatusShouldBeOk()
         {
             
             var testTask = new SingleTask("Test", 234);
@@ -79,15 +104,41 @@ namespace ScheduleHelper.IntegrationTests
             _dbContext.SaveChanges();
 
             string route=RouteConstants.DeleteTask+ "?taskToDeleteId=" + testTask.Id.ToString();
-            var result=_dbContext.SingleTask.Find(testTask.Id);
             HttpResponseMessage response = await _client.GetAsync(route);
 
 
             //assert
-            result.Should().NotBeNull();//making sure that object was part of db
             response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
 
 
+        }
+
+
+
+        [Fact]
+        public async Task DeleteTask_ForInvalidId_StatusShouldBeBadRequest()
+        {
+
+            var testTask = new SingleTask("Test", 234);
+            _dbContext.Add(testTask);
+            _dbContext.SaveChanges();
+            Guid idOfNotExistingTask= new Guid("8588FE67-B618-4ED0-BCB0-B0A2290F00AE");
+
+            string route = RouteConstants.DeleteTask + "?taskToDeleteId=" + idOfNotExistingTask.ToString();
+            HttpResponseMessage response = await _client.GetAsync(route);
+
+
+            //assert
+            response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+
+
+        }
+
+        private static HttpContent PrepareHttpContentForAddNewTaksRequest(TaskCreateDTO model)
+        {
+            var contentStr = $"Name={model.Name}&Time={model.Time}";
+            HttpContent httpContent = new StringContent(contentStr, UnicodeEncoding.UTF8, "application/x-www-form-urlencoded");
+            return httpContent;
         }
 
     }

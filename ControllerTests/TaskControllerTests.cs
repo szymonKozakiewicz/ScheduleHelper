@@ -107,6 +107,8 @@ namespace ScheduleHelper.ControllerTests
             _taskServiceMock.Verify(mock => mock.RemoveTaskWithId(It.IsAny<Guid>()), Times.Once);
         }
 
+                [Fact]
+
 
         private void SetupMockForAddNewTaskMethodFromService()
         {

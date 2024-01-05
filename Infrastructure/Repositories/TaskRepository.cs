@@ -32,6 +32,10 @@ namespace Infrastructure.Repositories
         {
 
             var taskToRemove=await _dbContext.SingleTask.FindAsync(id);
+            if(taskToRemove == null)
+            {
+                throw new ArgumentException("There is no task with such id in Db");
+            }
             _dbContext.SingleTask.Remove(taskToRemove);
             _dbContext.SaveChangesAsync();
         }

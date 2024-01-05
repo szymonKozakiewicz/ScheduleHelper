@@ -105,6 +105,34 @@ namespace ScheduleHelper.RepositoryTests
             }
         }
 
+
+        [Fact]
+        public async Task RemoveTaskWithId_ForIdWhichIsNotInDb_shouldRiseArgumentException()
+        {
+            using (var dbcontext = new MyDbContext(builder.Options))
+            {
+                // Clear the database before executing the test
+                clearDatabase(dbcontext);
+                ITaskRespository taskRespository = new TaskRepository(dbcontext);
+                var task1 = new SingleTask("test1", 15);
+                dbcontext.Add(task1);
+                dbcontext.SaveChanges();
+                Guid badId= Guid.NewGuid();
+
+
+
+                //act
+               var action=async()=> await taskRespository.RemoveTaskWithId(badId);
+
+
+                //assert
+
+                await Assert.ThrowsAsync<ArgumentException>(action);
+
+
+            }
+        }
+
         private static void clearDatabase(MyDbContext dbcontext)
         {
             dbcontext.Database.EnsureDeleted();

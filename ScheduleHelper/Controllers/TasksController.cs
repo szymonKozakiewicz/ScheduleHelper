@@ -41,27 +41,25 @@ namespace ScheduleHelper.UI.Controllers
         public async Task<IActionResult> AddNewTask(TaskCreateDTO newTask)
         {
             ViewBag.Title = "Operation status";
+
             if (newTask.Time <= 0)
             {
                 ViewBag.OperationStatus = "Operation Failed!";
-
-
-
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return View("OperationStatus");
             }
-            else
+           
+            try
             {
-
-                try
-                {
-                    await _taskService.AddNewTask(newTask);
-                    Response.StatusCode = (int)HttpStatusCode.Created;
-                }
-                catch (Exception ex)
-                {
-                    //TODO handle expection and make test for it
-                }
-                ViewBag.OperationStatus = "Task created!";
+                await _taskService.AddNewTask(newTask);
+                Response.StatusCode = (int)HttpStatusCode.Created;
             }
+            catch (Exception ex)
+            {
+                //TODO handle expection and make test for it
+            }
+            ViewBag.OperationStatus = "Task created!";
+            
 
             
             return View("OperationStatus");
