@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ScheduleHelper.Core.Domain.Entities;
 using ScheduleHelper.Core.Domain.RepositoryContracts;
+using ScheduleHelper.Core.DTO;
 using ScheduleHelper.Infrastructure;
 using System;
 using System.Collections.Generic;
@@ -27,6 +28,7 @@ namespace Infrastructure.Repositories
         {
             return await _dbContext.SingleTask.ToListAsync();
         }
+
 
         public async Task RemoveTaskWithId(Guid id)
         {

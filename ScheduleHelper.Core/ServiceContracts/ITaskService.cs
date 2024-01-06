@@ -7,7 +7,8 @@ namespace ScheduleHelper.Core.ServiceContracts
     public interface ITaskService
     {
         public Task AddNewTask(TaskCreateDTO taskDTO);
-        public Task<List<TaskGetDTO>> GetTasksList();
+        Task<List<TaskForSheduleDTO>> GetTasksForSchedule();
+        public Task<List<TaskForEditListDTO>> GetTasksList();
         Task RemoveTaskWithId(Guid taskToDeleteId);
     }
 }

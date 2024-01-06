@@ -1,0 +1,26 @@
+﻿@using ScheduleHelper.Core.DTO;
+
+<h1>Schedule</h1>
+<table>
+    <thead>
+        <tr>
+            <th>Task name</th>
+            <th>Time for task</th>
+            <th>Task status</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var task in Model)
+        {
+
+            <tr>
+                <td>@task.Name</td>
+                <td>-</td>
+                <td>-</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+<a href=@RouteConstants.ShowTasksList>Edit tasks list</a>

@@ -25,13 +25,23 @@ namespace ScheduleHelper.Core.Services.Helpers
             };
         }
 
-        public static TaskGetDTO covertSingleTaskToTaskGetDTO(SingleTask task)
+        public static TaskForEditListDTO covertSingleTaskToTaskForEditListDTO(SingleTask task)
         {
-            return new TaskGetDTO()
+            return new TaskForEditListDTO()
             {
                 Name = task.Name,
                 Time = task.TimeMin,
                 Id=task.Id
+            };
+        }
+
+        public static TaskForSheduleDTO covertSingleTaskToTaskForSheduleDTO(SingleTask task)
+        {
+            return new TaskForSheduleDTO()
+            {
+                Name = task.Name,
+                Time = task.TimeMin,
+                Id = task.Id
             };
         }
     }
