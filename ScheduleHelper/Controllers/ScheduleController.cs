@@ -14,6 +14,7 @@ namespace ScheduleHelper.UI.Controllers
         {
             _taskService = taskService;
         }
+
         [Route(RouteConstants.ShowSchedule)]
         public async Task<IActionResult> ShowSchedule()
         {
@@ -21,5 +22,14 @@ namespace ScheduleHelper.UI.Controllers
             List<TaskForSheduleDTO> tasks = await _taskService.GetTasksForSchedule();
             return View("Schedule",tasks);
         }
+
+        [Route(RouteConstants.GenerateScheduleSettings)]
+        public async Task<IActionResult> GenerateScheduleSettings()
+        {
+
+            
+            return View("GenerateScheduleSettings");
+        }
+
     }
 }
