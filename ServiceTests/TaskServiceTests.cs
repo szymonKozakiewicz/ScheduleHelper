@@ -92,32 +92,7 @@ namespace ScheduleHelper.ServiceTests
         }
 
 
-        [Fact]
-        public async Task GetTasksForSchedule_ForGivenTasksInMemory_ShouldReturnThisTasks()
-        {
 
-            var task1 = new SingleTask("test1", 15);
-            SingleTask task2 = new SingleTask("test2", 14);
-            SingleTask task3 = new SingleTask("test3", 12.3);
-
-            List<SingleTask> tasksListsInMemory = new()
-            {
-                task1,
-                task2,
-                task3
-            };
-            repositoryMock.Setup(mock => mock.GetTasks())
-                .ReturnsAsync(tasksListsInMemory);
-
-            var resultList = await _taskService.GetTasksForSchedule();
-
-
-            resultList.Count.Should().Be(3);
-            resultList.Should().Contain(covertSingleTaskToTaskForSheduleDTO(task1));
-            resultList.Should().Contain(covertSingleTaskToTaskForSheduleDTO(task2));
-            resultList.Should().Contain(covertSingleTaskToTaskForSheduleDTO(task3));
-
-        }
 
     }
 }

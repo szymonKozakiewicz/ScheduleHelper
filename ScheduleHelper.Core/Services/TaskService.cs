@@ -30,14 +30,7 @@ namespace ScheduleHelper.Core.Services
             await _taskRepository.AddNewTask(newTask);
         }
 
-        public async Task<List<TaskForSheduleDTO>> GetTasksForSchedule()
-        {
-            var tasksList = await _taskRepository.GetTasks();
-            var tasksDTOList = tasksList.Select(task => covertSingleTaskToTaskForSheduleDTO(task))
-                .ToList();
-            return tasksDTOList;
-   
-        }
+
 
         public async Task<List<TaskForEditListDTO>> GetTasksList()
         {

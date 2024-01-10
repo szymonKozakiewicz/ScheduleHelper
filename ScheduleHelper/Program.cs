@@ -8,6 +8,7 @@ using ScheduleHelper.Infrastructure;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddTransient<ITaskService, TaskService>();
+builder.Services.AddTransient<IScheduleService, ScheduleService>();
 builder.Services.AddTransient<ITaskRespository, TaskRepository>();
 builder.Services.AddDbContext<MyDbContext>(
 options => {

@@ -43,7 +43,7 @@ namespace ScheduleHelper.UI.Controllers
             ViewBag.Title = "Operation status";
 
             int minimalTimeValue = 0;
-            if (!ValidationHelper.ValidateObject(newTask))
+            if (ValidationHelper.HasObjectGotValidationErrors(newTask))
             {
                 ViewBag.OperationStatus = "Operation Failed!";
                 Response.StatusCode = (int)HttpStatusCode.BadRequest;

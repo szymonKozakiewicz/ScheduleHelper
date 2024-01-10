@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using ScheduleHelper.ControllerTests.Helpers;
 using ScheduleHelper.Core.DTO;
 using ScheduleHelper.Core.ServiceContracts;
 using ScheduleHelper.UI.Controllers;
@@ -50,7 +51,7 @@ namespace ScheduleHelper.ControllerTests
                 Name = "test",
                 Time = 7
             };
-            setMockForResponseStatus(controller, HttpStatusCode.Created);
+            ServiceTestHelpers.setMockForResponseStatus(controller, HttpStatusCode.Created);
 
 
 
@@ -78,7 +79,7 @@ namespace ScheduleHelper.ControllerTests
                 Name = "test",
                 Time = time
             };
-            setMockForResponseStatus(controller,HttpStatusCode.Created);
+            ServiceTestHelpers.setMockForResponseStatus(controller,HttpStatusCode.Created);
 
 
 
@@ -98,7 +99,7 @@ namespace ScheduleHelper.ControllerTests
             
             var idToDelete = new Guid("05EB870B-B102-4E5F-B04F-17671345E956");
             var controller = new TasksController(_taskService);
-            setMockForResponseStatus(controller, HttpStatusCode.OK);
+            ServiceTestHelpers.setMockForResponseStatus(controller, HttpStatusCode.OK);
 
 
             await controller.DeleteTask(idToDelete);
@@ -107,28 +108,13 @@ namespace ScheduleHelper.ControllerTests
             _taskServiceMock.Verify(mock => mock.RemoveTaskWithId(It.IsAny<Guid>()), Times.Once);
         }
 
-                [Fact]
-
-
+        [Fact]
         private void SetupMockForAddNewTaskMethodFromService()
         {
 
             _taskServiceMock.Setup(mock => mock.AddNewTask(It.IsAny<TaskCreateDTO>()));
         }
 
-        private static void setMockForResponseStatus(TasksController controller,HttpStatusCode status)
-        {
-            var httpResponseMock = new Mock<HttpResponse>();
-            httpResponseMock.SetupSet(r => r.StatusCode = (int)status);
-            var httpContextMock = new Mock<HttpContext>();
-            httpContextMock.Setup(mock => mock.Response).Returns(httpResponseMock.Object);
 
-
-            var controllerContext = new ControllerContext
-            {
-                HttpContext = httpContextMock.Object,
-            };
-            controller.ControllerContext = controllerContext;
-        }
     }
 }

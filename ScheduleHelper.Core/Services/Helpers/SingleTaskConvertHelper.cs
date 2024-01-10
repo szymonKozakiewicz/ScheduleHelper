@@ -35,9 +35,9 @@ namespace ScheduleHelper.Core.Services.Helpers
             };
         }
 
-        public static TaskForSheduleDTO covertSingleTaskToTaskForSheduleDTO(SingleTask task)
+        public static TimeSlotInScheduleDTO covertSingleTaskToTimeSlotInScheduleDTO(SingleTask task)
         {
-            return new TaskForSheduleDTO()
+            return new TimeSlotInScheduleDTO()
             {
                 Name = task.Name,
                 Time = task.TimeMin,

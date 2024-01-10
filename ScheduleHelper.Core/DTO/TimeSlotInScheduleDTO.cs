@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ScheduleHelper.Core.DTO
 {
-    public class TaskForSheduleDTO
+    public class TimeSlotInScheduleDTO
     {
         public string Name { get; set; }
         public double Time { get; set; }
@@ -14,7 +14,7 @@ namespace ScheduleHelper.Core.DTO
 
         public override bool Equals(object? obj)
         {
-            return obj is TaskForSheduleDTO dTO &&
+            return obj is TimeSlotInScheduleDTO dTO &&
                    Name == dTO.Name &&
                    Time == dTO.Time &&
                    Id.Equals(dTO.Id);
