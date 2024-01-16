@@ -12,8 +12,8 @@ using ScheduleHelper.Infrastructure;
 namespace ScheduleHelper.Infrastructure.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    [Migration("20240101220649_createTaskTable")]
-    partial class createTaskTable
+    [Migration("20240116213229_MakeTaskNullableInSlotTable")]
+    partial class MakeTaskNullableInSlotTable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -40,6 +40,43 @@ namespace ScheduleHelper.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Tasks", (string)null);
+                });
+
+            modelBuilder.Entity("ScheduleHelper.Core.Domain.Entities.TimeSlotInSchedule", b =>
+                {
+                    b.Property<Guid?>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("FinishTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsItBreak")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("OrdinalNumber")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("taskId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("taskId");
+
+                    b.ToTable("TimeSlots", (string)null);
+                });
+
+            modelBuilder.Entity("ScheduleHelper.Core.Domain.Entities.TimeSlotInSchedule", b =>
+                {
+                    b.HasOne("ScheduleHelper.Core.Domain.Entities.SingleTask", "task")
+                        .WithMany()
+                        .HasForeignKey("taskId");
+
+                    b.Navigation("task");
                 });
 #pragma warning restore 612, 618
         }

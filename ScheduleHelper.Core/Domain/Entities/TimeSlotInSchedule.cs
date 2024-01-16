@@ -1,4 +1,5 @@
 ﻿using ScheduleHelper.Core.Domain.Entities.Helpers;
+using ScheduleHelper.Core.DTO;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -12,23 +13,34 @@ namespace ScheduleHelper.Core.Domain.Entities
     {
         
         [Key]
-        public Guid Id { get; set; }
+        public Guid? Id { get; set; }
         public TimeOnly FinishTime { get; set; }
         public TimeOnly StartTime { get; set; }
 
-        private SingleTask task;
+        public SingleTask? task { get; set; }
         public bool IsItBreak { get; set; }
-        public int OrdinalNumber;
+        public int OrdinalNumber { get; set; }
 
-        public TimeSlotInSchedule(TimeOnly finishTime, TimeOnly startTime, SingleTask? task, bool isItBreak, int ordinalNumber)
+        public TimeSlotInSchedule(TimeOnly finishTime, TimeOnly startTime, SingleTask? task, bool isItBreak, int ordinalNumber,Guid? id)
         {
             FinishTime = finishTime;
             StartTime = startTime;
             this.task = task;
             IsItBreak = isItBreak;
             OrdinalNumber = ordinalNumber;
+            Id = id;
         }
 
+        public TimeSlotInSchedule()
+        {
+            
+        }
+
+
+        public String GetTaskName()
+        {
+            return task.Name;
+        }
         public override bool Equals(object? obj)
         {
             return obj is TimeSlotInSchedule schedule &&

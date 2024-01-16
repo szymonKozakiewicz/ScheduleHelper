@@ -21,7 +21,7 @@ namespace ScheduleHelper.UI.Controllers
         {
 
             ViewBag.Title = "Schedule";
-            List<TimeSlotInScheduleDTO> tasks = await _scheduleService.GetTasksForSchedule();
+            List<TimeSlotInScheduleDTO> tasks = await _scheduleService.GetTimeSlotsList();
             return View("Schedule",tasks);
         }
 
@@ -31,13 +31,13 @@ namespace ScheduleHelper.UI.Controllers
         {
 
             ViewBag.Title = "Schedule settings";
-            return View("GenerateScheduleSettings", new ScheduleSettingsDTO());
+            return View("GenerateScheduleSettings", new ScheduleSettingsPostDTO());
         }
 
 
         [Route(RouteConstants.GenerateScheduleSettings)]
         [HttpPost]
-        public async Task<IActionResult> GenerateScheduleSettings(ScheduleSettingsDTO scheduleSettings)
+        public async Task<IActionResult> GenerateScheduleSettings(ScheduleSettingsPostDTO scheduleSettings)
         {
 
             
@@ -51,7 +51,7 @@ namespace ScheduleHelper.UI.Controllers
             }
             try
             {
-                await _scheduleService.GenerateSchedule(scheduleSettings);
+                await _scheduleService.GenerateSchedule(scheduleSettings.ConvertToScheduleSettingsDTO());
             }
             catch (Exception ex) {
                 ViewBag.OperationStatus = "Operation failed!";
@@ -61,8 +61,8 @@ namespace ScheduleHelper.UI.Controllers
 
 
             Response.StatusCode=(int)HttpStatusCode.Created;
-            ViewBag.Title = "Schedule settings";
-            return View("GenerateScheduleSettings");
+            ViewBag.OperationStatus = "Schedule created!";
+            return View("OperationStatus");
         }
 
     }

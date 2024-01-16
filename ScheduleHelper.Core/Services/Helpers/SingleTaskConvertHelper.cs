@@ -35,14 +35,6 @@ namespace ScheduleHelper.Core.Services.Helpers
             };
         }
 
-        public static TimeSlotInScheduleDTO covertSingleTaskToTimeSlotInScheduleDTO(SingleTask task)
-        {
-            return new TimeSlotInScheduleDTO()
-            {
-                Name = task.Name,
-                Time = task.TimeMin,
-                Id = task.Id
-            };
-        }
+
     }
 }

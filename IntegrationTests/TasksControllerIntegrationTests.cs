@@ -1,11 +1,13 @@
 ﻿using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestPlatform.TestHost;
 using Newtonsoft.Json;
 using ScheduleHelper.Core.Domain.Entities;
 using ScheduleHelper.Core.DTO;
 using ScheduleHelper.Infrastructure;
+using ScheduleHelper.IntegrationTests.Helpers;
 using ScheduleHelper.UI;
 using ScheduleHelper.UI.Controllers;
 using System;
@@ -26,11 +28,12 @@ namespace ScheduleHelper.IntegrationTests
         {
             _client = factory.CreateClient();
 
-            scope = factory.Services.CreateScope();
+
+
+
             
-               
-            _dbContext = scope.ServiceProvider.GetRequiredService<MyDbContext>();
-            
+            _dbContext = factory.GetDbContextInstance();
+
         }
 
         [Fact]
@@ -98,17 +101,23 @@ namespace ScheduleHelper.IntegrationTests
         [Fact]
         public async Task DeleteTask_ForValidId_StatusShouldBeOk()
         {
-            
+
             var testTask = new SingleTask("Test", 234);
+            
+
             _dbContext.Add(testTask);
             _dbContext.SaveChanges();
+            var list = _dbContext.SingleTask.ToList();
 
-            string route=RouteConstants.DeleteTask+ "?taskToDeleteId=" + testTask.Id.ToString();
+
+            string route = RouteConstants.DeleteTask + "?taskToDeleteId=" + testTask.Id.ToString();
             HttpResponseMessage response = await _client.GetAsync(route);
+            list = _dbContext.SingleTask.ToList();
 
 
             //assert
             response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+            
 
 
         }

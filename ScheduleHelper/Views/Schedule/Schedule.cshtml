@@ -1,22 +1,22 @@
 ﻿@using ScheduleHelper.Core.DTO;
-
+@model List<TimeSlotInScheduleDTO>
 <h1>Schedule</h1>
 <table>
     <thead>
         <tr>
             <th>Task name</th>
-            <th>Time for task</th>
-            <th>Task status</th>
+            <th>Start</th>
+            <th>Finish</th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var task in Model)
+        @foreach (var slot in Model)
         {
 
             <tr>
-                <td>@task.Name</td>
-                <td>-</td>
-                <td>-</td>
+                <td>@slot.Name</td>
+                <td>@slot.StartTime</td>
+                <td>@slot.FinishTime</td>
             </tr>
         }
     </tbody>

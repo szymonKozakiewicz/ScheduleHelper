@@ -5,6 +5,7 @@ using ScheduleHelper.Core.Domain.Entities;
 using ScheduleHelper.Core.Domain.RepositoryContracts;
 using ScheduleHelper.Core.DTO;
 using ScheduleHelper.Infrastructure;
+using ScheduleHelper.RepositoryTests.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,8 +20,13 @@ namespace ScheduleHelper.RepositoryTests
         DbContextOptionsBuilder<MyDbContext> builder;
         public TaskRepositoryTests()
         {
+            makeNewDb();
+        }
+
+        private void makeNewDb()
+        {
             builder = new DbContextOptionsBuilder<MyDbContext>();
-            builder.UseInMemoryDatabase("ScheduleHelperDb");
+            builder.UseInMemoryDatabase("TaskRepositoryTestsDB");
         }
 
         [Fact]
@@ -29,7 +35,7 @@ namespace ScheduleHelper.RepositoryTests
             
             using (var dbcontext=new MyDbContext(builder.Options))
             {
-                clearDatabase(dbcontext);
+                DbTestHelper.clearDatabase(dbcontext);
                 ITaskRespository taskRespository = new TaskRepository(dbcontext);
                 var newTask = new SingleTask("Test", 23);
 
@@ -49,11 +55,11 @@ namespace ScheduleHelper.RepositoryTests
         [Fact]
         public async Task GetTasks_ForGivenTasksInDb_ShouldReturnsTasksFromDb()
         {
-
+           
             using (var dbcontext = new MyDbContext(builder.Options))
             {
                 // Clear the database before executing the test
-                clearDatabase(dbcontext);
+                DbTestHelper.clearDatabase(dbcontext);
                 ITaskRespository taskRespository = new TaskRepository(dbcontext);
                 var task1 = new SingleTask("test1", 15);
                 SingleTask task2 = new SingleTask("test2", 14);
@@ -82,17 +88,18 @@ namespace ScheduleHelper.RepositoryTests
         [Fact]
         public async Task RemoveTaskWithId_ForValidId_shouldRemoveTaskFromDb()
         {
+            
             using (var dbcontext = new MyDbContext(builder.Options))
             {
                 // Clear the database before executing the test
-                clearDatabase(dbcontext);
+                DbTestHelper.clearDatabase(dbcontext);
+
                 ITaskRespository taskRespository = new TaskRepository(dbcontext);
                 var task1 = new SingleTask("test1", 15);
                 dbcontext.Add(task1);
                 dbcontext.SaveChanges();
 
-
-
+         
                 //act
                 await taskRespository.RemoveTaskWithId(task1.Id);
 
@@ -109,10 +116,11 @@ namespace ScheduleHelper.RepositoryTests
         [Fact]
         public async Task RemoveTaskWithId_ForIdWhichIsNotInDb_shouldRiseArgumentException()
         {
+            makeNewDb();
             using (var dbcontext = new MyDbContext(builder.Options))
             {
                 // Clear the database before executing the test
-                clearDatabase(dbcontext);
+                DbTestHelper.clearDatabase(dbcontext);
                 ITaskRespository taskRespository = new TaskRepository(dbcontext);
                 var task1 = new SingleTask("test1", 15);
                 dbcontext.Add(task1);
@@ -133,10 +141,6 @@ namespace ScheduleHelper.RepositoryTests
             }
         }
 
-        private static void clearDatabase(MyDbContext dbcontext)
-        {
-            dbcontext.Database.EnsureDeleted();
-            dbcontext.Database.EnsureCreated();
-        }
+
     }
 }

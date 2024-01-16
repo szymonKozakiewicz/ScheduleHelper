@@ -35,32 +35,7 @@ namespace ScheduleHelper.ServiceTests
             _scheduleRespository = _scheduleRespositorMock.Object;
             _scheduleService = new ScheduleService(_taskRespository,_scheduleRespository);
         }
-        [Fact]
-        public async Task GetTasksForSchedule_ForGivenTasksInMemory_ShouldReturnThisTasks()
-        {
 
-            var task1 = new SingleTask("test1", 15);
-            SingleTask task2 = new SingleTask("test2", 14);
-            SingleTask task3 = new SingleTask("test3", 12.3);
-
-            List<SingleTask> tasksListsInMemory = new()
-            {
-                task1,
-                task2,
-                task3
-            };
-            _taskRepositoryMock.Setup(mock => mock.GetTasks())
-                .ReturnsAsync(tasksListsInMemory);
-
-            var resultList = await _scheduleService.GetTasksForSchedule();
-
-
-            resultList.Count.Should().Be(3);
-            resultList.Should().Contain(covertSingleTaskToTimeSlotInScheduleDTO(task1));
-            resultList.Should().Contain(covertSingleTaskToTimeSlotInScheduleDTO(task2));
-            resultList.Should().Contain(covertSingleTaskToTimeSlotInScheduleDTO(task3));
-
-        }
 
 
 
@@ -119,7 +94,58 @@ namespace ScheduleHelper.ServiceTests
             listOfSlotsPassedAsArgument.Should().BeEquivalentTo(expectedTimeSlotsList);
         }
 
+        [Fact]
+        public async Task GetTimeSlotsList_ForValidData_ReturnsTimeSlotList()
+        {
+            //arrange
+            var task1 = new SingleTask("test1", 60);
+            SingleTask task2 = new SingleTask("test2", 30);
+            List<SingleTask> tasksListsInMemory = new()
+            {
+                task1,
+                task2
+            };
+            List<TimeSlotInSchedule> timeSlotsList = GetTimeSlotsList(task1, task2);
+            _scheduleRespositorMock.Setup(m => m.GetTimeSlotsList()).ReturnsAsync(timeSlotsList);
+            List<TimeSlotInScheduleDTO> expectedResultList = new List<TimeSlotInScheduleDTO>()
+            {
+                new TimeSlotInScheduleDTO()
+                {
+                    Id=new Guid("1FA2A22C-4ADC-4123-8D12-8300973DC046"),
+                    StartTime=new TimeOnly(12, 24),
+                    FinishTime=new TimeOnly(13, 24),
+                    OrdinalNumber=1,
+                    Name=task1.Name
+                },
+                new TimeSlotInScheduleDTO()
+                {
+                    Id=new Guid("1FA2A22C-4ADC-4123-8D12-8300973DC046"),
+                    StartTime=new TimeOnly(13, 24),
+                    FinishTime=new TimeOnly(13, 44),
+                    OrdinalNumber=2,
+                    Name="Break"
+                },
+                new TimeSlotInScheduleDTO()
+                {
+                    Id=new Guid("1FA2A22C-4ADC-4123-8D12-8300973DC046"),
+                    StartTime=new TimeOnly(13, 44),
+                    FinishTime=new TimeOnly(14, 14),
+                    OrdinalNumber=3,
+                    Name=task2.Name
+                }
+            };
 
+
+            //act
+            var resultList = await _scheduleService.GetTimeSlotsList();
+
+
+            //assert
+            resultList.Should().BeEquivalentTo(expectedResultList);
+           
+
+
+        }
 
         #region arguments for tests
         public static IEnumerable<object[]> GetArgumentsForGenerateScheduleTestWithNormalData()
@@ -140,12 +166,21 @@ namespace ScheduleHelper.ServiceTests
                 task1,
                 task2
             };
+            List<TimeSlotInSchedule> expectedTimeSlotsList = GetTimeSlotsList(task1, task2);
+            yield return new object[] { testScheduleSettings, tasksListsInMemory, expectedTimeSlotsList };
+
+
+        }
+
+        private static List<TimeSlotInSchedule> GetTimeSlotsList(SingleTask task1, SingleTask task2)
+        {
             var expectedStartTime1 = new TimeOnly(12, 24);
             var expectedFinishTime1 = new TimeOnly(13, 24);
             var expectedTimeSlot1 = new TimeSlotInScheduleBuilder()
                 .SetStartTime(expectedStartTime1)
                 .SetFinishTime(expectedFinishTime1)
                 .SetIsItBreak(false)
+                .SetId(new Guid("1FA2A22C-4ADC-4123-8D12-8300973DC046"))
                 .SetOrdinalNumber(1)
                 .SetTask(task1)
                 .Build();
@@ -154,15 +189,17 @@ namespace ScheduleHelper.ServiceTests
             var expectedTimeSlot2 = new TimeSlotInScheduleBuilder()
                 .SetStartTime(expectedStartTime2)
                 .SetFinishTime(expectedFinishTime2)
+                .SetId(new Guid("1FA2A22C-4ADC-4123-8D12-8300973DC046"))
                 .SetIsItBreak(true)
                 .SetOrdinalNumber(2)
                 .SetTask(null)
                 .Build();
             var expectedStartTime3 = new TimeOnly(13, 44);
             var expectedFinishTime3 = new TimeOnly(14, 14);
-            var expectedTimeSlot3= new TimeSlotInScheduleBuilder()
+            var expectedTimeSlot3 = new TimeSlotInScheduleBuilder()
                 .SetStartTime(expectedStartTime3)
                 .SetFinishTime(expectedFinishTime3)
+                .SetId(new Guid("1FA2A22C-4ADC-4123-8D12-8300973DC046"))
                 .SetIsItBreak(false)
                 .SetOrdinalNumber(3)
                 .SetTask(task2)
@@ -171,11 +208,8 @@ namespace ScheduleHelper.ServiceTests
             {
                 expectedTimeSlot1,expectedTimeSlot2,expectedTimeSlot3
             };
-            yield return new object[] { testScheduleSettings,tasksListsInMemory, expectedTimeSlotsList};
-
-           
+            return expectedTimeSlotsList;
         }
-
 
         public static IEnumerable<object[]> GetArgumentsForGenerateScheduleTestWithValidDataButNotEnoughTimeForAllTasks()
         {

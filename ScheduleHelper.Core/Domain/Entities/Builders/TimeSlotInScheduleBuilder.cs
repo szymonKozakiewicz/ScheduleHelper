@@ -8,7 +8,7 @@ namespace ScheduleHelper.Core.Domain.Entities.Builders
 {
     public class TimeSlotInScheduleBuilder
     {
-        private Guid _id;
+        private Guid? _id;
         private TimeOnly _finishTime;
         private TimeOnly _startTime;
         private SingleTask? _task;
@@ -17,6 +17,7 @@ namespace ScheduleHelper.Core.Domain.Entities.Builders
 
         public TimeSlotInScheduleBuilder()
         {
+            _id = null;
             // Inicjalizacja domyślnych wartości, jeśli to konieczne
         }
 
@@ -58,7 +59,7 @@ namespace ScheduleHelper.Core.Domain.Entities.Builders
 
         public TimeSlotInSchedule Build()
         {
-            return new TimeSlotInSchedule(_finishTime,_startTime,_task,_isItBreak, _ordinalNumber);
+            return new TimeSlotInSchedule(_finishTime,_startTime,_task,_isItBreak, _ordinalNumber,_id);
         }
     }
 }

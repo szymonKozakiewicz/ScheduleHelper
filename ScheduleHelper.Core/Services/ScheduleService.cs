@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ScheduleHelper.Core.Services.Helpers;
 using ScheduleHelper.Core.Domain.Entities.Builders;
+using ScheduleHelper.Core.Extensions;
 
 namespace ScheduleHelper.Core.Services
 {
@@ -110,13 +111,16 @@ namespace ScheduleHelper.Core.Services
             }
         }
 
-        public async Task<List<TimeSlotInScheduleDTO>> GetTasksForSchedule()
+
+
+
+        public async Task<List<TimeSlotInScheduleDTO>> GetTimeSlotsList()
         {
-            var tasksList = await _taskRepository.GetTasks();
-            var tasksDTOList = tasksList.Select(
-                task => SingleTaskConvertHelper.covertSingleTaskToTimeSlotInScheduleDTO(task))
+            var timeSlotsList = await _scheduleRepository.GetTimeSlotsList();
+            var timeSlotsDTOList = timeSlotsList.Select(
+                timeSlot => timeSlot.ConvertToTimeSlotInScheduleDTO())
                 .ToList();
-            return tasksDTOList;
+            return timeSlotsDTOList;
 
         }
     }

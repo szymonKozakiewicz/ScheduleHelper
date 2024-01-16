@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ScheduleHelper.Infrastructure;
 
@@ -11,9 +12,10 @@ using ScheduleHelper.Infrastructure;
 namespace ScheduleHelper.Infrastructure.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240116130506_initDB")]
+    partial class initDB
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -42,7 +44,7 @@ namespace ScheduleHelper.Infrastructure.Migrations
 
             modelBuilder.Entity("ScheduleHelper.Core.Domain.Entities.TimeSlotInSchedule", b =>
                 {
-                    b.Property<Guid?>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -58,7 +60,7 @@ namespace ScheduleHelper.Infrastructure.Migrations
                     b.Property<DateTime>("StartTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("taskId")
+                    b.Property<Guid>("taskId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
@@ -72,7 +74,9 @@ namespace ScheduleHelper.Infrastructure.Migrations
                 {
                     b.HasOne("ScheduleHelper.Core.Domain.Entities.SingleTask", "task")
                         .WithMany()
-                        .HasForeignKey("taskId");
+                        .HasForeignKey("taskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("task");
                 });

@@ -34,6 +34,7 @@ namespace ScheduleHelper.IntegrationTests
         [Fact]
         public async Task ShowSchedule_shouldReturnView()
         {
+
             HttpResponseMessage response = await _client.GetAsync(RouteConstants.ShowSchedule);
             
             
@@ -118,6 +119,7 @@ namespace ScheduleHelper.IntegrationTests
 
         public static IEnumerable<object[]> GetSampleOfInvalidDataForGenerateScheduleSettingsTest()
         {
+
             var testModel1 = new ScheduleSettingsDTO()
             {
                 breakLenghtMin = -20,
@@ -134,6 +136,11 @@ namespace ScheduleHelper.IntegrationTests
                 finishTime = new TimeOnly(21, 24),
             };
             yield return new object[] { testModel2 };
+        }
+        private void clearDatabase()
+        {
+            _dbContext.Database.EnsureDeleted();
+            _dbContext.Database.EnsureCreated();
         }
     }
 }

@@ -10,7 +10,8 @@ namespace ScheduleHelper.Core.ServiceContracts
     public interface IScheduleService
     {
         public Task GenerateSchedule(ScheduleSettingsDTO scheduleSettings);
-        Task<List<TimeSlotInScheduleDTO>> GetTasksForSchedule();
+
+        public Task<List<TimeSlotInScheduleDTO>> GetTimeSlotsList();
 
     }
 }
