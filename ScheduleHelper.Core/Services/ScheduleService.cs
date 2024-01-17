@@ -124,5 +124,12 @@ namespace ScheduleHelper.Core.Services
             return timeSlotsDTOList;
 
         }
+
+        public async Task<List<TaskForEditListDTO>> GetTasksNotSetInSchedule()
+        {
+            var listOfNotSettasks= await _scheduleRepository.GetTasksNotSetInSchedule();
+            return listOfNotSettasks.Select(task=>SingleTaskConvertHelper.covertSingleTaskToTaskForEditListDTO(task))
+                .ToList();
+        }
     }
 }

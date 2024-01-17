@@ -13,5 +13,6 @@ namespace ScheduleHelper.Core.Domain.RepositoryContracts
         public Task AddNewTimeSlot(TimeSlotInSchedule timeSlot);
         public Task CleanTimeSlotInScheduleTable();
         Task<List<TimeSlotInSchedule>> GetTimeSlotsList();
+        Task<List<SingleTask>> GetTasksNotSetInSchedule();
     }
 }

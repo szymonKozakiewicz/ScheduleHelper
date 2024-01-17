@@ -88,29 +88,7 @@ namespace ScheduleHelper.RepositoryTests
             }
         }
 
-        private static List<TimeSlotInSchedule> GetListOfTimeSlotsForTest(SingleTask task)
-        {
-            var entity1 = new TimeSlotInScheduleBuilder()
-                .SetFinishTime(new TimeOnly(22, 0))
-                .SetTask(task)
-                .SetStartTime(new TimeOnly(6, 0))
-                .SetOrdinalNumber(1)
-                .SetIsItBreak(false)
-                .Build();
 
-            var entity2 = new TimeSlotInScheduleBuilder()
-                .SetFinishTime(new TimeOnly(21, 0))
-                .SetTask(task)
-                .SetStartTime(new TimeOnly(9, 0))
-                .SetOrdinalNumber(2)
-                .SetIsItBreak(false)
-                .Build();
-            List<TimeSlotInSchedule> listOfTimeSlotsInSchedule = new()
-            {
-                entity1,entity2
-            };
-            return listOfTimeSlotsInSchedule;
-        }
 
         [Fact]
         public async Task GetTimeSlotsList_forDbWhichHasSomeTimeSlots_expectThatThisTimeSlotsWillBeReturned()
@@ -138,6 +116,74 @@ namespace ScheduleHelper.RepositoryTests
 
         }
 
+        [Fact]
+        public async Task GetTasksNotSetInSchedule_2TaksFor4AreNotSetInSchedule_Return2NotSeTask()
+        {
+
+            SingleTask notPresentTask1=new SingleTask("testTask2", 20);
+            SingleTask notPresentTask2=new SingleTask("testTask4", 20);
+            //arrange
+            List<SingleTask> listOfTasks = new List<SingleTask>()
+            {
+                new SingleTask("testTask1", 20),
+                notPresentTask1,
+                new SingleTask("testTask3", 20),
+                notPresentTask2
+
+            };
+
+            var entity1 = new TimeSlotInScheduleBuilder()
+                .SetFinishTime(new TimeOnly(22, 0))
+                .SetTask(listOfTasks[0])
+                .SetStartTime(new TimeOnly(6, 0))
+                .SetOrdinalNumber(1)
+                .SetIsItBreak(false)
+                .Build();
+            var entity2 = new TimeSlotInScheduleBuilder()
+                .SetFinishTime(new TimeOnly(22, 0))
+                .SetTask(listOfTasks[2])
+                .SetStartTime(new TimeOnly(6, 0))
+                .SetOrdinalNumber(1)
+                .SetIsItBreak(false)
+                .Build();
+
+            List<TimeSlotInSchedule> timeSlotsList = new List<TimeSlotInSchedule>()
+            {
+                entity1,entity2
+            };
+            using (var dbcontext = new MyDbContext(builder.Options))
+            {
+                foreach (var task in listOfTasks)
+                {
+                    dbcontext.SingleTask.Add(task);
+                    await dbcontext.SaveChangesAsync();
+                }
+
+
+                foreach (var timeSlot in timeSlotsList)
+                {
+                    dbcontext.TimeSlotsInSchedule.Add(timeSlot);
+                    await dbcontext.SaveChangesAsync();
+                }
+                IScheduleRepository scheduleRepository = new ScheduleRepository(dbcontext);
+
+
+                //act
+                var resultList=await scheduleRepository.GetTasksNotSetInSchedule();
+
+                //assert
+                resultList.Should().Contain(notPresentTask2);
+                resultList.Should().Contain(notPresentTask1);
+
+            }
+
+            
+        }
+
+
+
+
+
         private static async Task AddTimeSlotsAndTaskToDb(SingleTask task, List<TimeSlotInSchedule> listOfTimeSlotsInSchedule, MyDbContext dbcontext)
         {
             await dbcontext.SingleTask.AddAsync(task);
@@ -145,6 +191,29 @@ namespace ScheduleHelper.RepositoryTests
             await dbcontext.TimeSlotsInSchedule.AddAsync(listOfTimeSlotsInSchedule[0]);
             await dbcontext.TimeSlotsInSchedule.AddAsync(listOfTimeSlotsInSchedule[1]);
             await dbcontext.SaveChangesAsync();
+        }
+        private static List<TimeSlotInSchedule> GetListOfTimeSlotsForTest(SingleTask task)
+        {
+            var entity1 = new TimeSlotInScheduleBuilder()
+                .SetFinishTime(new TimeOnly(22, 0))
+                .SetTask(task)
+                .SetStartTime(new TimeOnly(6, 0))
+                .SetOrdinalNumber(1)
+                .SetIsItBreak(false)
+                .Build();
+
+            var entity2 = new TimeSlotInScheduleBuilder()
+                .SetFinishTime(new TimeOnly(21, 0))
+                .SetTask(task)
+                .SetStartTime(new TimeOnly(9, 0))
+                .SetOrdinalNumber(2)
+                .SetIsItBreak(false)
+                .Build();
+            List<TimeSlotInSchedule> listOfTimeSlotsInSchedule = new()
+            {
+                entity1,entity2
+            };
+            return listOfTimeSlotsInSchedule;
         }
     }
 }

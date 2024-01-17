@@ -168,6 +168,21 @@ namespace ScheduleHelper.ServiceTests
 
         }
 
+        [Fact]
+        public async Task GetTasksNotSetInSchedule_ShouldCallGetTasksNotSetInScheduleMethodFromRepository()
+        {
+            _scheduleRespositorMock.Setup(m => m.GetTasksNotSetInSchedule())
+                .ReturnsAsync(new List<SingleTask>());
+
+            //act
+            await _scheduleService.GetTasksNotSetInSchedule();
+
+
+            //assert
+            _scheduleRespositorMock.Verify(m => m.GetTasksNotSetInSchedule(), Times.Once);
+
+
+        }
         #region helpMethods
         private void setupMockForGetTimeSlotsListMethodForGivenTimeSlotList(List<TimeSlotInSchedule> timeSlotsList)
         {

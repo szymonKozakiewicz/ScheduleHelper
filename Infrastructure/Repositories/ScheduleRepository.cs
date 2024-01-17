@@ -28,6 +28,16 @@ namespace ScheduleHelper.Infrastructure.Repositories
             await _dbContext.SaveChangesAsync();
         }
 
+        public async Task<List<SingleTask>> GetTasksNotSetInSchedule()
+        {
+
+            var resultOfQuery= from task in _dbContext.SingleTask
+                   where !_dbContext.TimeSlotsInSchedule.Any(slot => slot.task == task)
+                   select task;
+            var result= await resultOfQuery.ToListAsync();
+            return result;
+        }
+
         public async Task<List<TimeSlotInSchedule>> GetTimeSlotsList()
         {
             return await _dbContext.TimeSlotsInSchedule.
