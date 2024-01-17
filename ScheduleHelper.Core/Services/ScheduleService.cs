@@ -120,6 +120,7 @@ namespace ScheduleHelper.Core.Services
             var timeSlotsDTOList = timeSlotsList.Select(
                 timeSlot => timeSlot.ConvertToTimeSlotInScheduleDTO())
                 .ToList();
+            timeSlotsDTOList.Sort((slot1, slot2) => slot1.StartTime.CompareTo(slot2.StartTime));
             return timeSlotsDTOList;
 
         }

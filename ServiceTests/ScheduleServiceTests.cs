@@ -98,15 +98,9 @@ namespace ScheduleHelper.ServiceTests
         public async Task GetTimeSlotsList_ForValidData_ReturnsTimeSlotList()
         {
             //arrange
-            var task1 = new SingleTask("test1", 60);
-            SingleTask task2 = new SingleTask("test2", 30);
-            List<SingleTask> tasksListsInMemory = new()
-            {
-                task1,
-                task2
-            };
-            List<TimeSlotInSchedule> timeSlotsList = GetTimeSlotsList(task1, task2);
-            _scheduleRespositorMock.Setup(m => m.GetTimeSlotsList()).ReturnsAsync(timeSlotsList);
+            var tasksList = getNormalValidListOfTasks();
+            List<TimeSlotInSchedule> timeSlotsList = GetTimeSlotsList(tasksList[0], tasksList[1]);
+            setupMockForGetTimeSlotsListMethodForGivenTimeSlotList(timeSlotsList);
             List<TimeSlotInScheduleDTO> expectedResultList = new List<TimeSlotInScheduleDTO>()
             {
                 new TimeSlotInScheduleDTO()
@@ -115,7 +109,7 @@ namespace ScheduleHelper.ServiceTests
                     StartTime=new TimeOnly(12, 24),
                     FinishTime=new TimeOnly(13, 24),
                     OrdinalNumber=1,
-                    Name=task1.Name
+                    Name=tasksList[0].Name
                 },
                 new TimeSlotInScheduleDTO()
                 {
@@ -131,7 +125,7 @@ namespace ScheduleHelper.ServiceTests
                     StartTime=new TimeOnly(13, 44),
                     FinishTime=new TimeOnly(14, 14),
                     OrdinalNumber=3,
-                    Name=task2.Name
+                    Name=tasksList[1].Name
                 }
             };
 
@@ -142,23 +136,59 @@ namespace ScheduleHelper.ServiceTests
 
             //assert
             resultList.Should().BeEquivalentTo(expectedResultList);
-           
+
 
 
         }
 
+
+
+        [Fact]
+        public async Task GetTimeSlotsList_ForDataWhichArenTSorted_ReturnsSortedTimeSlotList()
+        {
+            //arrange
+            var tasksList = getNormalValidListOfTasks();
+            List<TimeSlotInSchedule> timeSlotsList = GetTimeSlotsList(tasksList[0], tasksList[1]);
+            var notSortedTimeSlotsList = new List<TimeSlotInSchedule>()
+            {
+                timeSlotsList[1],timeSlotsList[0],timeSlotsList[2]
+            };
+            setupMockForGetTimeSlotsListMethodForGivenTimeSlotList(notSortedTimeSlotsList);
+
+            //act
+
+            var resultList= await _scheduleService.GetTimeSlotsList();
+
+
+            //assert
+
+            resultList[0].OrdinalNumber.Should().Be(1);
+            resultList[1].OrdinalNumber.Should().Be(2);
+            resultList[2].OrdinalNumber.Should().Be(3);
+
+        }
+
+        #region helpMethods
+        private void setupMockForGetTimeSlotsListMethodForGivenTimeSlotList(List<TimeSlotInSchedule> timeSlotsList)
+        {
+            _scheduleRespositorMock.Setup(m => m.GetTimeSlotsList()).ReturnsAsync(timeSlotsList);
+        }
+        #endregion
+
         #region arguments for tests
         public static IEnumerable<object[]> GetArgumentsForGenerateScheduleTestWithNormalData()
         {
-            var testScheduleSettings = new ScheduleSettingsDTO()
-            {
-                breakLenghtMin = 20,
-                hasScheduledBreaks = true,
-                startTime = new TimeOnly(12, 24),
-                finishTime = new TimeOnly(21, 0),
-            };
+            ScheduleSettingsDTO testScheduleSettings = getNormalValidScheduleSettings();
+
+            List<SingleTask> tasksListsInMemory = getNormalValidListOfTasks();
+            List<TimeSlotInSchedule> expectedTimeSlotsList = GetTimeSlotsList(tasksListsInMemory[0], tasksListsInMemory[1]);
+            yield return new object[] { testScheduleSettings, tasksListsInMemory, expectedTimeSlotsList };
 
 
+        }
+
+        private static List<SingleTask> getNormalValidListOfTasks()
+        {
             var task1 = new SingleTask("test1", 60);
             SingleTask task2 = new SingleTask("test2", 30);
             List<SingleTask> tasksListsInMemory = new()
@@ -166,10 +196,18 @@ namespace ScheduleHelper.ServiceTests
                 task1,
                 task2
             };
-            List<TimeSlotInSchedule> expectedTimeSlotsList = GetTimeSlotsList(task1, task2);
-            yield return new object[] { testScheduleSettings, tasksListsInMemory, expectedTimeSlotsList };
+            return tasksListsInMemory;
+        }
 
-
+        private static ScheduleSettingsDTO getNormalValidScheduleSettings()
+        {
+            return new ScheduleSettingsDTO()
+            {
+                breakLenghtMin = 20,
+                hasScheduledBreaks = true,
+                startTime = new TimeOnly(12, 24),
+                finishTime = new TimeOnly(21, 0),
+            };
         }
 
         private static List<TimeSlotInSchedule> GetTimeSlotsList(SingleTask task1, SingleTask task2)
