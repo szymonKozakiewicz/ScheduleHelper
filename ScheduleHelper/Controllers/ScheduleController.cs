@@ -62,7 +62,7 @@ namespace ScheduleHelper.UI.Controllers
 
             Response.StatusCode=(int)HttpStatusCode.Created;
             ViewBag.OperationStatus = "Schedule created!";
-            return View("OperationStatus");
+            return View("OperationStatusSchedule");
         }
 
     }
