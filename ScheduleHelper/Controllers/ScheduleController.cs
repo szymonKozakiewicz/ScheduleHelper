@@ -22,7 +22,9 @@ namespace ScheduleHelper.UI.Controllers
 
             ViewBag.Title = "Schedule";
             List<TimeSlotInScheduleDTO> slots = await _scheduleService.GetTimeSlotsList();
-            List<TaskForEditListDTO>tasksNotInSchedule=await _scheduleService.GetTasksNotSetInSchedule()
+            List<TaskForEditListDTO> tasksNotInSchedule = await _scheduleService.GetTasksNotSetInSchedule();
+            ViewBag.tasksNotInSchedule = tasksNotInSchedule;
+            
             return View("Schedule",slots);
         }
 

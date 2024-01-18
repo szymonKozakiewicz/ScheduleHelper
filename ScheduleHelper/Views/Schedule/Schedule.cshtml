@@ -1,6 +1,7 @@
 ﻿@using ScheduleHelper.Core.DTO;
 @model List<TimeSlotInScheduleDTO>
 <h1>Schedule</h1>
+
 <table>
     <thead>
         <tr>
@@ -21,7 +22,27 @@
         }
     </tbody>
 </table>
+@if (ViewBag.tasksNotInSchedule.Count != 0)
+{
+    <h2>Tasks not set in schedule:</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Task name</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var slot in ViewBag.tasksNotInSchedule)
+            {
 
+                <tr>
+                    <td>@slot.Name</td>
+
+                </tr>
+            }
+        </tbody>
+    </table>
+}
 
 <a href=@RouteConstants.ShowTasksList>Edit tasks list</a>
 <a href=@RouteConstants.GenerateScheduleSettings>Generate schedule</a>
