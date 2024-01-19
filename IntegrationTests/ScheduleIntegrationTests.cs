@@ -61,17 +61,7 @@ namespace ScheduleHelper.IntegrationTests
             response.StatusCode.Should().Be(HttpStatusCode.Created);
         }
 
-        private static HttpContent generateContentMessage(ScheduleSettingsDTO model)
-        {
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.Append($"breakLenghtMin={model.breakLenghtMin}");
-            stringBuilder.Append($"&hasScheduledBreaks={model.hasScheduledBreaks}");
-            stringBuilder.Append($"&startTime={model.startTime}");
-            stringBuilder.Append($"&finishTime={model.finishTime}");
-            var contentStr = stringBuilder.ToString();
-            HttpContent httpContent = new StringContent(contentStr, UnicodeEncoding.UTF8, "application/x-www-form-urlencoded");
-            return httpContent;
-        }
+     
 
         [Fact]
         public async Task GenerateScheduleSettings_shouldReturnView()
@@ -116,6 +106,38 @@ namespace ScheduleHelper.IntegrationTests
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         }
 
+        [Fact]
+        public async Task GetTimeSlotFinalisePage_RequestShouldBeSuccessful()
+        {
+            var id = Guid.NewGuid();
+            var finishTime = new TimeOnly(12, 23).ToString();
+
+            //act
+            var result=await _client.GetAsync(RouteConstants.FinishTimeSlot+"?slotId="+id+"&finishTime="+finishTime);
+
+
+            //assert
+            result.Should().BeSuccessful();
+        }
+
+        [Fact]
+        public async Task TimeSlotFinalise_schouldBeSuccessful()
+        {
+            var id = Guid.NewGuid();
+            var finishTime = new TimeOnly(12, 23).ToString();
+            var model = new FinaliseSlotDTO()
+            {
+                SlotId = id,
+                FinishTime = finishTime
+            };
+            var contentMessage = generateContentMessage(model);
+            //act
+            var result = await _client.PostAsync(RouteConstants.FinishTimeSlot,contentMessage);
+
+
+            //assert
+            result.Should().BeSuccessful();
+        }
 
         public static IEnumerable<object[]> GetSampleOfInvalidDataForGenerateScheduleSettingsTest()
         {
@@ -141,6 +163,29 @@ namespace ScheduleHelper.IntegrationTests
         {
             _dbContext.Database.EnsureDeleted();
             _dbContext.Database.EnsureCreated();
+        }
+        private static HttpContent generateContentMessage(ScheduleSettingsDTO model)
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.Append($"breakLenghtMin={model.breakLenghtMin}");
+            stringBuilder.Append($"&hasScheduledBreaks={model.hasScheduledBreaks}");
+            stringBuilder.Append($"&startTime={model.startTime}");
+            stringBuilder.Append($"&finishTime={model.finishTime}");
+            var contentStr = stringBuilder.ToString();
+            HttpContent httpContent = new StringContent(contentStr, UnicodeEncoding.UTF8, "application/x-www-form-urlencoded");
+            return httpContent;
+        }
+
+
+        private static HttpContent generateContentMessage(FinaliseSlotDTO model)
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.Append($"slotId={model.SlotId}");
+            stringBuilder.Append($"&finishTime={model.FinishTime}");
+
+            var contentStr = stringBuilder.ToString();
+            HttpContent httpContent = new StringContent(contentStr, UnicodeEncoding.UTF8, "application/x-www-form-urlencoded");
+            return httpContent;
         }
     }
 }

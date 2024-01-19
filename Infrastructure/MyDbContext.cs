@@ -5,6 +5,7 @@ using ScheduleHelper.Core.Domain.Entities.Builders;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,11 +16,33 @@ namespace ScheduleHelper.Infrastructure
     {
         public DbSet<SingleTask> SingleTask { get; set; }
         public DbSet<TimeSlotInSchedule> TimeSlotsInSchedule { get; set; }
+        public DbSet<ScheduleSettings> ScheduleSettings { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<SingleTask>()
                 .ToTable("Tasks");
+
+            var scheduleSettings = new ScheduleSettings()
+            {
+                Id = 1,
+                FinishTime = new TimeOnly(1, 1),
+                breakDurationMin = 21
+            };
+            modelBuilder.Entity<ScheduleSettings>()
+                .ToTable("ScheduleSettings");
+
+
+            modelBuilder.Entity<ScheduleSettings>()
+                .HasData(scheduleSettings);
+            modelBuilder.Entity<ScheduleSettings>()
+                .Property(settings => settings.FinishTime)
+                .HasConversion(
+                    v => new DateTime(1, 1, 1, v.Hour, v.Minute, v.Second),
+                    v => new TimeOnly(v.TimeOfDay.Hours, v.TimeOfDay.Minutes, v.TimeOfDay.Seconds)
+                );
+
+
 
             modelBuilder.Entity<TimeSlotInSchedule>()
                 .Property(ts => ts.FinishTime)

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ScheduleHelper.Core.Domain.Entities;
+using ScheduleHelper.Core.Domain.Entities.Enums;
 using ScheduleHelper.Core.Domain.RepositoryContracts;
 using System;
 using System.Collections.Generic;
@@ -28,6 +29,18 @@ namespace ScheduleHelper.Infrastructure.Repositories
             await _dbContext.SaveChangesAsync();
         }
 
+        public async Task<List<TimeSlotInSchedule>> GetActiveSlots()
+        {
+            return await _dbContext.TimeSlotsInSchedule
+                .Where(slot=>slot.Status==TimeSlotStatus.Active)
+                .ToListAsync();
+        }
+
+        public async Task<ScheduleSettings> GetScheduleSettings()
+        {
+            return await _dbContext.ScheduleSettings.FindAsync(1);
+        }
+
         public async Task<List<SingleTask>> GetTasksNotSetInSchedule()
         {
 
@@ -38,10 +51,26 @@ namespace ScheduleHelper.Infrastructure.Repositories
             return result;
         }
 
+        public Task<TimeSlotInSchedule?> GetTimeSlot(Guid slotId)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<List<TimeSlotInSchedule>> GetTimeSlotsList()
         {
             return await _dbContext.TimeSlotsInSchedule.
                 Include(slot=>slot.task).ToListAsync();
+        }
+
+        public async Task UpdateScheduleSettings(ScheduleSettings scheduleSettingsForDb)
+        {
+            _dbContext.Update(scheduleSettingsForDb);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public Task UpdateTimeSlot(TimeSlotInSchedule timeSlotInSchedule)
+        {
+            throw new NotImplementedException();
         }
     }
 }

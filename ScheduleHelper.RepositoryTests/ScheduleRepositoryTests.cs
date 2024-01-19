@@ -1,7 +1,10 @@
 ﻿using FluentAssertions;
+using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using ScheduleHelper.Core.Domain.Entities;
 using ScheduleHelper.Core.Domain.Entities.Builders;
+using ScheduleHelper.Core.Domain.Entities.Enums;
+using ScheduleHelper.Core.Domain.Entities.Helpers;
 using ScheduleHelper.Core.Domain.RepositoryContracts;
 using ScheduleHelper.Infrastructure;
 using ScheduleHelper.Infrastructure.Repositories;
@@ -180,6 +183,107 @@ namespace ScheduleHelper.RepositoryTests
             
         }
 
+        [Fact]
+        public async Task UpdateScheduleSettings()
+        {
+            var model = new ScheduleSettings()
+            {
+                Id = 1,
+                FinishTime = new TimeOnly(6, 23),
+                breakDurationMin=20
+            };
+
+            using (var dbcontext = new MyDbContext(builder.Options))
+            {
+                DbTestHelper.clearDatabase(dbcontext);
+                IScheduleRepository scheduleRepository = new ScheduleRepository(dbcontext);
+                
+                //act
+                await scheduleRepository.UpdateScheduleSettings(model);
+
+                //assert
+                var scheduleSettingsInDB= await dbcontext.ScheduleSettings.FindAsync(1);
+
+                Assert.True(scheduleSettingsInDB.FinishTime.AreTimesEqualWithTolerance(model.FinishTime));
+
+            }
+        }
+
+        [Fact]
+        public async Task GetScheduleSettings_ReturnsDefaultsSettings()
+        {
+            using (var dbcontext = new MyDbContext(builder.Options))
+            {
+                DbTestHelper.clearDatabase(dbcontext);
+
+                IScheduleRepository scheduleRepository = new ScheduleRepository(dbcontext);
+                var expectedResult = new ScheduleSettings()
+                {
+                    Id = 1,
+                    FinishTime = new TimeOnly(1, 1),
+                    breakDurationMin = 20
+                };
+                dbcontext.ScheduleSettings.Update(expectedResult);
+                await dbcontext.SaveChangesAsync();
+
+
+                //act
+                var result = await scheduleRepository.GetScheduleSettings();
+
+                //assert
+                result.Should().Be(expectedResult);
+                
+
+            }
+
+        }
+
+
+        [Fact]
+        public async Task GetActiveSlots_ReturnsAllActiveSlots()
+        {
+            using (var dbcontext = new MyDbContext(builder.Options))
+            {
+                DbTestHelper.clearDatabase(dbcontext);
+
+                IScheduleRepository scheduleRepository = new ScheduleRepository(dbcontext);
+
+                var task = new SingleTask("testTask", 20);
+                List<TimeSlotInSchedule> listOfTimeSlotsInSchedule = GetListOfTimeSlotsForTest(task);
+                List<TimeSlotInSchedule>expectedResult=new List<TimeSlotInSchedule>(listOfTimeSlotsInSchedule);  
+               var finishedTimeSlot = new TimeSlotInScheduleBuilder()
+                    .SetFinishTime(new TimeOnly(22, 0))
+                    .SetTask(task)
+                    .SetStartTime(new TimeOnly(6, 0))
+                    .SetTimeSlotStatus(TimeSlotStatus.Finished)
+                    .SetOrdinalNumber(1)
+                    .SetIsItBreak(false)
+                    .Build();
+                var canceledTimeSlot = new TimeSlotInScheduleBuilder()
+                    .SetFinishTime(new TimeOnly(22, 0))
+                    .SetTask(task)
+                    .SetStartTime(new TimeOnly(6, 0))
+                    .SetTimeSlotStatus(TimeSlotStatus.Canceled)
+                    .SetOrdinalNumber(1)
+                    .SetIsItBreak(false)
+                    .Build();
+                listOfTimeSlotsInSchedule.Add(finishedTimeSlot);
+                listOfTimeSlotsInSchedule.Add(canceledTimeSlot);
+                await AddTimeSlotsAndTaskToDb(task, listOfTimeSlotsInSchedule,dbcontext);
+
+
+
+                //act
+                var resultList = await scheduleRepository.GetActiveSlots();
+
+                //assert
+                resultList.Should().HaveCount(2);
+                resultList.Should().Contain(expectedResult);
+
+
+            }
+
+        }
 
 
 
@@ -196,6 +300,7 @@ namespace ScheduleHelper.RepositoryTests
         {
             var entity1 = new TimeSlotInScheduleBuilder()
                 .SetFinishTime(new TimeOnly(22, 0))
+                .SetTimeSlotStatus(TimeSlotStatus.Active)
                 .SetTask(task)
                 .SetStartTime(new TimeOnly(6, 0))
                 .SetOrdinalNumber(1)
@@ -205,6 +310,7 @@ namespace ScheduleHelper.RepositoryTests
             var entity2 = new TimeSlotInScheduleBuilder()
                 .SetFinishTime(new TimeOnly(21, 0))
                 .SetTask(task)
+                .SetTimeSlotStatus(TimeSlotStatus.Active)
                 .SetStartTime(new TimeOnly(9, 0))
                 .SetOrdinalNumber(2)
                 .SetIsItBreak(false)

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ScheduleHelper.Infrastructure;
 
@@ -11,9 +12,10 @@ using ScheduleHelper.Infrastructure;
 namespace ScheduleHelper.Infrastructure.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240119172151_AddScheduleSettings")]
+    partial class AddScheduleSettings
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -33,9 +35,6 @@ namespace ScheduleHelper.Infrastructure.Migrations
                     b.Property<DateTime>("FinishTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<double>("breakDurationMin")
-                        .HasColumnType("float");
-
                     b.HasKey("Id");
 
                     b.ToTable("ScheduleSettings", (string)null);
@@ -44,8 +43,7 @@ namespace ScheduleHelper.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            FinishTime = new DateTime(1, 1, 1, 1, 1, 0, 0, DateTimeKind.Unspecified),
-                            breakDurationMin = 21.0
+                            FinishTime = new DateTime(1, 1, 1, 1, 1, 0, 0, DateTimeKind.Unspecified)
                         });
                 });
 

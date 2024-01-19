@@ -14,5 +14,11 @@ namespace ScheduleHelper.Core.Domain.RepositoryContracts
         public Task CleanTimeSlotInScheduleTable();
         Task<List<TimeSlotInSchedule>> GetTimeSlotsList();
         Task<List<SingleTask>> GetTasksNotSetInSchedule();
+
+        Task UpdateTimeSlot(TimeSlotInSchedule timeSlotInSchedule);
+        Task<TimeSlotInSchedule?> GetTimeSlot(Guid slotId);
+        Task UpdateScheduleSettings(ScheduleSettings scheduleSettingsForDb);
+        Task<ScheduleSettings> GetScheduleSettings();
+        Task<List<TimeSlotInSchedule>> GetActiveSlots();
     }
 }

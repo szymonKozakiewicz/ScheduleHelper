@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using ScheduleHelper.Core.Services.Helpers;
 using ScheduleHelper.Core.Domain.Entities.Builders;
 using ScheduleHelper.Core.Extensions;
+using ScheduleHelper.Core.Domain.Entities.Helpers;
+using ScheduleHelper.Core.Domain.Entities.Enums;
 
 namespace ScheduleHelper.Core.Services
 {
@@ -30,6 +32,15 @@ namespace ScheduleHelper.Core.Services
             _scheduleSettings= scheduleSettings;
             await _scheduleRepository.CleanTimeSlotInScheduleTable();
             var tasksList= await _taskRepository.GetTasks();
+            var scheduleSettingsForDb = new ScheduleSettings()
+            {
+                Id=1,
+                breakDurationMin=scheduleSettings.breakLenghtMin,
+                FinishTime=scheduleSettings.finishTime
+
+            };
+
+            await _scheduleRepository.UpdateScheduleSettings(scheduleSettingsForDb);
 
             var iterationState = new IterationStateForGenerateSchedule(scheduleSettings.startTime);
             TimeSlotInSchedule? timeSlotForBreak= null;
@@ -69,49 +80,7 @@ namespace ScheduleHelper.Core.Services
 
     
 
-        private TimeSlotInSchedule makeTimeSlot(IterationStateForGenerateSchedule iterationState, SingleTask? task)
-        {
-            
-           
-            
-            
-            double slotDurationMin;
-            bool isItBreak = task == null;
-            if (isItBreak)
-            {
-               slotDurationMin = _scheduleSettings.breakLenghtMin;
-            }
-            else
-            {
-                slotDurationMin = task.TimeMin;
-            }
-
-
-
-            
-            var currentTime = iterationState.CurrentTime;
-            TimeOnly slotStartTime = currentTime;
-            TimeOnly slotFinishTime = currentTime.AddMinutes(slotDurationMin);
-            bool enoughTimeForTask = slotFinishTime.
-                CompareTo(_scheduleSettings.finishTime)<0;
-            if (enoughTimeForTask)
-            {
-                var newTimeSlot = new TimeSlotInScheduleBuilder()
-                    .SetFinishTime(slotFinishTime)
-                    .SetStartTime(slotStartTime)
-                    .SetTask(task)
-                    .SetIsItBreak(isItBreak)
-                    .SetOrdinalNumber(iterationState.CurrentOrdinalNumber)
-                    .Build();
-                return newTimeSlot;
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-
+ 
 
 
         public async Task<List<TimeSlotInScheduleDTO>> GetTimeSlotsList()
@@ -131,5 +100,52 @@ namespace ScheduleHelper.Core.Services
             return listOfNotSettasks.Select(task=>SingleTaskConvertHelper.covertSingleTaskToTaskForEditListDTO(task))
                 .ToList();
         }
+
+
+        private TimeSlotInSchedule makeTimeSlot(IterationStateForGenerateSchedule iterationState, SingleTask? task)
+        {
+
+
+
+
+            double slotDurationMin;
+            bool isItBreak = task == null;
+            if (isItBreak)
+            {
+                slotDurationMin = _scheduleSettings.breakLenghtMin;
+            }
+            else
+            {
+                slotDurationMin = task.TimeMin;
+            }
+
+
+
+
+            var currentTime = iterationState.CurrentTime;
+            TimeOnly slotStartTime = currentTime;
+            TimeOnly slotFinishTime = currentTime.AddMinutes(slotDurationMin);
+            bool enoughTimeForTask = slotFinishTime.
+                CompareTo(_scheduleSettings.finishTime) < 0;
+            if (enoughTimeForTask)
+            {
+                var newTimeSlot = new TimeSlotInScheduleBuilder()
+                    .SetFinishTime(slotFinishTime)
+                    .SetStartTime(slotStartTime)
+                    .SetTimeSlotStatus(TimeSlotStatus.Active)
+                    .SetTask(task)
+                    .SetIsItBreak(isItBreak)
+                    .SetOrdinalNumber(iterationState.CurrentOrdinalNumber)
+                    .Build();
+                return newTimeSlot;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+
+
     }
 }

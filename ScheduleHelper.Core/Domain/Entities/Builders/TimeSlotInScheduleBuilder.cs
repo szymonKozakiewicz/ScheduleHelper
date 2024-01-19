@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ScheduleHelper.Core.Domain.Entities.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,6 +15,7 @@ namespace ScheduleHelper.Core.Domain.Entities.Builders
         private SingleTask? _task;
         private bool _isItBreak;
         private int _ordinalNumber;
+        private TimeSlotStatus _status;
 
         public TimeSlotInScheduleBuilder()
         {
@@ -30,6 +32,12 @@ namespace ScheduleHelper.Core.Domain.Entities.Builders
         public TimeSlotInScheduleBuilder SetFinishTime(TimeOnly finishTime)
         {
             _finishTime = finishTime;
+            return this;
+        }
+
+        public TimeSlotInScheduleBuilder SetTimeSlotStatus(TimeSlotStatus status)
+        {
+            _status = status;   
             return this;
         }
 

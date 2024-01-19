@@ -68,5 +68,16 @@ namespace ScheduleHelper.UI.Controllers
             return View("OperationStatusSchedule");
         }
 
+        [Route(RouteConstants.FinishTimeSlot)]
+        [HttpGet]
+        public async Task<IActionResult> GetTimeSlotFinalisePage(FinaliseSlotDTO model)
+        {
+            
+            return View("SlotFinalise",model);
+        }
+
+
+    
+
     }
 }

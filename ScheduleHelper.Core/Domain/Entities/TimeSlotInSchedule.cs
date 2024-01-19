@@ -1,4 +1,5 @@
-﻿using ScheduleHelper.Core.Domain.Entities.Helpers;
+﻿using ScheduleHelper.Core.Domain.Entities.Enums;
+using ScheduleHelper.Core.Domain.Entities.Helpers;
 using ScheduleHelper.Core.DTO;
 using System;
 using System.Collections.Generic;
@@ -20,6 +21,7 @@ namespace ScheduleHelper.Core.Domain.Entities
         public SingleTask? task { get; set; }
         public bool IsItBreak { get; set; }
         public int OrdinalNumber { get; set; }
+        public TimeSlotStatus Status { get; set; }
 
         public TimeSlotInSchedule(TimeOnly finishTime, TimeOnly startTime, SingleTask? task, bool isItBreak, int ordinalNumber,Guid? id)
         {
@@ -48,7 +50,8 @@ namespace ScheduleHelper.Core.Domain.Entities
                    StartTime.AreTimesEqualWithTolerance(schedule.StartTime) &&
                    EqualityComparer<SingleTask>.Default.Equals(task, schedule.task) &&
                    IsItBreak == schedule.IsItBreak &&
-                   OrdinalNumber == schedule.OrdinalNumber;
+                   OrdinalNumber == schedule.OrdinalNumber &&
+                   Status==schedule.Status;
         }
 
         public override int GetHashCode()

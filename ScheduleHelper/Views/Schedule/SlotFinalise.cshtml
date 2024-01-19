@@ -1,0 +1,15 @@
+﻿@model FinaliseSlotDTO;
+@using ScheduleHelper.Core.DTO
+
+
+
+<h1>Finish time slot</h1>
+
+<form action=@RouteConstants.FinishTimeSlot method="post">
+
+    <label for="FinishTime">When slot was finished</label>
+    <input asp-for=FinishTime type="time" />
+    <input asp-for=SlotId hidden />
+    <br />
+    <input type="submit" value="Send"/>
+</form>

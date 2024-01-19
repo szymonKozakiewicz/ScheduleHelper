@@ -8,6 +8,6 @@
         public const string DeleteTask = "/deleteTask";
         public const string ShowSchedule = "/showSchedule";
         public const string GenerateScheduleSettings = "/generateScheduleSettings";
-        
+        public const string FinishTimeSlot = "/finishTimeSlot";
     }
 }
