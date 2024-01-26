@@ -46,9 +46,11 @@ namespace ScheduleHelper.Core.Services
             {
                 return;
             }
+
             var scheduleSettings=await _scheduleRepository.GetScheduleSettings();
 
             bool timeSlotFinishedTooLate = timeSlot.FinishTime < actualFinishTime;
+
             if (timeSlotFinishedTooLate)
             {
                 await updateSlotsTimesWithDelay(model, timeSlot, actualFinishTime, scheduleSettings);

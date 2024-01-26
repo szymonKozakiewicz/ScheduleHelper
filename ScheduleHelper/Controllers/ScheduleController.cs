@@ -10,6 +10,8 @@ namespace ScheduleHelper.UI.Controllers
 
 
         IScheduleService _scheduleService;
+        IScheduleUpdateService _updateService;
+
 
         public ScheduleController(IScheduleService scheduleService)
         {
@@ -76,8 +78,15 @@ namespace ScheduleHelper.UI.Controllers
             return View("SlotFinalise",model);
         }
 
+        [Route(RouteConstants.FinishTimeSlot)]
+        [HttpPost]
+        public async Task<IActionResult> FinaliseTimeSlot(FinaliseSlotDTO model)
+        {
+            await _updateService.FinaliseTimeSlot(model);
+            return View("SlotFinalise", model);
+        }
 
-    
+
 
     }
 }
