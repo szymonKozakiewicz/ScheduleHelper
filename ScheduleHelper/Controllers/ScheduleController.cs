@@ -13,9 +13,10 @@ namespace ScheduleHelper.UI.Controllers
         IScheduleUpdateService _updateService;
 
 
-        public ScheduleController(IScheduleService scheduleService)
+        public ScheduleController(IScheduleService scheduleService, IScheduleUpdateService updateService)
         {
             _scheduleService = scheduleService;
+            _updateService = updateService;
         }
 
         [Route(RouteConstants.ShowSchedule)]

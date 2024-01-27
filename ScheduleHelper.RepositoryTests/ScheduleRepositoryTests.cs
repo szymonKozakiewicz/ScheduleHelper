@@ -286,6 +286,70 @@ namespace ScheduleHelper.RepositoryTests
         }
 
 
+        [Fact]
+        public async Task GetTimeSlot_ReturnsSlotWithRightId()
+        {
+            using (var dbcontext = new MyDbContext(builder.Options))
+            {
+                DbTestHelper.clearDatabase(dbcontext);
+
+                IScheduleRepository scheduleRepository = new ScheduleRepository(dbcontext);
+
+                var task = new SingleTask("testTask", 20);
+                List<TimeSlotInSchedule> listOfTimeSlotsInSchedule = GetListOfTimeSlotsForTest(task);
+                List<TimeSlotInSchedule> expectedResult = new List<TimeSlotInSchedule>(listOfTimeSlotsInSchedule);
+    
+                await AddTimeSlotsAndTaskToDb(task, listOfTimeSlotsInSchedule, dbcontext);
+
+
+
+                //act
+                var result = await scheduleRepository.GetTimeSlot((Guid)listOfTimeSlotsInSchedule[0].Id);
+
+                //assert
+                result.Should().Be(listOfTimeSlotsInSchedule[0]);
+                
+
+
+            }
+
+        }
+
+
+
+        [Fact]
+        public async Task UpdateTimeSlot_UpdateSlotInDb()
+        {
+            using (var dbcontext = new MyDbContext(builder.Options))
+            {
+                DbTestHelper.clearDatabase(dbcontext);
+
+                IScheduleRepository scheduleRepository = new ScheduleRepository(dbcontext);
+
+                var task = new SingleTask("testTask", 20);
+                List<TimeSlotInSchedule> listOfTimeSlotsInSchedule = GetListOfTimeSlotsForTest(task);
+                List<TimeSlotInSchedule> expectedResult = new List<TimeSlotInSchedule>(listOfTimeSlotsInSchedule);
+       
+                await AddTimeSlotsAndTaskToDb(task, listOfTimeSlotsInSchedule, dbcontext);
+
+                listOfTimeSlotsInSchedule[0].Status = TimeSlotStatus.Canceled;
+                listOfTimeSlotsInSchedule[0].StartTime = new TimeOnly(20, 20);
+                listOfTimeSlotsInSchedule[0].FinishTime = new TimeOnly(10, 20);
+                
+                //act
+                await scheduleRepository.UpdateTimeSlot(listOfTimeSlotsInSchedule[0]);
+
+                //assert
+                var result = await dbcontext.TimeSlotsInSchedule.FindAsync(listOfTimeSlotsInSchedule[0].Id);
+                result.Status.Should().Be(TimeSlotStatus.Canceled);
+                Assert.True(result.FinishTime.AreTimesEqualWithTolerance(new TimeOnly(10, 20)));
+                Assert.True(result.StartTime.AreTimesEqualWithTolerance(new TimeOnly(20, 20)));
+
+
+
+            }
+
+        }
 
 
         private static async Task AddTimeSlotsAndTaskToDb(SingleTask task, List<TimeSlotInSchedule> listOfTimeSlotsInSchedule, MyDbContext dbcontext)

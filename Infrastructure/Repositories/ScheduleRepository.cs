@@ -51,9 +51,9 @@ namespace ScheduleHelper.Infrastructure.Repositories
             return result;
         }
 
-        public Task<TimeSlotInSchedule?> GetTimeSlot(Guid slotId)
+        public async Task<TimeSlotInSchedule?> GetTimeSlot(Guid slotId)
         {
-            throw new NotImplementedException();
+            return await _dbContext.TimeSlotsInSchedule.FindAsync(slotId);
         }
 
         public async Task<List<TimeSlotInSchedule>> GetTimeSlotsList()
@@ -68,9 +68,10 @@ namespace ScheduleHelper.Infrastructure.Repositories
             await _dbContext.SaveChangesAsync();
         }
 
-        public Task UpdateTimeSlot(TimeSlotInSchedule timeSlotInSchedule)
+        public async Task UpdateTimeSlot(TimeSlotInSchedule timeSlotInSchedule)
         {
-            throw new NotImplementedException();
+            _dbContext.TimeSlotsInSchedule.Update(timeSlotInSchedule);
+            await _dbContext.SaveChangesAsync();
         }
     }
 }

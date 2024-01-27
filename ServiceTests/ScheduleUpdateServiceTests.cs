@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using Moq;
 using ScheduleHelper.Core.Domain.Entities;
+using ScheduleHelper.Core.Domain.Entities.Enums;
 using ScheduleHelper.Core.Domain.Entities.Helpers;
 using ScheduleHelper.Core.Domain.RepositoryContracts;
 using ScheduleHelper.Core.DTO;
@@ -77,34 +78,70 @@ namespace ScheduleHelper.ServiceTests
             }
         }
 
-        private static bool CheckIfSlotIsOnExpectedList(int delay, FinaliseMethodTestSettingsDTO finaliseMethodTestSettings, TimeSlotInSchedule updatedSlot)
+
+
+        [Fact]
+        public async Task FinaliseTimeSlot_forValidIdAndSlotFinishedAfterTimeAndAfterMidnight_itShouldUpdateAll()
         {
-            bool updatedSlotIsFinished = updatedSlot.Id == finaliseMethodTestSettings.ListOfSlots[0].Id;
-            if (updatedSlotIsFinished)
-                return true;
-            bool slotWasOnExpectedList=false;
-            foreach (var expectedTimeSlot in finaliseMethodTestSettings.ListOfExpectedSlots)
+            int delay = 60*10+20;
+            var scheduleFinishTime = new TimeOnly(23, 0);
+
+            FinaliseMethodTestSettingsDTO finaliseMethodTestSettings = getFinaliseMethodTestSettings(delay);
+            List<TimeSlotInSchedule> listOfUpdatedTimeSlots = setupMockMethodsForFinaliseTimeSlot(finaliseMethodTestSettings, scheduleFinishTime);
+
+            foreach(var slot in finaliseMethodTestSettings.ListOfExpectedSlots)
             {
-                bool expectedAndUpdatedSlotAreSame = checkIfExpectedAndUpdatedAreSame(delay, updatedSlot, expectedTimeSlot);
-                if (expectedAndUpdatedSlotAreSame)
-                {
-                    slotWasOnExpectedList = true;
-                    break;
-                }
+                slot.Status = TimeSlotStatus.Canceled;
             }
 
-            return slotWasOnExpectedList;
+            //act
+            await _scheduleUpdateService.FinaliseTimeSlot(finaliseMethodTestSettings.Model);
+
+            //assert
+            listOfUpdatedTimeSlots.Should().HaveCount(3);
+            foreach (var updatedSlot in listOfUpdatedTimeSlots)
+            {
+                if (updatedSlot.Id == finaliseMethodTestSettings.ListOfSlots[0].Id)
+                    continue;
+
+                updatedSlot.Status.Should().Be(TimeSlotStatus.Canceled);
+            }
         }
 
-        private static bool checkIfExpectedAndUpdatedAreSame(int delay, TimeSlotInSchedule updatedSlot, TimeSlotInSchedule expectedTimeSlot)
+        [Fact]
+        public async Task FinaliseTimeSlot_forValidIdAndSlotFinishedAfterTimeAndNoTimeForLastSlot_itShouldUpdateAll()
         {
-            TimeOnly expectedFinishTime = expectedTimeSlot.FinishTime.AddMinutes(delay);
-            TimeOnly expectedStartTime = expectedTimeSlot.StartTime.AddMinutes(delay);
-            bool startTimeSame = expectedStartTime.AreTimesEqualWithTolerance(updatedSlot.StartTime);
-            bool finishTimeSame = expectedFinishTime.AreTimesEqualWithTolerance(updatedSlot.FinishTime);
-            bool expectedAndUpdatedSlotAreSame = startTimeSame && finishTimeSame;
-            return expectedAndUpdatedSlotAreSame;
+            int delay = 60;
+            var scheduleFinishTime = new TimeOnly(15, 0);
+
+            FinaliseMethodTestSettingsDTO finaliseMethodTestSettings = getFinaliseMethodTestSettings(delay);
+            List<TimeSlotInSchedule> listOfUpdatedTimeSlots = setupMockMethodsForFinaliseTimeSlot(finaliseMethodTestSettings, scheduleFinishTime);
+
+            foreach (var slot in finaliseMethodTestSettings.ListOfExpectedSlots)
+            {
+                slot.Status = TimeSlotStatus.Canceled;
+            }
+
+            //act
+            await _scheduleUpdateService.FinaliseTimeSlot(finaliseMethodTestSettings.Model);
+
+            //assert
+            listOfUpdatedTimeSlots.Should().HaveCount(3);
+            foreach (var updatedSlot in listOfUpdatedTimeSlots)
+            {
+                if (updatedSlot.Id == finaliseMethodTestSettings.ListOfSlots[0].Id)
+                    continue;
+                if (updatedSlot.Id == finaliseMethodTestSettings.ListOfSlots[2].Id)
+                {
+                    updatedSlot.Status.Should().Be(TimeSlotStatus.Canceled);
+                    continue;
+                }
+                updatedSlot.Status.Should().Be(TimeSlotStatus.Active);
+                checkIfExpectedAndUpdatedAreSame(delay, updatedSlot, finaliseMethodTestSettings.ListOfExpectedSlots[1]);
+
+            }
         }
+
 
         [Fact]
         public async Task FinaliseTimeSlot_ForNotExistingId_itShouldRiseArgumentException()
@@ -129,6 +166,36 @@ namespace ScheduleHelper.ServiceTests
 
             //assert
             await action.Should().ThrowAsync<ArgumentException>();
+        }
+
+        private static bool CheckIfSlotIsOnExpectedList(int delay, FinaliseMethodTestSettingsDTO finaliseMethodTestSettings, TimeSlotInSchedule updatedSlot)
+        {
+            bool updatedSlotIsFinished = updatedSlot.Id == finaliseMethodTestSettings.ListOfSlots[0].Id;
+            if (updatedSlotIsFinished)
+                return true;
+            bool slotWasOnExpectedList = false;
+            foreach (var expectedTimeSlot in finaliseMethodTestSettings.ListOfExpectedSlots)
+            {
+                bool expectedAndUpdatedSlotAreSame = checkIfExpectedAndUpdatedAreSame(delay, updatedSlot, expectedTimeSlot);
+                if (expectedAndUpdatedSlotAreSame)
+                {
+                    slotWasOnExpectedList = true;
+                    break;
+                }
+            }
+
+            return slotWasOnExpectedList;
+        }
+
+        private static bool checkIfExpectedAndUpdatedAreSame(int delay, TimeSlotInSchedule updatedSlot, TimeSlotInSchedule expectedTimeSlot)
+        {
+            TimeOnly expectedFinishTime = expectedTimeSlot.FinishTime.AddMinutes(delay);
+            TimeOnly expectedStartTime = expectedTimeSlot.StartTime.AddMinutes(delay);
+            bool startTimeSame = expectedStartTime.AreTimesEqualWithTolerance(updatedSlot.StartTime);
+            bool finishTimeSame = expectedFinishTime.AreTimesEqualWithTolerance(updatedSlot.FinishTime);
+            bool sameStatus = expectedTimeSlot.Status == updatedSlot.Status;
+            bool expectedAndUpdatedSlotAreSame = startTimeSame && finishTimeSame && sameStatus;
+            return expectedAndUpdatedSlotAreSame;
         }
 
         private static FinaliseMethodTestSettingsDTO getFinaliseMethodTestSettings(int delay)

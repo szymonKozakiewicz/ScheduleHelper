@@ -48,7 +48,7 @@ namespace ScheduleHelper.Core.Services
             }
 
             var scheduleSettings=await _scheduleRepository.GetScheduleSettings();
-
+            
             bool timeSlotFinishedTooLate = timeSlot.FinishTime < actualFinishTime;
 
             if (timeSlotFinishedTooLate)
@@ -70,7 +70,8 @@ namespace ScheduleHelper.Core.Services
                     continue;
                 }
 
-                bool slotShouldBeFinishedInNextDay = (new TimeOnly(23, 59) - slot.FinishTime).TotalMinutes < dely;
+                TimeSpan timeSpan = new TimeOnly(23, 59) - slot.FinishTime;
+                bool slotShouldBeFinishedInNextDay = timeSpan.TotalMinutes < dely;
                 bool notEnoughTimeToFinishSlot = slot.FinishTime.AddMinutes(dely) > scheduleSettings.FinishTime || slotShouldBeFinishedInNextDay;
                 if (notEnoughTimeToFinishSlot)
                 {
