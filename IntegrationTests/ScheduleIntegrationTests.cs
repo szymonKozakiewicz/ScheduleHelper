@@ -2,6 +2,9 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using ScheduleHelper.Core.Domain.Entities;
+using ScheduleHelper.Core.Domain.Entities.Builders;
+using ScheduleHelper.Core.Domain.Entities.Enums;
 using ScheduleHelper.Core.DTO;
 using ScheduleHelper.Infrastructure;
 using ScheduleHelper.UI;
@@ -12,6 +15,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
+
 
 namespace ScheduleHelper.IntegrationTests
 {
@@ -24,10 +28,7 @@ namespace ScheduleHelper.IntegrationTests
         {
             _client = factory.CreateClient();
 
-            scope = factory.Services.CreateScope();
-
-
-            _dbContext = scope.ServiceProvider.GetRequiredService<MyDbContext>();
+            _dbContext=factory.GetDbContextInstance();
 
         }
 
@@ -83,8 +84,9 @@ namespace ScheduleHelper.IntegrationTests
                 hasScheduledBreaks = true,
                 startTime = new TimeOnly(12, 24),
                 finishTime = new TimeOnly(21, 24),
+                
             };
-
+            var settings=_dbContext.ScheduleSettings.ToList();
             var contetMessage=generateContentMessage(testModel);
             HttpResponseMessage response = await _client.PostAsync(RouteConstants.GenerateScheduleSettings, contetMessage);
 
@@ -123,14 +125,30 @@ namespace ScheduleHelper.IntegrationTests
         [Fact]
         public async Task TimeSlotFinalise_schouldBeSuccessful()
         {
-            var id = Guid.NewGuid();
+            
             var finishTime = new TimeOnly(12, 23).ToString();
+            SingleTask task = new SingleTask("test", 23);
+            var timeSlot = new TimeSlotInScheduleBuilder()
+                .SetFinishTime(new TimeOnly(20, 0))
+                .SetStartTime(new TimeOnly(19, 0))
+                .SetTask(task)
+                .SetOrdinalNumber(1)
+                .SetTimeSlotStatus(TimeSlotStatus.Active)
+                .Build();
+            _dbContext.SingleTask.Add(task);
+            await _dbContext.SaveChangesAsync();
+            _dbContext.TimeSlotsInSchedule.Add(timeSlot);
+            await _dbContext.SaveChangesAsync();
+
+
+
             var model = new FinaliseSlotDTO()
             {
-                SlotId = id,
+                SlotId = (Guid)timeSlot.Id,
                 FinishTime = finishTime
             };
             var contentMessage = generateContentMessage(model);
+
             //act
             var result = await _client.PostAsync(RouteConstants.FinishTimeSlot,contentMessage);
 

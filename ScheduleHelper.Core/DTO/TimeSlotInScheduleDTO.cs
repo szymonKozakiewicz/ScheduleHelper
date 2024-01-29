@@ -18,10 +18,8 @@ namespace ScheduleHelper.Core.DTO
         {
             return obj is TimeSlotInScheduleDTO dTO &&
                    Name == dTO.Name &&
-                   Id.Equals(dTO.Id) &&
                    FinishTime.Equals(dTO.FinishTime) &&
-                   StartTime.Equals(dTO.StartTime) &&
-                   OrdinalNumber == dTO.OrdinalNumber;
+                   StartTime.Equals(dTO.StartTime);
         }
 
         public override int GetHashCode()

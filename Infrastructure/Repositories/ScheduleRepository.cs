@@ -38,7 +38,7 @@ namespace ScheduleHelper.Infrastructure.Repositories
 
         public async Task<ScheduleSettings> GetScheduleSettings()
         {
-            return await _dbContext.ScheduleSettings.FindAsync(1);
+            return _dbContext.ScheduleSettings.ToList()[0];
         }
 
         public async Task<List<SingleTask>> GetTasksNotSetInSchedule()
@@ -64,7 +64,17 @@ namespace ScheduleHelper.Infrastructure.Repositories
 
         public async Task UpdateScheduleSettings(ScheduleSettings scheduleSettingsForDb)
         {
-            _dbContext.Update(scheduleSettingsForDb);
+
+            bool settingsExistsInDb = _dbContext.ScheduleSettings.ToList().Capacity == 0;
+            if (settingsExistsInDb)
+            {
+                _dbContext.ScheduleSettings.Update(scheduleSettingsForDb);
+            }
+            else
+            {
+                _dbContext.ScheduleSettings.Add(scheduleSettingsForDb);
+            }
+            
             await _dbContext.SaveChangesAsync();
         }
 

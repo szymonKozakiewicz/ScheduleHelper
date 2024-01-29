@@ -23,18 +23,11 @@ namespace ScheduleHelper.Infrastructure
             modelBuilder.Entity<SingleTask>()
                 .ToTable("Tasks");
 
-            var scheduleSettings = new ScheduleSettings()
-            {
-                Id = 1,
-                FinishTime = new TimeOnly(1, 1),
-                breakDurationMin = 21
-            };
             modelBuilder.Entity<ScheduleSettings>()
                 .ToTable("ScheduleSettings");
 
 
-            modelBuilder.Entity<ScheduleSettings>()
-                .HasData(scheduleSettings);
+
             modelBuilder.Entity<ScheduleSettings>()
                 .Property(settings => settings.FinishTime)
                 .HasConversion(

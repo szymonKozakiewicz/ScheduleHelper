@@ -34,12 +34,11 @@ namespace ScheduleHelper.Core.Services
             var tasksList= await _taskRepository.GetTasks();
             var scheduleSettingsForDb = new ScheduleSettings()
             {
-                Id=1,
                 breakDurationMin=scheduleSettings.breakLenghtMin,
                 FinishTime=scheduleSettings.finishTime
 
             };
-
+            
             await _scheduleRepository.UpdateScheduleSettings(scheduleSettingsForDb);
 
             var iterationState = new IterationStateForGenerateSchedule(scheduleSettings.startTime);

@@ -188,7 +188,7 @@ namespace ScheduleHelper.RepositoryTests
         {
             var model = new ScheduleSettings()
             {
-                Id = 1,
+
                 FinishTime = new TimeOnly(6, 23),
                 breakDurationMin=20
             };
@@ -219,7 +219,6 @@ namespace ScheduleHelper.RepositoryTests
                 IScheduleRepository scheduleRepository = new ScheduleRepository(dbcontext);
                 var expectedResult = new ScheduleSettings()
                 {
-                    Id = 1,
                     FinishTime = new TimeOnly(1, 1),
                     breakDurationMin = 20
                 };

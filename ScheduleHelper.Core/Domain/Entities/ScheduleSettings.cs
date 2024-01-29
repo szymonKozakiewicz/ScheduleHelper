@@ -14,6 +14,11 @@ namespace ScheduleHelper.Core.Domain.Entities
         public TimeOnly FinishTime { get; set; }
         public double breakDurationMin { get; set; }
 
-  
+        public override bool Equals(object? obj)
+        {
+            return obj is ScheduleSettings settings &&
+                   FinishTime.Equals(settings.FinishTime) &&
+                   breakDurationMin == settings.breakDurationMin;
+        }
     }
 }

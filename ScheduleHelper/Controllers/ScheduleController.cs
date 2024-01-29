@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ScheduleHelper.Core.DTO;
 using ScheduleHelper.Core.ServiceContracts;
+using System.Buffers;
 using System.Net;
 
 namespace ScheduleHelper.UI.Controllers
@@ -83,8 +84,18 @@ namespace ScheduleHelper.UI.Controllers
         [HttpPost]
         public async Task<IActionResult> FinaliseTimeSlot(FinaliseSlotDTO model)
         {
-            await _updateService.FinaliseTimeSlot(model);
-            return View("SlotFinalise", model);
+            try
+            {
+                await _updateService.FinaliseTimeSlot(model);
+            }catch (Exception ex) {
+
+                ViewBag.OperationStatus = ex.Message;
+                Response.StatusCode=(int)HttpStatusCode.InternalServerError;
+                return View("OperationStatusSchedule");
+            }
+            
+            ViewBag.OperationStatus = "Time slot finished!";
+            return View("OperationStatusSchedule");
         }
 
 
