@@ -103,7 +103,7 @@ namespace ScheduleHelper.ServiceTests
         {
             //arrange
             var tasksList = GenerateDataHelper.GetNormalValidListOfTasks();
-            List<TimeSlotInSchedule> timeSlotsList = GenerateDataHelper.GetTimeSlotsList(tasksList[0], tasksList[1]);
+            List<TimeSlotInSchedule> timeSlotsList = GenerateDataHelper.GetTimeSlotsListWith3TimeSlots(tasksList[0], tasksList[1]);
             MockSetupHelper.SetupMockForGetTimeSlotsListMethodForGivenTimeSlotList(timeSlotsList,_scheduleRespositorMock);
             List<TimeSlotInScheduleDTO> expectedResultList = new List<TimeSlotInScheduleDTO>()
             {
@@ -152,7 +152,7 @@ namespace ScheduleHelper.ServiceTests
         {
             //arrange
             var tasksList = GenerateDataHelper.GetNormalValidListOfTasks();
-            List<TimeSlotInSchedule> timeSlotsList = GenerateDataHelper.GetTimeSlotsList(tasksList[0], tasksList[1]);
+            List<TimeSlotInSchedule> timeSlotsList = GenerateDataHelper.GetTimeSlotsListWith3TimeSlots(tasksList[0], tasksList[1]);
             var notSortedTimeSlotsList = new List<TimeSlotInSchedule>()
             {
                 timeSlotsList[1],timeSlotsList[0],timeSlotsList[2]

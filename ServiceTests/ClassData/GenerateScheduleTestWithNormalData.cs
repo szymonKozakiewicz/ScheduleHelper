@@ -18,7 +18,7 @@ namespace ScheduleHelper.ServiceTests.ClassData
             ScheduleSettingsDTO testScheduleSettings = GenerateDataHelper.GetNormalValidScheduleSettings();
 
             List<SingleTask> tasksListsInMemory = GenerateDataHelper.GetNormalValidListOfTasks();
-            List<TimeSlotInSchedule> expectedTimeSlotsList = GenerateDataHelper.GetTimeSlotsList(tasksListsInMemory[0], tasksListsInMemory[1]);
+            List<TimeSlotInSchedule> expectedTimeSlotsList = GenerateDataHelper.GetTimeSlotsListWith3TimeSlots(tasksListsInMemory[0], tasksListsInMemory[1]);
             yield return new object[] { testScheduleSettings, tasksListsInMemory, expectedTimeSlotsList };
         }
 

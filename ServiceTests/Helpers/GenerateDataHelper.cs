@@ -34,7 +34,7 @@ namespace ScheduleHelper.ServiceTests.Helpers
             };
         }
 
-        public static List<TimeSlotInSchedule> GetTimeSlotsList(SingleTask task1, SingleTask task2)
+        public static List<TimeSlotInSchedule> GetTimeSlotsListWith3TimeSlots(SingleTask task1, SingleTask task2)
         {
             var expectedStartTime1 = new TimeOnly(12, 24);
             var expectedFinishTime1 = new TimeOnly(13, 24);
@@ -71,6 +71,38 @@ namespace ScheduleHelper.ServiceTests.Helpers
                 expectedTimeSlot1,expectedTimeSlot2,expectedTimeSlot3
             };
             return expectedTimeSlotsList;
+        }
+
+
+        public static List<TimeSlotInSchedule> GetTimeSlotsListWith5TimeSlots(SingleTask task1, SingleTask task2)
+        {
+
+            var timeSlotList = GetTimeSlotsListWith3TimeSlots(task1,task2);
+            var expectedStartTime4 = new TimeOnly(14, 14);
+            var expectedFinishTime4 = new TimeOnly(14, 34);
+            var expectedTimeSlot4 = new TimeSlotInScheduleBuilder()
+                .SetStartTime(expectedStartTime4)
+                .SetFinishTime(expectedFinishTime4)
+                .SetId(Guid.NewGuid())
+                .SetIsItBreak(true)
+                .SetOrdinalNumber(4)
+                .SetTask(task2)
+                .Build();
+
+            var expectedStartTime5 = new TimeOnly(14, 34);
+            var expectedFinishTime5 = new TimeOnly(15, 0);
+            var expectedTimeSlot5 = new TimeSlotInScheduleBuilder()
+                .SetStartTime(expectedStartTime5)
+                .SetFinishTime(expectedFinishTime5)
+                .SetId(Guid.NewGuid())
+                .SetIsItBreak(false)
+                .SetOrdinalNumber(5)
+                .SetTask(task2)
+                .Build();
+            timeSlotList.Add(expectedTimeSlot4);
+            timeSlotList.Add(expectedTimeSlot5);
+            return timeSlotList;
+
         }
 
     }

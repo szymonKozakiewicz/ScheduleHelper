@@ -58,5 +58,16 @@ namespace ScheduleHelper.Core.Domain.Entities
         {
             return HashCode.Combine(FinishTime, StartTime, task, IsItBreak, OrdinalNumber);
         }
+
+        public double getDurationOfSlotInMin()
+        {
+            return (FinishTime - StartTime).TotalMinutes;
+        }
+
+        public void updateStartAndFinishWithDely(double delyMin)
+        {
+            FinishTime=FinishTime.AddMinutes(delyMin);
+            StartTime=StartTime.AddMinutes(delyMin);
+        }
     }
 }

@@ -35,7 +35,12 @@ namespace ScheduleHelper.Infrastructure
                     v => new TimeOnly(v.TimeOfDay.Hours, v.TimeOfDay.Minutes, v.TimeOfDay.Seconds)
                 );
 
-
+            modelBuilder.Entity<ScheduleSettings>()
+                .Property(settings => settings.StartTime)
+                .HasConversion(
+                    v => new DateTime(1, 1, 1, v.Hour, v.Minute, v.Second),
+                    v => new TimeOnly(v.TimeOfDay.Hours, v.TimeOfDay.Minutes, v.TimeOfDay.Seconds)
+                );
 
             modelBuilder.Entity<TimeSlotInSchedule>()
                 .Property(ts => ts.FinishTime)

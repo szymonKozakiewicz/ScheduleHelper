@@ -11,14 +11,21 @@ namespace ScheduleHelper.Core.Domain.Entities
     {
         [Key]
         public int Id { get; set; }
+        public TimeOnly StartTime { get; set; }
         public TimeOnly FinishTime { get; set; }
         public double breakDurationMin { get; set; }
 
         public override bool Equals(object? obj)
         {
             return obj is ScheduleSettings settings &&
+                   StartTime.Equals(settings.StartTime) &&
                    FinishTime.Equals(settings.FinishTime) &&
                    breakDurationMin == settings.breakDurationMin;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(StartTime, FinishTime, breakDurationMin);
         }
     }
 }
