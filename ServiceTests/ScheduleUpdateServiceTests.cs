@@ -50,6 +50,9 @@ namespace ScheduleHelper.ServiceTests
             _scheduleRespositorMock.Setup(m => m.GetTimeSlot(model.SlotId))
                     .ReturnsAsync(listOfSlots[0]);
 
+            _scheduleRespositorMock.Setup(m => m.GetActiveSlots())
+        .ReturnsAsync(listOfSlots);
+
             //act
             await _scheduleUpdateService.FinaliseTimeSlot(model);
 

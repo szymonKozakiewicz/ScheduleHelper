@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ScheduleHelper.Core.Domain.Entities.Helpers;
 using ScheduleHelper.Core.ServiceContracts;
+using ScheduleHelper.Core.Services.Helpers.DTO;
 
 namespace ScheduleHelper.Core.Services
 {
@@ -79,37 +80,67 @@ namespace ScheduleHelper.Core.Services
             List<TimeSlotInSchedule> activeSlots = await _scheduleRepository.GetActiveSlots();
             var slotsBeforeFinishedSlot = activeSlots.Where(slot => slot.StartTime < finishedSlot.StartTime).ToList();
             var slotsAfterFinishedSlot = activeSlots.Where(slot => slot.StartTime >= finishedSlot.StartTime).ToList();
-            TimeSlotInSchedule? breakBeforeFinishedSlot = null;
 
+            TimeSlotInSchedule earliestSlot = getEarliestTimeSlot(activeSlots);
+            double dely = getDelyFromStartTime(earliestSlot, actualFinishTime, scheduleSettings.StartTime);
+
+            double delyForforSlotsAfterFinshedSlot = dely - finishedSlot.getDurationOfSlotInMin();
+            UpdateSlotsAfterNotFirstFinishedDTO updateSlotsDTO = new()
+            {
+                ScheduleSettings = scheduleSettings,
+                Dely = dely,
+                TimeSlotsList = slotsBeforeFinishedSlot
+            };
+
+            await updateSlotsBeforeFinishedSlot(finishedSlot, actualFinishTime, updateSlotsDTO);
+            updateSlotsDTO = new()
+            {
+                ScheduleSettings = scheduleSettings,
+                Dely = delyForforSlotsAfterFinshedSlot,
+                TimeSlotsList = slotsAfterFinishedSlot
+            };
+            await updateSlotsAfterFinishedSlot(updateSlotsDTO);
+
+        }
+
+        private async Task updateSlotsAfterFinishedSlot(UpdateSlotsAfterNotFirstFinishedDTO updateSlotsDto)
+        {
+            foreach (var slot in updateSlotsDto.TimeSlotsList)
+            {
+                bool enoughTimeForSlot = checkIfIsEnoughTimeForTimeSlot(updateSlotsDto.ScheduleSettings, updateSlotsDto.Dely, slot);
+                if (!enoughTimeForSlot)
+                {
+                    slot.Status = TimeSlotStatus.Canceled;
+                    await _scheduleRepository.UpdateTimeSlot(slot);
+                    continue;
+                }
+                slot.updateStartAndFinishWithDely(updateSlotsDto.Dely);
+                await _scheduleRepository.UpdateTimeSlot(slot);
+            }
+        }
+
+        private async Task updateSlotsBeforeFinishedSlot(TimeSlotInSchedule? finishedSlot, TimeOnly actualFinishTime, UpdateSlotsAfterNotFirstFinishedDTO updateSlotsDto)
+        {
+            TimeSlotInSchedule? breakBeforeFinishedSlot = null;
             if (!finishedSlot.IsItBreak)
             {
-                breakBeforeFinishedSlot = getSlotBeforeTimeSlot(slotsBeforeFinishedSlot, finishedSlot); ;
+                breakBeforeFinishedSlot = getSlotBeforeTimeSlot(updateSlotsDto.TimeSlotsList, finishedSlot); ;
             }
-
-         
-
-            TimeSlotInSchedule earliestSlot = getEarliestTimeSlot(slotsBeforeFinishedSlot);
-            double dely = getDelyFromStartTime(earliestSlot, actualFinishTime, scheduleSettings.StartTime);
-            double delyForSlotsBeforeFinishedSlot = dely + breakBeforeFinishedSlot.getDurationOfSlotInMin();
-
- 
-            double delyForforSlotsAfterFinshedSlot = dely - finishedSlot.getDurationOfSlotInMin();
-
-
-            foreach (var slot in slotsBeforeFinishedSlot)
+            double delyForSlotsBeforeFinishedSlot = updateSlotsDto.Dely + breakBeforeFinishedSlot.getDurationOfSlotInMin();
+            foreach (var slot in updateSlotsDto.TimeSlotsList)
             {
                 bool enoughTimeForSlot = true;
-                if (slot.Id==breakBeforeFinishedSlot.Id)
+                if (slot.Id == breakBeforeFinishedSlot.Id)
                 {
-                    
+
                     double brekaDuration = slot.getDurationOfSlotInMin();
                     var breakStartTime = actualFinishTime;
-                    if (actualFinishTime < scheduleSettings.StartTime)
-                        breakStartTime = scheduleSettings.StartTime;
+                    if (actualFinishTime < updateSlotsDto.ScheduleSettings.StartTime)
+                        breakStartTime = updateSlotsDto.ScheduleSettings.StartTime;
                     slot.StartTime = breakStartTime;
                     slot.FinishTime = breakStartTime.AddMinutes(brekaDuration);
-                    enoughTimeForSlot = checkIfIsEnoughTimeForTimeSlot(scheduleSettings, 0, slot);
-                    
+                    enoughTimeForSlot = checkIfIsEnoughTimeForTimeSlot(updateSlotsDto.ScheduleSettings, 0, slot);
+
                     if (!enoughTimeForSlot)
                     {
                         slot.Status = TimeSlotStatus.Canceled;
@@ -119,7 +150,7 @@ namespace ScheduleHelper.Core.Services
                     await _scheduleRepository.UpdateTimeSlot(slot);
                     continue;
                 }
-                enoughTimeForSlot = checkIfIsEnoughTimeForTimeSlot(scheduleSettings, delyForSlotsBeforeFinishedSlot, slot);
+                enoughTimeForSlot = checkIfIsEnoughTimeForTimeSlot(updateSlotsDto.ScheduleSettings, delyForSlotsBeforeFinishedSlot, slot);
                 if (!enoughTimeForSlot)
                 {
                     slot.Status = TimeSlotStatus.Canceled;
@@ -130,21 +161,6 @@ namespace ScheduleHelper.Core.Services
                 await _scheduleRepository.UpdateTimeSlot(slot);
 
             }
-
-            foreach (var slot in slotsAfterFinishedSlot)
-            {
-                bool enoughTimeForSlot = checkIfIsEnoughTimeForTimeSlot(scheduleSettings, delyForforSlotsAfterFinshedSlot, slot);
-                if (!enoughTimeForSlot)
-                {
-                    slot.Status = TimeSlotStatus.Canceled;
-                    await _scheduleRepository.UpdateTimeSlot(slot);
-                    continue;
-                }
-                slot.updateStartAndFinishWithDely(delyForforSlotsAfterFinshedSlot);
-                await _scheduleRepository.UpdateTimeSlot(slot);
-            }
-
-
         }
 
         private double getDelyFromStartTime(TimeSlotInSchedule timeSlot, TimeOnly actualFinishTime, TimeOnly scheduleStartTime)
