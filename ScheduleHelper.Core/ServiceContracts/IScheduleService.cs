@@ -1,4 +1,5 @@
-﻿using ScheduleHelper.Core.DTO;
+﻿using ScheduleHelper.Core.Domain.Entities.Enums;
+using ScheduleHelper.Core.DTO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,7 @@ namespace ScheduleHelper.Core.ServiceContracts
     {
         
         public Task GenerateSchedule(ScheduleSettingsDTO scheduleSettings);
+
         Task<List<TaskForEditListDTO>> GetTasksNotSetInSchedule();
         public Task<List<TimeSlotInScheduleDTO>> GetTimeSlotsList();
 

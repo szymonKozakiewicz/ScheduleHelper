@@ -122,15 +122,17 @@ namespace ScheduleHelper.Core.Services
         private async Task updateSlotsBeforeFinishedSlot(TimeSlotInSchedule? finishedSlot, TimeOnly actualFinishTime, UpdateSlotsAfterNotFirstFinishedDTO updateSlotsDto)
         {
             TimeSlotInSchedule? breakBeforeFinishedSlot = null;
+            double breakDuration = 0;
             if (!finishedSlot.IsItBreak)
             {
-                breakBeforeFinishedSlot = getSlotBeforeTimeSlot(updateSlotsDto.TimeSlotsList, finishedSlot); ;
+                breakBeforeFinishedSlot = getSlotBeforeTimeSlot(updateSlotsDto.TimeSlotsList, finishedSlot);
+                breakDuration = breakBeforeFinishedSlot.getDurationOfSlotInMin();
             }
-            double delyForSlotsBeforeFinishedSlot = updateSlotsDto.Dely + breakBeforeFinishedSlot.getDurationOfSlotInMin();
+            double delyForSlotsBeforeFinishedSlot = updateSlotsDto.Dely + breakDuration;
             foreach (var slot in updateSlotsDto.TimeSlotsList)
             {
                 bool enoughTimeForSlot = true;
-                if (slot.Id == breakBeforeFinishedSlot.Id)
+                if (breakBeforeFinishedSlot!=null && slot.Id == breakBeforeFinishedSlot.Id)
                 {
 
                     double brekaDuration = slot.getDurationOfSlotInMin();

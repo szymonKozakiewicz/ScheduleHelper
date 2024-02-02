@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ScheduleHelper.Core.Domain.Entities.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,6 +14,8 @@ namespace ScheduleHelper.Core.DTO
         public TimeOnly FinishTime { get; set; }
         public TimeOnly StartTime { get; set; }
         public int OrdinalNumber { get; set; }
+
+        public TimeSlotStatus Status { get; set; }
 
         public override bool Equals(object? obj)
         {

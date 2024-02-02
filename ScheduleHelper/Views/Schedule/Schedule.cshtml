@@ -1,4 +1,5 @@
 ﻿@using ScheduleHelper.Core.DTO;
+@using ScheduleHelper.Core.Domain.Entities.Enums;
 @model List<TimeSlotInScheduleDTO>
 <h1>Schedule</h1>
 
@@ -13,12 +14,22 @@
     <tbody>
         @foreach (var slot in Model)
         {
-
+            
+            String statusClass = "finished";
+            if(slot.Status==TimeSlotStatus.Canceled)
+                statusClass = "canceled";
+            if (slot.Status == TimeSlotStatus.Active)
+                statusClass = "active";
+            if(slot.Status == TimeSlotStatus.Finished)
+                statusClass = "finished";
             <tr>
-                <td>@slot.Name</td>
-                <td>@slot.StartTime</td>
-                <td>@slot.FinishTime</td>
-                <td><a href="@RouteConstants.FinishTimeSlot?slotId=@slot.Id&finishTime=@slot.FinishTime">finish</a></td>
+                <td class=@statusClass>@slot.Name</td>
+                <td class=@statusClass>@slot.StartTime</td>
+                <td class=@statusClass>@slot.FinishTime</td>
+                @if (slot.Status == TimeSlotStatus.Active){
+                         <td><a href="@RouteConstants.FinishTimeSlot?slotId=@slot.Id&finishTime=@slot.FinishTime">finish</a></td>
+                }
+                
             </tr>
         }
     </tbody>

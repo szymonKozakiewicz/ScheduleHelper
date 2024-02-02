@@ -29,7 +29,9 @@ namespace ScheduleHelper.Core.Extensions
                 FinishTime = timeSlot.FinishTime,
                 Id = (Guid)timeSlot.Id,
                 Name = name,
-                OrdinalNumber = timeSlot.OrdinalNumber
+                OrdinalNumber = timeSlot.OrdinalNumber,
+                Status = timeSlot.Status
+
 
 
             };

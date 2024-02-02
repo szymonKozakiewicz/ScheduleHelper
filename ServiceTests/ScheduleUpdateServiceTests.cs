@@ -8,11 +8,7 @@ using ScheduleHelper.Core.DTO;
 using ScheduleHelper.Core.ServiceContracts;
 using ScheduleHelper.Core.Services;
 using ScheduleHelper.ServiceTests.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 using Xunit;
 
 namespace ScheduleHelper.ServiceTests

@@ -65,15 +65,15 @@ namespace ScheduleHelper.Infrastructure.Repositories
         public async Task UpdateScheduleSettings(ScheduleSettings scheduleSettingsForDb)
         {
 
-            bool settingsExistsInDb = _dbContext.ScheduleSettings.ToList().Capacity == 0;
+            bool settingsExistsInDb = _dbContext.ScheduleSettings.ToList().Capacity != 0;
             if (settingsExistsInDb)
             {
-                _dbContext.ScheduleSettings.Update(scheduleSettingsForDb);
+                var oldSettings = _dbContext.ScheduleSettings.ToList()[0];
+                _dbContext.ScheduleSettings.Remove(oldSettings);
+                await _dbContext.SaveChangesAsync();
             }
-            else
-            {
-                _dbContext.ScheduleSettings.Add(scheduleSettingsForDb);
-            }
+            _dbContext.ScheduleSettings.Add(scheduleSettingsForDb);
+            
             
             await _dbContext.SaveChangesAsync();
         }
