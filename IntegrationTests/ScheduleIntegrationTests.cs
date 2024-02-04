@@ -35,10 +35,10 @@ namespace ScheduleHelper.IntegrationTests
         [Fact]
         public async Task ShowSchedule_shouldReturnView()
         {
-
+            //act
             HttpResponseMessage response = await _client.GetAsync(RouteConstants.ShowSchedule);
             
-            
+            //assert
             response.Should().BeSuccessful();
         }
 
@@ -67,9 +67,11 @@ namespace ScheduleHelper.IntegrationTests
         [Fact]
         public async Task GenerateScheduleSettings_shouldReturnView()
         {
+
+            //act
             HttpResponseMessage response = await _client.GetAsync(RouteConstants.GenerateScheduleSettings);
 
-
+            //assert
             response.Should().BeSuccessful();
         }
 
@@ -88,9 +90,11 @@ namespace ScheduleHelper.IntegrationTests
             };
             var settings=_dbContext.ScheduleSettings.ToList();
             var contetMessage=generateContentMessage(testModel);
+
+            //act
             HttpResponseMessage response = await _client.PostAsync(RouteConstants.GenerateScheduleSettings, contetMessage);
 
-
+            //assert
             response.StatusCode.Should().Be(HttpStatusCode.Created);
         }
 
@@ -102,9 +106,11 @@ namespace ScheduleHelper.IntegrationTests
         {
 
             var contetMessage = generateContentMessage(settingsDTO);
+
+            //act
             HttpResponseMessage response = await _client.PostAsync(RouteConstants.GenerateScheduleSettings, contetMessage);
 
-
+            //assert
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         }
 

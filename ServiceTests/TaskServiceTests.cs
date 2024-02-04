@@ -65,9 +65,10 @@ namespace ScheduleHelper.ServiceTests
             repositoryMock.Setup(mock => mock.GetTasks())
                 .ReturnsAsync(tasksListsInMemory);
 
+            //act
             var resultList= await _taskService.GetTasksList();
 
-
+            //assert
             resultList.Count.Should().Be(3);
             resultList.Should().Contain(covertSingleTaskToTaskForEditListDTO(task1));
             resultList.Should().Contain(covertSingleTaskToTaskForEditListDTO(task2));
@@ -81,7 +82,7 @@ namespace ScheduleHelper.ServiceTests
             Guid id = new Guid("B6FA49D1-7FFA-44A7-8859-BE5FC94FBDF2");
             repositoryMock.Setup(mock => mock.RemoveTaskWithId(It.IsAny<Guid>()));
 
-
+            //act
             await _taskService.RemoveTaskWithId(id);
 
 

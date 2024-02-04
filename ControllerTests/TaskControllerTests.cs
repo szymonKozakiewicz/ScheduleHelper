@@ -34,9 +34,10 @@ namespace ScheduleHelper.ControllerTests
         {
             var controller=new TasksController(_taskService);
 
-
+            //act
             var result=(ViewResult)await controller.AddNewTask();
 
+            //assert
             result.ViewData.Model.Should().BeOfType<TaskCreateDTO>();
         }
 
@@ -54,11 +55,11 @@ namespace ScheduleHelper.ControllerTests
             ServiceTestHelpers.setMockForResponseStatus(controller, HttpStatusCode.Created);
 
 
-
+            //act
             await controller.AddNewTask(model);
 
 
-
+            //assert
             _taskServiceMock.Verify(mock => mock.AddNewTask(It.IsAny<TaskCreateDTO>()), Times.Once);
 
         }
@@ -82,11 +83,11 @@ namespace ScheduleHelper.ControllerTests
             ServiceTestHelpers.setMockForResponseStatus(controller,HttpStatusCode.Created);
 
 
-
+            //act
             await controller.AddNewTask(model);
 
 
-
+            //assert
             _taskServiceMock.Verify(mock => mock.AddNewTask(It.IsAny<TaskCreateDTO>()), Times.Never);
 
         }
@@ -101,14 +102,14 @@ namespace ScheduleHelper.ControllerTests
             var controller = new TasksController(_taskService);
             ServiceTestHelpers.setMockForResponseStatus(controller, HttpStatusCode.OK);
 
-
+            //act
             await controller.DeleteTask(idToDelete);
 
-
+            //assert
             _taskServiceMock.Verify(mock => mock.RemoveTaskWithId(It.IsAny<Guid>()), Times.Once);
         }
 
-        [Fact]
+ 
         private void SetupMockForAddNewTaskMethodFromService()
         {
 

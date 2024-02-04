@@ -39,7 +39,11 @@ namespace ScheduleHelper.IntegrationTests
         [Fact]
         public async Task GetTasksListView_ShouldReturnView()
         {
+
+            //act
             HttpResponseMessage response = await _client.GetAsync(RouteConstants.ShowTasksList);
+            
+            //assert
             response.Should().BeSuccessful();
 
             
@@ -48,7 +52,10 @@ namespace ScheduleHelper.IntegrationTests
         [Fact]
         public async Task AddNewTask_ShouldReturnView()
         {
+            //act
             HttpResponseMessage response = await _client.GetAsync(RouteConstants.AddNewTask);
+            
+            //assert
             response.Should().BeSuccessful();
 
 
@@ -66,11 +73,11 @@ namespace ScheduleHelper.IntegrationTests
             };
             HttpContent httpContent = PrepareHttpContentForAddNewTaksRequest(model);
             
-            
+            //act
             HttpResponseMessage response = await _client.PostAsync(RouteConstants.AddNewTask, httpContent);
             
             
-            
+            //assert
             response.StatusCode.Should().Be(System.Net.HttpStatusCode.Created);
 
 
@@ -88,11 +95,11 @@ namespace ScheduleHelper.IntegrationTests
             };
             HttpContent httpContent = PrepareHttpContentForAddNewTaksRequest(model);
 
-
+            //act
             HttpResponseMessage response = await _client.PostAsync(RouteConstants.AddNewTask, httpContent);
 
 
-
+            //assert
             response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
 
 
@@ -103,18 +110,20 @@ namespace ScheduleHelper.IntegrationTests
         {
 
             var testTask = new SingleTask("Test", 234);
-            
 
             _dbContext.Add(testTask);
             _dbContext.SaveChanges();
-            var list = _dbContext.SingleTask.ToList();
+
 
 
             string route = RouteConstants.DeleteTask + "?taskToDeleteId=" + testTask.Id.ToString();
+
+            //act
             HttpResponseMessage response = await _client.GetAsync(route);
-            list = _dbContext.SingleTask.ToList();
 
 
+
+  
             //assert
             response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
             
@@ -134,6 +143,7 @@ namespace ScheduleHelper.IntegrationTests
             Guid idOfNotExistingTask= new Guid("8588FE67-B618-4ED0-BCB0-B0A2290F00AE");
 
             string route = RouteConstants.DeleteTask + "?taskToDeleteId=" + idOfNotExistingTask.ToString();
+            //act
             HttpResponseMessage response = await _client.GetAsync(route);
 
 
