@@ -33,14 +33,28 @@ namespace Infrastructure.Repositories
         public async Task RemoveTaskWithId(Guid id)
         {
 
-            var taskToRemove= await _dbContext.SingleTask.FindAsync(id);
+            var taskToRemove = await _dbContext.SingleTask.FindAsync(id);
             var list = _dbContext.SingleTask.ToList();
-            if(taskToRemove == null)
+            if (taskToRemove == null)
             {
                 throw new ArgumentException("There is no task with such id in Db");
             }
+
+            await removeTimeSlotsRelatedToTask(id);
+
             _dbContext.SingleTask.Remove(taskToRemove);
             await _dbContext.SaveChangesAsync();
+        }
+
+        private async Task removeTimeSlotsRelatedToTask(Guid id)
+        {
+            var relatedTimeSlots = _dbContext.TimeSlotsInSchedule.Where(ts => ts.task.Id == id).ToList();
+            if (relatedTimeSlots.Any())
+            {
+                // Jeśli istnieją powiązane rekordy, możesz je usunąć lub zaktualizować w zależności od wymagań biznesowych
+                _dbContext.TimeSlotsInSchedule.RemoveRange(relatedTimeSlots);
+                await _dbContext.SaveChangesAsync();
+            }
         }
     }
 }
