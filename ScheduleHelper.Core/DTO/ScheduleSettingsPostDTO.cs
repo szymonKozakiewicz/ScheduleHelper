@@ -11,6 +11,7 @@ namespace ScheduleHelper.Core.DTO
     public class ScheduleSettingsPostDTO
     {
         [Required]
+        [StartTimeNotLaterThanFinish]
         public string startTime { get; set; }
         [Required]
         public string finishTime { get; set; }

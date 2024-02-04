@@ -1,0 +1,14 @@
+﻿
+@if (ViewBag.ErrorsList != null)
+{
+    <h2>Error list:</h2>
+    <ol>
+        @foreach (var error in ViewBag.ErrorsList)
+        {
+
+            <li>@error</li>
+
+        }
+
+    </ol>
+}

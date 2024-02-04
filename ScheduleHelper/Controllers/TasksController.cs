@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ScheduleHelper.Core.DTO;
 using ScheduleHelper.Core.ServiceContracts;
+using ScheduleHelper.UI.Helpers;
 using System.Net;
 
 namespace ScheduleHelper.UI.Controllers
@@ -46,10 +47,12 @@ namespace ScheduleHelper.UI.Controllers
             if (ValidationHelper.HasObjectGotValidationErrors(newTask))
             {
                 ViewBag.OperationStatus = "Operation Failed!";
+                var errors = ValidationHelper.GetErrorsList(ModelState);
+                ViewBag.ErrorsList = errors;
                 Response.StatusCode = (int)HttpStatusCode.BadRequest;
                 return View("OperationStatus");
             }
-           
+
             try
             {
                 await _taskService.AddNewTask(newTask);
@@ -68,6 +71,20 @@ namespace ScheduleHelper.UI.Controllers
             return View("OperationStatus");
         }
 
+        private void addErrorsToViewBag()
+        {
+            List<string> errors = new List<string>();
+            foreach (var value in ModelState.Values)
+            {
+                foreach (var error in value.Errors)
+                {
+                    errors.Add(error.ErrorMessage);
+
+                }
+
+            }
+            
+        }
 
         [Route(RouteConstants.UpdateTask)]
         public async Task<IActionResult> EditTask(TaskCreateDTO taskToUpdate)

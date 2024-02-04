@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ScheduleHelper.Core.DTO;
 using ScheduleHelper.Core.ServiceContracts;
+using ScheduleHelper.UI.Helpers;
 using System.Buffers;
 using System.Net;
 
@@ -53,7 +54,9 @@ namespace ScheduleHelper.UI.Controllers
             {
                 ViewBag.OperationStatus = "Operation failed!";
                 Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                return View("OperationStatus");
+                var errors = ValidationHelper.GetErrorsList(ModelState);
+                ViewBag.ErrorsList = errors;
+                return View("OperationStatusSchedule");
 
             }
             try
@@ -63,7 +66,7 @@ namespace ScheduleHelper.UI.Controllers
             catch (Exception ex) {
                 ViewBag.OperationStatus = "Operation failed!";
                 Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                return View("OperationStatus");
+                return View("OperationStatusSchedule");
             }
 
 
