@@ -3,6 +3,11 @@
 @model List<TimeSlotInScheduleDTO>
 <h1>Schedule</h1>
 
+<style>
+
+
+</style>
+
 <table>
     <thead>
         <tr>
@@ -34,6 +39,8 @@
         }
     </tbody>
 </table>
+
+
 @if (ViewBag.tasksNotInSchedule.Count != 0)
 {
     <h2>Tasks not set in schedule:</h2>
@@ -56,5 +63,35 @@
     </table>
 }
 
-<a href=@RouteConstants.ShowTasksList>Edit tasks list</a>
-<a href=@RouteConstants.GenerateScheduleSettings>Generate schedule</a>
+<div class="chart-container">
+    <canvas id="myChart" width="400" height="400"></canvas>
+</div>
+
+
+<div class="links">
+    <a href=@RouteConstants.ShowTasksList>Edit tasks list</a>
+    <a href=@RouteConstants.GenerateScheduleSettings>Generate schedule</a>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    var data = {
+        labels: ['Canceled', 'Finished', 'Active'],
+        datasets: [{
+            data: [@ViewBag.ShareOfCanceledSlots, @ViewBag.ShareOfFinishedSlots, @ViewBag.ShareOfActiveSlots],
+            backgroundColor: ['#ff6384', '#36a2eb', '#ffce56'] 
+        }]
+    };
+
+
+    var ctx = document.getElementById('myChart').getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'pie',
+        data: data,
+        options: {
+            
+        }
+    });
+</script>

@@ -1,5 +1,6 @@
 ﻿using ScheduleHelper.Core.Domain.Entities;
 using ScheduleHelper.Core.Domain.Entities.Builders;
+using ScheduleHelper.Core.Domain.Entities.Enums;
 using ScheduleHelper.Core.DTO;
 using System;
 using System.Collections.Generic;
@@ -104,6 +105,8 @@ namespace ScheduleHelper.ServiceTests.Helpers
             return timeSlotList;
 
         }
+
+
 
     }
 }

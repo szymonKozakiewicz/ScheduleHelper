@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using ScheduleHelper.Core.Domain.Entities;
 using ScheduleHelper.Core.Domain.Entities.Builders;
+using ScheduleHelper.Core.Domain.Entities.Enums;
 using ScheduleHelper.Core.Domain.RepositoryContracts;
 using ScheduleHelper.Core.DTO;
 using ScheduleHelper.Core.ServiceContracts;
@@ -187,7 +188,40 @@ namespace ScheduleHelper.ServiceTests
 
 
         }
- 
 
+
+        [Fact]
+        public async Task GetShareOfSlotsWithStatus_forValidData_ShouldReturnExpectedResults()
+        {
+
+            List<TimeSlotInSchedule> slots = new List<TimeSlotInSchedule>()
+            {
+                new TimeSlotInSchedule(){StartTime=new TimeOnly(1,0),FinishTime=new TimeOnly(2,0), Status=TimeSlotStatus.Finished},
+                new TimeSlotInSchedule(){StartTime=new TimeOnly(1,0),FinishTime=new TimeOnly(2,0),Status=TimeSlotStatus.Active},
+                new TimeSlotInSchedule(){StartTime=new TimeOnly(1,0),FinishTime=new TimeOnly(2,0),Status=TimeSlotStatus.Active},
+                new TimeSlotInSchedule(){StartTime=new TimeOnly(1,0),FinishTime=new TimeOnly(2,0),Status=TimeSlotStatus.Active},
+                new TimeSlotInSchedule(){StartTime=new TimeOnly(1,0),FinishTime=new TimeOnly(2,0),Status=TimeSlotStatus.Canceled},
+                new TimeSlotInSchedule(){StartTime=new TimeOnly(1,0),FinishTime=new TimeOnly(2,0),Status=TimeSlotStatus.Finished},
+                new TimeSlotInSchedule(){StartTime=new TimeOnly(1,0),FinishTime=new TimeOnly(2,0),Status=TimeSlotStatus.Active},
+                new TimeSlotInSchedule(){StartTime=new TimeOnly(1,0),FinishTime=new TimeOnly(3,0),Status=TimeSlotStatus.Canceled},
+                new TimeSlotInSchedule(){StartTime=new TimeOnly(1,0),FinishTime=new TimeOnly(2,0),Status=TimeSlotStatus.Active}
+                
+            };
+            _scheduleRespositorMock.Setup(m => m.GetTimeSlotsList())
+                .ReturnsAsync(slots);
+
+            //act
+            var active=await _scheduleService.GetShareOfTimeOfSlotsWithStatus(TimeSlotStatus.Active);
+            var finished=await _scheduleService.GetShareOfTimeOfSlotsWithStatus(TimeSlotStatus.Finished);
+            var canceled=await _scheduleService.GetShareOfTimeOfSlotsWithStatus(TimeSlotStatus.Canceled);
+
+
+            //assert
+            active.Should().Be(50);
+            finished.Should().Be(20);
+            canceled.Should().Be(30);
+
+
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ScheduleHelper.Core.DTO;
 using ScheduleHelper.Core.ServiceContracts;
+using ScheduleHelper.UI.Constants;
 using ScheduleHelper.UI.Helpers;
 using System.Net;
 
@@ -46,7 +47,7 @@ namespace ScheduleHelper.UI.Controllers
             int minimalTimeValue = 0;
             if (ValidationHelper.HasObjectGotValidationErrors(newTask))
             {
-                ViewBag.OperationStatus = "Operation Failed!";
+                ViewBag.OperationStatus = ConstantsValues.FailedOperation;
                 var errors = ValidationHelper.GetErrorsList(ModelState);
                 ViewBag.ErrorsList = errors;
                 Response.StatusCode = (int)HttpStatusCode.BadRequest;
@@ -61,7 +62,7 @@ namespace ScheduleHelper.UI.Controllers
             }
             catch (Exception ex)
             {
-                ViewBag.OperationStatus = "Operation failed!";
+                ViewBag.OperationStatus = ConstantsValues.FailedOperation;
                 Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             }
             
@@ -110,7 +111,7 @@ namespace ScheduleHelper.UI.Controllers
             }
             catch (Exception ex)
             {
-                ViewBag.OperationStatus = "Operation failed!";
+                ViewBag.OperationStatus = ConstantsValues.FailedOperation;
                 Response.StatusCode = (int)HttpStatusCode.BadRequest;
                 
 

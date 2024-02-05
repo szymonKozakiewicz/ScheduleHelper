@@ -1,0 +1,9 @@
+﻿.chart-container {
+    max-width: 200px;
+    margin: 0 auto;
+    float: left;
+}
+
+.links {
+    clear: both;
+}

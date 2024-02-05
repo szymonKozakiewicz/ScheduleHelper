@@ -12,7 +12,7 @@ namespace ScheduleHelper.Core.ServiceContracts
     {
         
         public Task GenerateSchedule(ScheduleSettingsDTO scheduleSettings);
-
+        public Task<int> GetShareOfTimeOfSlotsWithStatus(TimeSlotStatus status);
         Task<List<TaskForEditListDTO>> GetTasksNotSetInSchedule();
         public Task<List<TimeSlotInScheduleDTO>> GetTimeSlotsList();
 

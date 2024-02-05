@@ -146,7 +146,27 @@ namespace ScheduleHelper.Core.Services
             }
         }
 
+        public async Task<int> GetShareOfTimeOfSlotsWithStatus(TimeSlotStatus status)
+        {
+            var slots= await _scheduleRepository.GetTimeSlotsList();
+            var slotsWithStatus = slots.Where(slot =>slot.Status==status).ToList();
+            double sumOfTimeForSlotsWithStatus = 0;
+            foreach(var slot in slotsWithStatus)
+            {
+                sumOfTimeForSlotsWithStatus += slot.getDurationOfSlotInMin();
+            }
+            double sumOfTimeForAllSlots = 0;
+            foreach (var slot in slots)
+            {
+                sumOfTimeForAllSlots += slot.getDurationOfSlotInMin();
+            }
+            if (sumOfTimeForAllSlots > 0)
+            {
+                int result = (int)Math.Round(100* sumOfTimeForSlotsWithStatus / sumOfTimeForAllSlots);
+                return result;
+            }
 
-
+            return 0;
+        }
     }
 }
