@@ -105,6 +105,9 @@ namespace ScheduleHelper.IntegrationTests
 
         }
 
+
+
+
         [Fact]
         public async Task DeleteTask_ForValidId_StatusShouldBeOk()
         {

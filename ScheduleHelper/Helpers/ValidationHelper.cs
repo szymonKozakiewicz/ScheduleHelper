@@ -8,7 +8,7 @@ namespace ScheduleHelper.UI.Helpers
         public static bool HasObjectGotValidationErrors(object objectToValidate)
         {
             if (objectToValidate == null)
-                return false;
+                return true;
             ValidationContext validationContext = new ValidationContext(objectToValidate);
             List<ValidationResult> results = new List<ValidationResult>();
             bool isCorrect = Validator.TryValidateObject(objectToValidate, validationContext, results, true);

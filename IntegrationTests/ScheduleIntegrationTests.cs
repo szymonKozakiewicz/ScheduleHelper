@@ -62,7 +62,32 @@ namespace ScheduleHelper.IntegrationTests
             response.StatusCode.Should().Be(HttpStatusCode.Created);
         }
 
-     
+
+
+        [Theory]
+        [InlineData("2","true", "02:12","blablaasdasd")]
+        [InlineData("2","true", "blablaasdasd", "05:12")]
+        [InlineData("2", "blablaasdasd", "02:12", "05:12")]
+        [InlineData("blablaasdasd", "true", "02:12", "05:12")]
+        public async Task GenerateScheduleSettings_ForNotValidData_shouldReturnsBadRequest(string breakLenghtMin,string hasScheduledBreaks,string startTime,string finishTime)
+        {
+   
+            
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.Append($"breakLenghtMin={hasScheduledBreaks}");
+            stringBuilder.Append($"&hasScheduledBreaks={hasScheduledBreaks}");
+            stringBuilder.Append($"&startTime={startTime}");
+            stringBuilder.Append($"&finishTime={finishTime}");
+            var contentStr = stringBuilder.ToString();
+            HttpContent httpContent = new StringContent(contentStr, UnicodeEncoding.UTF8, "application/x-www-form-urlencoded");
+
+            HttpResponseMessage response = await _client.PostAsync(RouteConstants.GenerateScheduleSettings, httpContent);
+
+
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        }
+
+
 
         [Fact]
         public async Task GenerateScheduleSettings_shouldReturnView()
@@ -162,6 +187,11 @@ namespace ScheduleHelper.IntegrationTests
             //assert
             result.Should().BeSuccessful();
         }
+
+
+
+
+
 
         public static IEnumerable<object[]> GetSampleOfInvalidDataForGenerateScheduleSettingsTest()
         {
