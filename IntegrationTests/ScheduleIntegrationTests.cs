@@ -88,7 +88,7 @@ namespace ScheduleHelper.IntegrationTests
                 finishTime = new TimeOnly(21, 24),
                 
             };
-            var settings=_dbContext.ScheduleSettings.ToList();
+
             var contetMessage=generateContentMessage(testModel);
 
             //act

@@ -35,7 +35,9 @@ namespace ScheduleHelper.Core.Services
             var scheduleSettingsForDb = new ScheduleSettings()
             {
                 breakDurationMin=scheduleSettings.breakLenghtMin,
-                FinishTime=scheduleSettings.finishTime
+                FinishTime=scheduleSettings.finishTime,
+                StartTime=scheduleSettings.startTime
+
 
             };
             

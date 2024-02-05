@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ScheduleHelper.Core.DTO;
 using ScheduleHelper.Core.ServiceContracts;
+using ScheduleHelper.UI.CustomBinders;
 using ScheduleHelper.UI.Helpers;
 using System.Buffers;
 using System.Net;
@@ -39,13 +40,18 @@ namespace ScheduleHelper.UI.Controllers
         {
 
             ViewBag.Title = "Schedule settings";
-            return View("GenerateScheduleSettings", new ScheduleSettingsPostDTO());
+            return View("GenerateScheduleSettings", new ScheduleSettingsDTO()
+
+            {
+                hasScheduledBreaks = true,
+                breakLenghtMin=20
+            });
         }
 
 
         [Route(RouteConstants.GenerateScheduleSettings)]
         [HttpPost]
-        public async Task<IActionResult> GenerateScheduleSettings(ScheduleSettingsPostDTO scheduleSettings)
+        public async Task<IActionResult> GenerateScheduleSettings([ModelBinder(typeof(ScheduleSettingsBinder))] ScheduleSettingsDTO scheduleSettings)
         {
 
             
@@ -61,7 +67,7 @@ namespace ScheduleHelper.UI.Controllers
             }
             try
             {
-                await _scheduleService.GenerateSchedule(scheduleSettings.ConvertToScheduleSettingsDTO());
+                await _scheduleService.GenerateSchedule(scheduleSettings);
             }
             catch (Exception ex) {
                 ViewBag.OperationStatus = "Operation failed!";

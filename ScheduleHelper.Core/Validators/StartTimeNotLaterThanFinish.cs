@@ -12,10 +12,9 @@ namespace ScheduleHelper.Core.Validators
     {
         protected override ValidationResult IsValid(object? value, ValidationContext validationContext)
         {
-            var instance=(ScheduleSettingsPostDTO)validationContext.ObjectInstance;
-            var startTime = TimeOnly.Parse((string)value);
-            var finishTime = TimeOnly.Parse(instance.finishTime);
-            if (startTime<finishTime) {
+            var instance=(ScheduleSettingsDTO)validationContext.ObjectInstance;
+            
+            if (instance.startTime<instance.finishTime) {
                 return ValidationResult.Success; 
             
             }

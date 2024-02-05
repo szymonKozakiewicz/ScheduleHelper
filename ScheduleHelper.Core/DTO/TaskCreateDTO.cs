@@ -13,7 +13,7 @@ namespace ScheduleHelper.Core.DTO
         [Required]
         public string Name { get; set; }
         [Required]
-        [MoreThanZeroValidation(ErrorMessage ="Time has to be greater than 0")]
+        [MoreThanZero(ErrorMessage ="Time has to be greater than 0")]
         public double Time { get; set; }
 
         public TaskCreateDTO() {

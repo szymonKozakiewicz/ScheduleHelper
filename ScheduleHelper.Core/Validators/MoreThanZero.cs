@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ScheduleHelper.Core.Validators
 {
-    public class MoreThanZeroValidationAttribute : ValidationAttribute
+    public class MoreThanZero : ValidationAttribute
     {
         public override bool IsValid(object? value)
         {
