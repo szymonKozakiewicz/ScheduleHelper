@@ -54,8 +54,13 @@ namespace ScheduleHelper.UI.Controllers
 
             {
                 hasScheduledBreaks = true,
-                breakLenghtMin=20
-            });
+                breakLenghtMin = 20,
+                startTime = new TimeOnly(8,0),
+                finishTime= new TimeOnly(22,0),
+                MaxWorkTimeBeforeBreakMin = 60,
+                MinWorkTimeBeforeBreakMin=45
+
+            }); 
         }
 
 

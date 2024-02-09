@@ -29,59 +29,15 @@ namespace ScheduleHelper.Core.Services
         }
         public async Task GenerateSchedule(ScheduleSettingsDTO scheduleSettings)
         {
-            _scheduleSettings= scheduleSettings;
+            _scheduleSettings = scheduleSettings;
             await _scheduleRepository.CleanTimeSlotInScheduleTable();
-            var tasksList= await _taskRepository.GetTasks();
-            var scheduleSettingsForDb = new ScheduleSettings()
-            {
-                breakDurationMin=scheduleSettings.breakLenghtMin,
-                FinishTime=scheduleSettings.finishTime,
-                StartTime=scheduleSettings.startTime
+            var tasksList = await _taskRepository.GetTasks();
+            await updateScheduleSettings(scheduleSettings);
 
-
-            };
-            
-            await _scheduleRepository.UpdateScheduleSettings(scheduleSettingsForDb);
-
-            var iterationState = new IterationStateForGenerateSchedule(scheduleSettings.startTime);
-            TimeSlotInSchedule? timeSlotForBreak= null;
-            for (int i=0;i<tasksList.Count;i++)
-            {
-                var task = tasksList[i];
-                TimeSlotInSchedule timeSlotForTask = makeTimeSlot(iterationState, task);
-                bool timeSlotNotCreated = timeSlotForTask == null;
-                if (timeSlotNotCreated)
-                    break;
-                iterationState.UpdateState(timeSlotForTask.FinishTime);
-                
-
-                bool NotFirstIteration = timeSlotForBreak != null;
-                if (NotFirstIteration)
-                    await _scheduleRepository.AddNewTimeSlot(timeSlotForBreak);
-                await _scheduleRepository.AddNewTimeSlot(timeSlotForTask); 
-                
-
-                if (scheduleSettings.hasScheduledBreaks)
-                {
-
-                    timeSlotForBreak = makeTimeSlot(iterationState, null);
-                    timeSlotNotCreated = timeSlotForBreak == null;
-                    if (timeSlotNotCreated)
-                    {
-                        break;
-                    }
-                    iterationState.UpdateState(timeSlotForBreak.FinishTime);
-                    
-          
-                }
-
-            }
+            await addEachTaskToSchedule(scheduleSettings, tasksList);
 
         }
 
-    
-
- 
 
 
         public async Task<List<TimeSlotInScheduleDTO>> GetTimeSlotsList()
@@ -103,7 +59,9 @@ namespace ScheduleHelper.Core.Services
         }
 
 
-        private TimeSlotInSchedule makeTimeSlot(IterationStateForGenerateSchedule iterationState, SingleTask? task)
+
+
+        private TimeSlotInSchedule makeTimeSlot(IterationStateForGenerateSchedule iterationState,double taskDuration, SingleTask? task)
         {
 
 
@@ -117,7 +75,7 @@ namespace ScheduleHelper.Core.Services
             }
             else
             {
-                slotDurationMin = task.TimeMin;
+                slotDurationMin = taskDuration;
             }
 
 
@@ -167,6 +125,84 @@ namespace ScheduleHelper.Core.Services
             }
 
             return 0;
+        }
+
+        private async Task addEachTaskToSchedule(ScheduleSettingsDTO scheduleSettings, List<SingleTask> tasksList)
+        {
+            var iterationState = new IterationStateForGenerateSchedule(scheduleSettings.startTime);
+            TimeSlotInSchedule? timeSlotForBreak = null;
+            bool shouldBeBreak = false;
+            List<SingleTask> orginalTasksList = new List<SingleTask>();
+            foreach(var task in tasksList)
+            {
+                orginalTasksList.Add(task.Copy());
+            }
+            for (int i = 0; i < tasksList.Count; i++)
+            {
+                var task = tasksList[i];
+                SingleTask orginalTask = orginalTasksList[i];
+
+                bool taskShouldBeSplitted = iterationState.TimeOfWorkFromLastBreak + task.TimeMin > scheduleSettings.MaxWorkTimeBeforeBreakMin;
+                if (taskShouldBeSplitted)
+                {
+                    task=splitTask(scheduleSettings, iterationState.TimeOfWorkFromLastBreak,  task);
+                    i--;
+                }
+
+               
+                TimeSlotInSchedule timeSlotForTask = makeTimeSlot(iterationState,task.TimeMin, orginalTask);
+                bool timeSlotNotCreated = timeSlotForTask == null;
+                if (timeSlotNotCreated)
+                    break;
+                iterationState.UpdateState(timeSlotForTask.FinishTime,task.TimeMin);
+
+
+                
+                if (shouldBeBreak)
+                    await _scheduleRepository.AddNewTimeSlot(timeSlotForBreak);
+                await _scheduleRepository.AddNewTimeSlot(timeSlotForTask);
+
+                shouldBeBreak = iterationState.TimeOfWorkFromLastBreak > scheduleSettings.MinWorkTimeBeforeBreakMin;
+                if (scheduleSettings.hasScheduledBreaks && shouldBeBreak)
+                {
+
+                    timeSlotForBreak = makeTimeSlot(iterationState,20, null);
+                    timeSlotNotCreated = timeSlotForBreak == null;
+                    if (timeSlotNotCreated)
+                    {
+                        break;
+                    }
+                    iterationState.UpdateStateAfterBreak(timeSlotForBreak.FinishTime);
+
+
+                }
+
+            }
+        }
+
+        private SingleTask splitTask(ScheduleSettingsDTO scheduleSettings, double timeOfWorkFromLastBreak, SingleTask task)
+        {
+            var avaiableTimeToBreak = scheduleSettings.MaxWorkTimeBeforeBreakMin - timeOfWorkFromLastBreak;
+            var newTask = task.Copy();
+            newTask.TimeMin = avaiableTimeToBreak;
+            task.TimeMin = task.TimeMin - avaiableTimeToBreak;
+            return newTask;
+            
+        }
+
+        private async Task updateScheduleSettings(ScheduleSettingsDTO scheduleSettings)
+        {
+            var scheduleSettingsForDb = new ScheduleSettings()
+            {
+                breakDurationMin = scheduleSettings.breakLenghtMin,
+                FinishTime = scheduleSettings.finishTime,
+                StartTime = scheduleSettings.startTime,
+                MaxWorkTimeBeforeBreakMin = scheduleSettings.MaxWorkTimeBeforeBreakMin,
+                MinWorkTimeBeforeBreakMin = scheduleSettings.MinWorkTimeBeforeBreakMin,
+
+            };
+
+            await _scheduleRepository.UpdateScheduleSettings(scheduleSettingsForDb);
         }
     }
 }

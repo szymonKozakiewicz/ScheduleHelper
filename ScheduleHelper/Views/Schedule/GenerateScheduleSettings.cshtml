@@ -5,13 +5,21 @@
     <label>Start time</label>
     <input asp-for=startTime type="time"/>
     <br/>
-    <label>Finish time</label>
+    <label asp-for="finishTime">Finish time</label>
     <input asp-for=finishTime type="time" />
+    <br />
     <label>Breaks</label>
     <input asp-for=hasScheduledBreaks type="checkbox" />
     <br/>
     <label>Break lenght(minutes)</label>>
     <input asp-for=breakLenghtMin type="number" />
+    </br>
+    <label>Minimal time between breaks</label>>
+
+    <input asp-for="MinWorkTimeBeforeBreakMin"></input>
+    <br />
+    <label>Max time between breaks</label>>
+    <input asp-for="MaxWorkTimeBeforeBreakMin"></input>
     </br>
     <input type="submit" value="Generate schedule"></input>
 </form>

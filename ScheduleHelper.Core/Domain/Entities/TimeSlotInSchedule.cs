@@ -43,21 +43,7 @@ namespace ScheduleHelper.Core.Domain.Entities
         {
             return task.Name;
         }
-        public override bool Equals(object? obj)
-        {
-            return obj is TimeSlotInSchedule schedule &&
-                   FinishTime.AreTimesEqualWithTolerance(schedule.FinishTime) &&
-                   StartTime.AreTimesEqualWithTolerance(schedule.StartTime) &&
-                   EqualityComparer<SingleTask>.Default.Equals(task, schedule.task) &&
-                   IsItBreak == schedule.IsItBreak &&
-                   OrdinalNumber == schedule.OrdinalNumber &&
-                   Status==schedule.Status;
-        }
-
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(FinishTime, StartTime, task, IsItBreak, OrdinalNumber);
-        }
+       
 
         public double getDurationOfSlotInMin()
         {
@@ -68,6 +54,22 @@ namespace ScheduleHelper.Core.Domain.Entities
         {
             FinishTime=FinishTime.AddMinutes(delyMin);
             StartTime=StartTime.AddMinutes(delyMin);
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is TimeSlotInSchedule schedule &&
+                   EqualityComparer<Guid?>.Default.Equals(Id, schedule.Id) &&
+                   FinishTime.Equals(schedule.FinishTime) &&
+                   StartTime.Equals(schedule.StartTime) &&
+                   EqualityComparer<SingleTask?>.Default.Equals(task, schedule.task) &&
+                   IsItBreak == schedule.IsItBreak &&
+                   Status == schedule.Status;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Id, FinishTime, StartTime, task, IsItBreak, Status);
         }
     }
 }

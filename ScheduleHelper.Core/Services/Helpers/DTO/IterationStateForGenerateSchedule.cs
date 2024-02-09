@@ -12,9 +12,11 @@ namespace ScheduleHelper.Core.Services.Helpers
         {
             _currentOrdinalNumber = 1;
             _currentTime = currentTime;
+            TimeOfWorkFromLastBreak = 0;
         }
         private int _currentOrdinalNumber;
         private TimeOnly _currentTime;
+        public double TimeOfWorkFromLastBreak;
         public int CurrentOrdinalNumber
         { 
             
@@ -28,10 +30,26 @@ namespace ScheduleHelper.Core.Services.Helpers
         
         }
 
-        public void UpdateState(TimeOnly newCurrentTime)
+        public void UpdateState(TimeOnly newCurrentTime,double lastTimeSlotDuration)
         {
             CurrentTime = newCurrentTime;
             CurrentOrdinalNumber++;
+           
+            TimeOfWorkFromLastBreak+= lastTimeSlotDuration;
+            
+            
+        }
+
+
+        public void UpdateStateAfterBreak(TimeOnly newCurrentTime)
+        {
+            CurrentTime = newCurrentTime;
+            CurrentOrdinalNumber++;
+           
+            
+            TimeOfWorkFromLastBreak =0 ;
+            
+
         }
     }
 }

@@ -53,11 +53,7 @@ namespace ScheduleHelper.ServiceTests
             var listOfSlotsPassedAsArgument = new List<TimeSlotInSchedule>();
             int expectedNumberOfTimeSlots = expectedTimeSlotsList.Count;
 
-            _taskRepositoryMock.Setup(m => m.GetTasks()).ReturnsAsync(tasksListsInMemory);
-            _scheduleRespositorMock.Setup(m => m.AddNewTimeSlot(It.IsAny<TimeSlotInSchedule>())).
-                Callback((TimeSlotInSchedule timeSlot)=>listOfSlotsPassedAsArgument.Add(timeSlot));
-            _scheduleRespositorMock.Setup(m => m.CleanTimeSlotInScheduleTable());
-            _scheduleRespositorMock.Setup(m => m.UpdateScheduleSettings(It.IsAny<ScheduleSettings>()));
+            setupMockMethods(tasksListsInMemory, listOfSlotsPassedAsArgument);
 
 
 
@@ -81,11 +77,7 @@ namespace ScheduleHelper.ServiceTests
             var listOfSlotsPassedAsArgument = new List<TimeSlotInSchedule>();
             int expectedNumberOfTimeSlots = expectedTimeSlotsList.Count;
 
-            _taskRepositoryMock.Setup(m => m.GetTasks()).ReturnsAsync(tasksListsInMemory);
-            _scheduleRespositorMock.Setup(m => m.AddNewTimeSlot(It.IsAny<TimeSlotInSchedule>())).
-                Callback((TimeSlotInSchedule timeSlot) => listOfSlotsPassedAsArgument.Add(timeSlot));
-            _scheduleRespositorMock.Setup(m => m.CleanTimeSlotInScheduleTable());
-            _scheduleRespositorMock.Setup(m => m.UpdateScheduleSettings(It.IsAny<ScheduleSettings>()));
+            setupMockMethods(tasksListsInMemory, listOfSlotsPassedAsArgument);
 
 
 
@@ -98,6 +90,30 @@ namespace ScheduleHelper.ServiceTests
             _scheduleRespositorMock.Verify(m => m.AddNewTimeSlot(It.IsAny<TimeSlotInSchedule>()), Times.Exactly(expectedNumberOfTimeSlots));
             listOfSlotsPassedAsArgument.Should().BeEquivalentTo(expectedTimeSlotsList);
         }
+
+
+        [Theory]
+        [ClassData(typeof(ArgumentsForGenerateScheduleForValidDataButOneTaskHaveToBeSplitted))]
+        public async Task GenerateSchedule_forValidDataButOneTaskHaveToBeSplitted_SchouldCallRepositoryAddMethods(ScheduleSettingsDTO testScheduleSettings, List<SingleTask> tasksListsInMemory, List<TimeSlotInSchedule> expectedTimeSlotsList)
+        {
+
+            var listOfSlotsPassedAsArgument = new List<TimeSlotInSchedule>();
+            int expectedNumberOfTimeSlots = expectedTimeSlotsList.Count;
+
+            setupMockMethods(tasksListsInMemory, listOfSlotsPassedAsArgument);
+
+
+
+
+            //act
+            await _scheduleService.GenerateSchedule(testScheduleSettings);
+
+
+            //assert
+            _scheduleRespositorMock.Verify(m => m.AddNewTimeSlot(It.IsAny<TimeSlotInSchedule>()), Times.Exactly(expectedNumberOfTimeSlots));
+            listOfSlotsPassedAsArgument.Should().BeEquivalentTo(expectedTimeSlotsList);
+        }
+
 
         [Fact]
         public async Task GetTimeSlotsList_ForValidData_ReturnsTimeSlotList()
@@ -222,6 +238,16 @@ namespace ScheduleHelper.ServiceTests
             canceled.Should().Be(30);
 
 
+        }
+
+
+        private void setupMockMethods(List<SingleTask> tasksListsInMemory, List<TimeSlotInSchedule> listOfSlotsPassedAsArgument)
+        {
+            _taskRepositoryMock.Setup(m => m.GetTasks()).ReturnsAsync(tasksListsInMemory);
+            _scheduleRespositorMock.Setup(m => m.AddNewTimeSlot(It.IsAny<TimeSlotInSchedule>())).
+                Callback((TimeSlotInSchedule timeSlot) => listOfSlotsPassedAsArgument.Add(timeSlot));
+            _scheduleRespositorMock.Setup(m => m.CleanTimeSlotInScheduleTable());
+            _scheduleRespositorMock.Setup(m => m.UpdateScheduleSettings(It.IsAny<ScheduleSettings>()));
         }
     }
 }

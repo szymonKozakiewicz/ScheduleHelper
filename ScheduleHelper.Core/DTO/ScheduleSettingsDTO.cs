@@ -23,5 +23,13 @@ namespace ScheduleHelper.Core.DTO
 
         [MoreThanZero(ErrorMessage ="break duration has to be greater than 0")]
         public double breakLenghtMin { get; set; }
+
+        
+        [MoreThanZero(ErrorMessage = "Minimal time of work has to be greater than 0")]
+        public double MaxWorkTimeBeforeBreakMin { get; set; }
+
+        
+        [MoreThanZero(ErrorMessage = "Max time of work has to be greater than 0")]
+        public double MinWorkTimeBeforeBreakMin { get; set; }
     }
 }

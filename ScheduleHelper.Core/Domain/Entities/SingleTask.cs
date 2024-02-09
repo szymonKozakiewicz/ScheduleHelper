@@ -16,6 +16,8 @@ namespace ScheduleHelper.Core.Domain.Entities
         [Key]
         public Guid Id { get; set; }
 
+
+
         public SingleTask(string name, double timeMin)
         {
             Name = name;
@@ -32,6 +34,14 @@ namespace ScheduleHelper.Core.Domain.Entities
         public override int GetHashCode()
         {
             return HashCode.Combine(Name, TimeMin);
+        }
+
+        public SingleTask Copy()
+        {
+            var newTask = new SingleTask(Name, TimeMin);
+            newTask.Id= Id;
+            return newTask;
+            
         }
     }
 }

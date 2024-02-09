@@ -51,6 +51,8 @@ namespace ScheduleHelper.IntegrationTests
                 hasScheduledBreaks = true,
                 startTime = new TimeOnly(12, 24),
                 finishTime = new TimeOnly(21, 24),
+                MaxWorkTimeBeforeBreakMin = 60,
+                MinWorkTimeBeforeBreakMin = 10
 
             };
             HttpContent httpContent = generateContentMessage(model);
@@ -111,6 +113,8 @@ namespace ScheduleHelper.IntegrationTests
                 hasScheduledBreaks = true,
                 startTime = new TimeOnly(12, 24),
                 finishTime = new TimeOnly(21, 24),
+                MaxWorkTimeBeforeBreakMin=60,
+                MinWorkTimeBeforeBreakMin=10
                 
             };
 
@@ -159,6 +163,13 @@ namespace ScheduleHelper.IntegrationTests
             
             var finishTime = new TimeOnly(12, 23).ToString();
             SingleTask task = new SingleTask("test", 23);
+            var settings = new ScheduleSettings()
+            {
+                breakDurationMin = 20,
+                FinishTime = new TimeOnly(23, 59),
+                StartTime = new TimeOnly(2, 0)
+
+            };
             var timeSlot = new TimeSlotInScheduleBuilder()
                 .SetFinishTime(new TimeOnly(20, 0))
                 .SetStartTime(new TimeOnly(19, 0))
@@ -170,8 +181,8 @@ namespace ScheduleHelper.IntegrationTests
             await _dbContext.SaveChangesAsync();
             _dbContext.TimeSlotsInSchedule.Add(timeSlot);
             await _dbContext.SaveChangesAsync();
-
-
+            _dbContext.ScheduleSettings.Add(settings);
+            await _dbContext.SaveChangesAsync();
 
             var model = new FinaliseSlotDTO()
             {
@@ -225,6 +236,8 @@ namespace ScheduleHelper.IntegrationTests
             stringBuilder.Append($"&hasScheduledBreaks={model.hasScheduledBreaks}");
             stringBuilder.Append($"&startTime={model.startTime}");
             stringBuilder.Append($"&finishTime={model.finishTime}");
+            stringBuilder.Append($"&MaxWorkTimeBeforeBreakMin={model.MaxWorkTimeBeforeBreakMin}");
+            stringBuilder.Append($"&MinWorkTimeBeforeBreakMin={model.MinWorkTimeBeforeBreakMin}");
             var contentStr = stringBuilder.ToString();
             HttpContent httpContent = new StringContent(contentStr, UnicodeEncoding.UTF8, "application/x-www-form-urlencoded");
             return httpContent;
