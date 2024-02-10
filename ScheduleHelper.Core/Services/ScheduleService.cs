@@ -132,15 +132,16 @@ namespace ScheduleHelper.Core.Services
             var iterationState = new IterationStateForGenerateSchedule(scheduleSettings.startTime);
             TimeSlotInSchedule? timeSlotForBreak = null;
             bool shouldBeBreak = false;
-            List<SingleTask> orginalTasksList = new List<SingleTask>();
-            foreach(var task in tasksList)
+            List<SingleTask> tasksListForLoop = new List<SingleTask>();
+            foreach (var task in tasksList)
             {
-                orginalTasksList.Add(task.Copy());
+                
+                tasksListForLoop.Add(task.Copy());
             }
-            for (int i = 0; i < tasksList.Count; i++)
+            for (int i = 0; i < tasksListForLoop.Count; i++)
             {
-                var task = tasksList[i];
-                SingleTask orginalTask = orginalTasksList[i];
+                var task = tasksListForLoop[i];
+                SingleTask orginalTask = tasksList[i];
 
                 bool taskShouldBeSplitted = iterationState.TimeOfWorkFromLastBreak + task.TimeMin > scheduleSettings.MaxWorkTimeBeforeBreakMin;
                 if (taskShouldBeSplitted)
