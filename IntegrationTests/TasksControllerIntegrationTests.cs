@@ -68,7 +68,9 @@ namespace ScheduleHelper.IntegrationTests
             var model = new TaskCreateDTO()
             {
                 Name= "Test",
-                Time=30
+                Time=30,
+                HasStartTime=true,
+                StartTime=new TimeOnly(5,25)
 
             };
             HttpContent httpContent = PrepareHttpContentForAddNewTaksRequest(model);
@@ -90,7 +92,9 @@ namespace ScheduleHelper.IntegrationTests
             var model = new TaskCreateDTO()
             {
                 Name = "Test",
-                Time = -20
+                Time = -20,
+                HasStartTime = true,
+                StartTime = new TimeOnly(5, 25)
 
             };
             HttpContent httpContent = PrepareHttpContentForAddNewTaksRequest(model);
@@ -158,7 +162,7 @@ namespace ScheduleHelper.IntegrationTests
 
         private static HttpContent PrepareHttpContentForAddNewTaksRequest(TaskCreateDTO model)
         {
-            var contentStr = $"Name={model.Name}&Time={model.Time}";
+            var contentStr = $"Name={model.Name}&Time={model.Time}&HasStartTime={model.HasStartTime}&StartTime={model.StartTime}";
             HttpContent httpContent = new StringContent(contentStr, UnicodeEncoding.UTF8, "application/x-www-form-urlencoded");
             return httpContent;
         }

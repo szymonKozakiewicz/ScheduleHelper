@@ -35,7 +35,13 @@ namespace ScheduleHelper.UI.Controllers
         {
             ViewBag.Title = "New task";
             ViewBag.formHref = RouteConstants.AddNewTask;
-            return View("EditTask",new TaskCreateDTO());
+            var newTask = new TaskCreateDTO()
+            {
+                HasStartTime = false,
+                StartTime = new TimeOnly(8, 0),
+                Time=60
+            };
+            return View("EditTask",newTask);
         }
 
         [Route(RouteConstants.AddNewTask)]

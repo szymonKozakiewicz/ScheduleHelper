@@ -15,7 +15,11 @@ namespace ScheduleHelper.Core.DTO
         [Required]
         [MoreThanZero(ErrorMessage ="Time has to be greater than 0")]
         public double Time { get; set; }
+        [Required]
+        public bool HasStartTime { get; set; }
 
+        [Required]
+        public TimeOnly StartTime;
         public TaskCreateDTO() {
             Name = "";
             Time = 1;
