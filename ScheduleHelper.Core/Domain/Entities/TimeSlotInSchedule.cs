@@ -59,7 +59,6 @@ namespace ScheduleHelper.Core.Domain.Entities
         public override bool Equals(object? obj)
         {
             return obj is TimeSlotInSchedule schedule &&
-                   EqualityComparer<Guid?>.Default.Equals(Id, schedule.Id) &&
                    FinishTime.Equals(schedule.FinishTime) &&
                    StartTime.Equals(schedule.StartTime) &&
                    EqualityComparer<SingleTask?>.Default.Equals(task, schedule.task) &&
@@ -69,7 +68,7 @@ namespace ScheduleHelper.Core.Domain.Entities
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Id, FinishTime, StartTime, task, IsItBreak, Status);
+            return HashCode.Combine(FinishTime, StartTime, task, IsItBreak, Status);
         }
     }
 }

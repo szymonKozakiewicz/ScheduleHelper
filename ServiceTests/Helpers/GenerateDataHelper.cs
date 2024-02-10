@@ -32,6 +32,8 @@ namespace ScheduleHelper.ServiceTests.Helpers
                 hasScheduledBreaks = true,
                 startTime = new TimeOnly(12, 24),
                 finishTime = new TimeOnly(21, 0),
+                MaxWorkTimeBeforeBreakMin = 2000,
+                MinWorkTimeBeforeBreakMin = 1
             };
         }
 

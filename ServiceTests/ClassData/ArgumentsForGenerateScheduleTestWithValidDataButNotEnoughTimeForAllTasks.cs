@@ -24,6 +24,8 @@ namespace ScheduleHelper.ServiceTests.ClassData
                 hasScheduledBreaks = true,
                 startTime = new TimeOnly(12, 24),
                 finishTime = new TimeOnly(14, 0),
+                MaxWorkTimeBeforeBreakMin = 200,
+                MinWorkTimeBeforeBreakMin = 1
             };
             var task1 = new SingleTask("test1", 60);
             var task2 = new SingleTask("test2", 30);
@@ -55,6 +57,8 @@ namespace ScheduleHelper.ServiceTests.ClassData
                 hasScheduledBreaks = true,
                 startTime = new TimeOnly(12, 24),
                 finishTime = new TimeOnly(13, 30),
+                MaxWorkTimeBeforeBreakMin = 200,
+                MinWorkTimeBeforeBreakMin = 1
             };
             task1 = new SingleTask("test1", 60);
             task2 = new SingleTask("test2", 30);

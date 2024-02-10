@@ -221,15 +221,15 @@ namespace ScheduleHelper.ServiceTests
                 new TimeSlotInSchedule(){StartTime=new TimeOnly(1,0),FinishTime=new TimeOnly(2,0),Status=TimeSlotStatus.Active},
                 new TimeSlotInSchedule(){StartTime=new TimeOnly(1,0),FinishTime=new TimeOnly(3,0),Status=TimeSlotStatus.Canceled},
                 new TimeSlotInSchedule(){StartTime=new TimeOnly(1,0),FinishTime=new TimeOnly(2,0),Status=TimeSlotStatus.Active}
-                
+
             };
             _scheduleRespositorMock.Setup(m => m.GetTimeSlotsList())
                 .ReturnsAsync(slots);
 
             //act
-            var active=await _scheduleService.GetShareOfTimeOfSlotsWithStatus(TimeSlotStatus.Active);
-            var finished=await _scheduleService.GetShareOfTimeOfSlotsWithStatus(TimeSlotStatus.Finished);
-            var canceled=await _scheduleService.GetShareOfTimeOfSlotsWithStatus(TimeSlotStatus.Canceled);
+            var active = await _scheduleService.GetShareOfTimeOfSlotsWithStatus(TimeSlotStatus.Active);
+            var finished = await _scheduleService.GetShareOfTimeOfSlotsWithStatus(TimeSlotStatus.Finished);
+            var canceled = await _scheduleService.GetShareOfTimeOfSlotsWithStatus(TimeSlotStatus.Canceled);
 
 
             //assert
