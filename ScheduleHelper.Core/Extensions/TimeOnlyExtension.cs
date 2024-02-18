@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,6 +20,18 @@ namespace ScheduleHelper.Core.Domain.Entities.Helpers
             
             return time2.IsBetween(lowerBound,upperBound);
             
+        }
+
+        public static bool IsBetweenOpenBrackets(this TimeOnly time,TimeOnly start, TimeOnly end)
+        {
+            long startTicks = start.Ticks;
+            long endTicks = end.Ticks;
+            long ticks = time.Ticks;
+
+            return startTicks <= endTicks
+                ? (startTicks < ticks && endTicks > ticks)
+                : (startTicks < ticks || endTicks > ticks);
+
         }
     }
 }

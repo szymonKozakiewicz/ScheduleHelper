@@ -12,7 +12,13 @@ namespace ScheduleHelper.Core.Services.Helpers
     {
         public static SingleTask covertSingleTaskDtoToSingleTask(TaskCreateDTO taskDTO)
         {
-            return new SingleTask(taskDTO.Name, taskDTO.Time);
+            return new SingleTask
+            {
+                Name = taskDTO.Name,
+                TimeMin = taskDTO.Time,
+                HasStartTime = taskDTO.HasStartTime,
+                StartTime = taskDTO.StartTime
+            };
      
         }
 

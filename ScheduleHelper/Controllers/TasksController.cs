@@ -2,6 +2,7 @@
 using ScheduleHelper.Core.DTO;
 using ScheduleHelper.Core.ServiceContracts;
 using ScheduleHelper.UI.Constants;
+using ScheduleHelper.UI.CustomBinders;
 using ScheduleHelper.UI.Helpers;
 using System.Net;
 
@@ -46,7 +47,7 @@ namespace ScheduleHelper.UI.Controllers
 
         [Route(RouteConstants.AddNewTask)]
         [HttpPost]
-        public async Task<IActionResult> AddNewTask(TaskCreateDTO newTask)
+        public async Task<IActionResult> AddNewTask([ModelBinder(typeof(TaskCreateBinder))]TaskCreateDTO newTask)
         {
             ViewBag.Title = "Operation status";
 

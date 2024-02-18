@@ -26,7 +26,12 @@ namespace ScheduleHelper.Infrastructure
             modelBuilder.Entity<ScheduleSettings>()
                 .ToTable("ScheduleSettings");
 
-
+            modelBuilder.Entity<SingleTask>()
+                .Property(task => task.StartTime)
+                .HasConversion(
+                    v => new DateTime(1, 1, 1, v.Hour, v.Minute, v.Second),
+                    v => new TimeOnly(v.TimeOfDay.Hours, v.TimeOfDay.Minutes, v.TimeOfDay.Seconds)
+                );
 
             modelBuilder.Entity<ScheduleSettings>()
                 .Property(settings => settings.FinishTime)

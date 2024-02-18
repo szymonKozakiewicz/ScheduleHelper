@@ -37,15 +37,21 @@ namespace ScheduleHelper.RepositoryTests
             {
                 DbTestHelper.clearDatabase(dbcontext);
                 ITaskRespository taskRespository = new TaskRepository(dbcontext);
-                var newTask = new SingleTask("Test", 23);
+                var newTask = new SingleTask
+                {
+                    HasStartTime = true,
+                    Name = "test1",
+                    TimeMin = 23,
+                    StartTime = new TimeOnly(22, 0)
+                }; 
 
 
                 //act
                 taskRespository.AddNewTask(newTask);
-                var addedTask = dbcontext.SingleTask.FirstOrDefault(t => t.Name == "Test");
+                var addedTask = dbcontext.SingleTask.FirstOrDefault(t => t.Name == "test1");
 
                 //assert
-                addedTask.Should().NotBeNull();
+                addedTask.Should().Be(newTask);
 
             }
 
@@ -95,7 +101,13 @@ namespace ScheduleHelper.RepositoryTests
                 DbTestHelper.clearDatabase(dbcontext);
 
                 ITaskRespository taskRespository = new TaskRepository(dbcontext);
-                var task1 = new SingleTask("test1", 15);
+                var task1 = new SingleTask
+                {
+                    HasStartTime = true,
+                    Name="test1",
+                    TimeMin=23,
+                    StartTime=new TimeOnly(22,0)
+                };
                 dbcontext.Add(task1);
                 dbcontext.SaveChanges();
 

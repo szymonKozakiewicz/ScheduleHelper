@@ -50,21 +50,7 @@ namespace ScheduleHelper.ServiceTests
         public async Task GenerateSchedule_forNormalValidData_SchouldCallRepositoryAddMethods(ScheduleSettingsDTO testScheduleSettings, List<SingleTask> tasksListsInMemory, List<TimeSlotInSchedule> expectedTimeSlotsList)
         {
 
-            var listOfSlotsPassedAsArgument = new List<TimeSlotInSchedule>();
-            int expectedNumberOfTimeSlots = expectedTimeSlotsList.Count;
-
-            setupMockMethods(tasksListsInMemory, listOfSlotsPassedAsArgument);
-
-
-
-
-            //act
-            await _scheduleService.GenerateSchedule(testScheduleSettings);
-
-
-            //assert
-            _scheduleRespositorMock.Verify(m => m.AddNewTimeSlot(It.IsAny<TimeSlotInSchedule>()), Times.Exactly(expectedNumberOfTimeSlots));
-            listOfSlotsPassedAsArgument.Should().BeEquivalentTo(expectedTimeSlotsList);
+            await testGenerateSchedule(testScheduleSettings, tasksListsInMemory, expectedTimeSlotsList);
         }
 
 
@@ -74,21 +60,7 @@ namespace ScheduleHelper.ServiceTests
         public async Task GenerateSchedule_forValidDataButThereIsNotEnoughTimeForAllTasks_SchouldCallRepositoryAddMethods(ScheduleSettingsDTO testScheduleSettings, List<SingleTask> tasksListsInMemory, List<TimeSlotInSchedule> expectedTimeSlotsList)
         {
 
-            var listOfSlotsPassedAsArgument = new List<TimeSlotInSchedule>();
-            int expectedNumberOfTimeSlots = expectedTimeSlotsList.Count;
-
-            setupMockMethods(tasksListsInMemory, listOfSlotsPassedAsArgument);
-
-
-
-
-            //act
-            await _scheduleService.GenerateSchedule(testScheduleSettings);
-
-
-            //assert
-            _scheduleRespositorMock.Verify(m => m.AddNewTimeSlot(It.IsAny<TimeSlotInSchedule>()), Times.Exactly(expectedNumberOfTimeSlots));
-            listOfSlotsPassedAsArgument.Should().BeEquivalentTo(expectedTimeSlotsList);
+            await testGenerateSchedule(testScheduleSettings, tasksListsInMemory, expectedTimeSlotsList);
         }
 
 
@@ -97,6 +69,28 @@ namespace ScheduleHelper.ServiceTests
         public async Task GenerateSchedule_forValidDataButOneTaskHaveToBeSplitted_SchouldCallRepositoryAddMethods(ScheduleSettingsDTO testScheduleSettings, List<SingleTask> tasksListsInMemory, List<TimeSlotInSchedule> expectedTimeSlotsList)
         {
 
+            await testGenerateSchedule(testScheduleSettings, tasksListsInMemory, expectedTimeSlotsList);
+        }
+
+
+        [Theory]
+        [ClassData(typeof(ArgumentsForGenerateSchedule_forValidDataWithTaskWithFixedStartTime))]
+        public async Task GenerateSchedule_forValidDataWithTaskWithFixedStartTime_SchouldGenerateExpectedSlots(ScheduleSettingsDTO testScheduleSettings, List<SingleTask> tasksListsInMemory, List<TimeSlotInSchedule> expectedTimeSlotsList)
+        {
+            await testGenerateSchedule(testScheduleSettings, tasksListsInMemory, expectedTimeSlotsList);
+        }
+
+
+        [Theory]
+        [ClassData(typeof(ArgumentsGenerateSchedule_forValidDataWithTaskWithFixedStartTimeWhichCanTBeFinished))]
+        public async Task GenerateSchedule_forValidDataWithTaskWithFixedStartTimeWhichCanTBeFinished_SchouldNotBeInSchedule(ScheduleSettingsDTO testScheduleSettings, List<SingleTask> tasksListsInMemory, List<TimeSlotInSchedule> expectedTimeSlotsList)
+        {
+            await testGenerateSchedule(testScheduleSettings, tasksListsInMemory, expectedTimeSlotsList);
+        }
+
+
+        private async Task testGenerateSchedule(ScheduleSettingsDTO testScheduleSettings, List<SingleTask> tasksListsInMemory, List<TimeSlotInSchedule> expectedTimeSlotsList)
+        {
             var listOfSlotsPassedAsArgument = new List<TimeSlotInSchedule>();
             int expectedNumberOfTimeSlots = expectedTimeSlotsList.Count;
 
@@ -113,7 +107,6 @@ namespace ScheduleHelper.ServiceTests
             _scheduleRespositorMock.Verify(m => m.AddNewTimeSlot(It.IsAny<TimeSlotInSchedule>()), Times.Exactly(expectedNumberOfTimeSlots));
             listOfSlotsPassedAsArgument.Should().BeEquivalentTo(expectedTimeSlotsList);
         }
-
 
         [Fact]
         public async Task GetTimeSlotsList_ForValidData_ReturnsTimeSlotList()

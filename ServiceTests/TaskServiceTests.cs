@@ -29,22 +29,35 @@ namespace ScheduleHelper.ServiceTests
         [Fact]
         public async Task AddNewTask_forValidData_ShouldCallAddNewTaskMethodFromRepository()
         {
-            
-            repositoryMock.Setup(mock => mock.AddNewTask(It.IsAny<SingleTask>()));
+            SingleTask? result=null;
+            repositoryMock.Setup(mock => mock.AddNewTask(It.IsAny<SingleTask>()))
+                .Callback((SingleTask task) => result = task);
             
 
             var model = new TaskCreateDTO()
             {
                 Name = "Test",
-                Time = 23
+                Time = 23,
+                HasStartTime = true,
+                StartTime = new TimeOnly(8, 0)
+
+            };
+
+            SingleTask expectedResult = new SingleTask()
+            {
+                Name = "Test",
+                HasStartTime = true,
+                TimeMin = 23,
+                StartTime = new TimeOnly(8, 0)
+                
             };
 
             await _taskService.AddNewTask(model);
 
 
             //assert
-            repositoryMock.Verify(mock => mock.AddNewTask(It.IsAny<SingleTask>()), Times.Once);
-
+            
+            result.Should().Be(expectedResult);
 
         }
 

@@ -70,5 +70,10 @@ namespace ScheduleHelper.Core.Domain.Entities
         {
             return HashCode.Combine(FinishTime, StartTime, task, IsItBreak, Status);
         }
+
+        public bool TestedTimeSlotIsInsideOfTimeSlot(TimeSlotInSchedule testedTimeslot)
+        {
+            return testedTimeslot.StartTime.IsBetweenOpenBrackets(StartTime, FinishTime) || testedTimeslot.FinishTime.IsBetweenOpenBrackets(StartTime, FinishTime);
+        }
     }
 }
