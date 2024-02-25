@@ -5,7 +5,6 @@ using ScheduleHelper.Core.DTO;
 using ScheduleHelper.Core.ServiceContracts;
 using TimeSlotsList = System.Collections.Generic.List<ScheduleHelper.Core.Domain.Entities.TimeSlotInSchedule>;
 
-
 namespace ScheduleHelper.Core.Services
 {
     public class ScheduleUpdateService:ScheduleServiceBase,IScheduleUpdateService
@@ -76,8 +75,22 @@ namespace ScheduleHelper.Core.Services
         protected async Task readjustingSlotsAfterOneSlotFinished(TimeOnly actualFinishTime, ScheduleSettings scheduleSettings)
         {
             TimeSlotsList activeSlots = await getActiveTimeSlotsSortedWithStartTime();
+            await removeAllNotFixedSlotsFromDb(activeSlots);
             await loopWhichBuildScheduleByAdjustingSlots(actualFinishTime, scheduleSettings, activeSlots);
         }
+
+        private async Task removeAllNotFixedSlotsFromDb(TimeSlotsList activeSlots)
+        {
+
+            foreach (var slot in activeSlots)
+            {
+                if (!slot.IsItBreak && !slot.task.HasStartTime)
+                {
+                    await _scheduleRepository.RemoveTimeSlot(slot);
+                }
+            }
+        }
+
         private async Task removeAllBreaks()
         {
 

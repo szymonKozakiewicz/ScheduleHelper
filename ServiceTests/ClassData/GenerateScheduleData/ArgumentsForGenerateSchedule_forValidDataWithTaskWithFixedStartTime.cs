@@ -209,9 +209,9 @@ namespace ScheduleHelper.ServiceTests.ClassData.GenerateScheduleData
             expectedTimeSlot6 = new TimeSlotInScheduleBuilder()
                 .SetStartTime(expectedStartTime)
                 .SetFinishTime(expectedFinishTime)
-                .SetIsItBreak(false)
+                .SetIsItBreak(true)
                 .SetOrdinalNumber(1)
-                .SetTask(task2)
+                .SetTask(null)
                 .Build();
 
             expectedStartTime = new TimeOnly(14, 40);
@@ -219,9 +219,9 @@ namespace ScheduleHelper.ServiceTests.ClassData.GenerateScheduleData
             expectedTimeSlot7 = new TimeSlotInScheduleBuilder()
                 .SetStartTime(expectedStartTime)
                 .SetFinishTime(expectedFinishTime)
-                .SetIsItBreak(true)
+                .SetIsItBreak(false)
                 .SetOrdinalNumber(1)
-                .SetTask(null)
+                .SetTask(task2)
                 .Build();
 
 

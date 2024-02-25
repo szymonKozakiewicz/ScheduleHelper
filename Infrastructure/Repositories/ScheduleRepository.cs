@@ -44,7 +44,7 @@ namespace ScheduleHelper.Infrastructure.Repositories
         public async Task<List<TimeSlotInSchedule>> GetActiveSlots()
         {
             return await _dbContext.TimeSlotsInSchedule
-                .Where(slot=>slot.Status==TimeSlotStatus.Active)
+                .Where(slot=>slot.Status==TimeSlotStatus.Active).Include(m=>m.task)
                 .ToListAsync();
         }
 

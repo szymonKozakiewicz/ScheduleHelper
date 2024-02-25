@@ -30,7 +30,7 @@ namespace ScheduleHelper.Core.Services
         protected async Task loopWhichBuildScheduleByAdjustingSlots(TimeOnly actualFinishTime, ScheduleSettings scheduleSettings, TimeSlotsList slotsList)
         {
             TimeSlotsList listOfFixedTimeSlots = getFixedTimeSlots(slotsList);
-            TimeSlotsList listOfSlotsWithOneSlotPerOneTask = await joinSlotsWithSameTasks(slotsList);
+            TimeSlotsList listOfSlotsWithOneSlotPerOneTask = await joinSlotsWithSameTasksAndRomevePreviousSlotsFromDb(slotsList);
 
             DaySchedule daySchedule = await _scheduleRepository.GetDaySchedule();
 
@@ -126,7 +126,7 @@ namespace ScheduleHelper.Core.Services
         {
             dodgeFixedSlotIfItShouldBe(iterationState, fixedSlots);
 
-            if (checkIfSchouldBeBreak(scheduleSettings, iterationState, iterationState.FixedTimeSlots))
+            while (checkIfSchouldBeBreak(scheduleSettings, iterationState, iterationState.FixedTimeSlots))
             {
                 var slotForBreak = await makeSlotForBreak(scheduleSettings, iterationState);
                 if (slotForBreak != null)
@@ -134,7 +134,9 @@ namespace ScheduleHelper.Core.Services
                     await _scheduleRepository.AddNewTimeSlot(slotForBreak);
                     iterationState.UpdateState(slotForBreak);
                 }
-
+                else
+                    break;
+                dodgeFixedSlotIfItShouldBe(iterationState, fixedSlots);
             }
         }
 
@@ -157,14 +159,16 @@ namespace ScheduleHelper.Core.Services
             return iterationState.CurrentTime.AreTimesEqualWithTolerance(new TimeOnly(23, 59));
         }
 
-        private async Task<TimeSlotsList> joinSlotsWithSameTasks(TimeSlotsList activeSlots)
+        private async Task<TimeSlotsList> joinSlotsWithSameTasksAndRomevePreviousSlotsFromDb(TimeSlotsList activeSlots)
         {
             var slotsGroupedByTasks = activeSlots.GroupBy(slot => slot.task);
             TimeSlotsList oneSlotPerTaskList = new TimeSlotsList();
             foreach (var groupOfSlots in slotsGroupedByTasks)
             {
+                if (groupOfSlots.Key.HasStartTime)
+                    continue;
                 TimeSlotInSchedule joinedSlot = getJoinedSlot(groupOfSlots);
-                await removeSlotsFromDb(groupOfSlots.ToList());
+
                 oneSlotPerTaskList.Add(joinedSlot);
 
             }

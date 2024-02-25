@@ -329,15 +329,23 @@ namespace ScheduleHelper.ServiceTests.ClassData.FinaliseTimeSlot.withFixedSlots
                 .SetTask(task2)
                 .Build();
             expectedStartTime = new TimeOnly(15, 20);
-            expectedFinishTime = new TimeOnly(15, 50);
+            expectedFinishTime = new TimeOnly(15, 40);
             expectedTimeSlot3 = new TimeSlotInScheduleBuilder()
+                .SetStartTime(expectedStartTime)
+                .SetFinishTime(expectedFinishTime)
+                .SetIsItBreak(true)
+                .SetOrdinalNumber(1)
+                .SetTask(null)
+                .Build();
+            expectedStartTime = new TimeOnly(15, 40);
+            expectedFinishTime = new TimeOnly(16, 10);
+            expectedTimeSlot4 = new TimeSlotInScheduleBuilder()
                 .SetStartTime(expectedStartTime)
                 .SetFinishTime(expectedFinishTime)
                 .SetIsItBreak(false)
                 .SetOrdinalNumber(1)
                 .SetTask(task3)
                 .Build();
-
 
 
 
@@ -354,7 +362,7 @@ namespace ScheduleHelper.ServiceTests.ClassData.FinaliseTimeSlot.withFixedSlots
 
             expectedTimeSlotsList = new()
             {
-                expectedTimeSlot1, expectedTimeSlot2, expectedTimeSlot3
+                expectedTimeSlot1, expectedTimeSlot2, expectedTimeSlot3,expectedTimeSlot4
 
             };
             timeSlotsWithNoBreaks = new()
