@@ -350,7 +350,173 @@ namespace ScheduleHelper.RepositoryTests
 
         }
 
+        [Fact]
+        public async Task RemoveTimeSlot_ForExistingInDbSlot_ExpectThatItWillBeRemoved()
+        {
+            using (var dbcontext = new MyDbContext(builder.Options))
+            {
+                DbTestHelper.clearDatabase(dbcontext);
 
+                IScheduleRepository scheduleRepository = new ScheduleRepository(dbcontext);
+                var timeSlot = new TimeSlotInSchedule()
+                {
+                    FinishTime = new TimeOnly(10, 20),
+                    StartTime = new TimeOnly(20, 20),
+                    IsItBreak = false,
+                    OrdinalNumber = 10,
+                    Status = TimeSlotStatus.Canceled,
+                    task = null
+                };
+                dbcontext.TimeSlotsInSchedule.Add(timeSlot);
+                dbcontext.SaveChanges();
+
+                //act 
+                scheduleRepository.RemoveTimeSlot(timeSlot);
+
+                //assert
+                dbcontext.TimeSlotsInSchedule.ToList().Should().BeEmpty();  
+            }
+            
+        }
+
+
+        [Fact]
+        public async Task UpdateDaySchedule_UpdateDayScheduleInDb()
+        {
+            using (var dbcontext = new MyDbContext(builder.Options))
+            {
+                DbTestHelper.clearDatabase(dbcontext);
+
+                IScheduleRepository scheduleRepository = new ScheduleRepository(dbcontext);
+                var settings = new ScheduleSettings()
+                {
+                    breakDurationMin = 20,
+                    FinishTime = new TimeOnly(20, 20),
+                    MaxWorkTimeBeforeBreakMin = 45,
+                    MinWorkTimeBeforeBreakMin = 20,
+                    StartTime = new TimeOnly(5, 20)
+                };
+                dbcontext.ScheduleSettings.Add(settings);
+                dbcontext.SaveChanges();
+                var daySchedule = new DaySchedule()
+                {
+                   Settings = settings,
+                   TimeFromLastBreakMin=0
+                };
+                dbcontext.DaySchedule.Add(daySchedule);
+                dbcontext.SaveChanges();
+                dbcontext.Entry(daySchedule).State= EntityState.Detached;
+                var daySchedule2 = new DaySchedule()
+                {
+                    Settings = settings,
+                    TimeFromLastBreakMin = 50,
+                    Id=daySchedule.Id
+                };
+
+
+                //act
+                await scheduleRepository.UpdateDaySchedule(daySchedule2);
+
+                //assert
+                var result = await dbcontext.DaySchedule.FindAsync(daySchedule.Id);
+                
+                result.Should().NotBeNull();
+                result.TimeFromLastBreakMin.Should().Be(50);
+
+
+            }
+
+        }
+
+
+        [Fact]
+        public async Task AddDayScheduleAndRemoveOld_DayScheduleIsntInDbBefore_newDayScheduleInDb()
+        {
+            using (var dbcontext = new MyDbContext(builder.Options))
+            {
+                DbTestHelper.clearDatabase(dbcontext);
+
+                IScheduleRepository scheduleRepository = new ScheduleRepository(dbcontext);
+                var settings = new ScheduleSettings()
+                {
+                    breakDurationMin = 20,
+                    FinishTime = new TimeOnly(20, 20),
+                    MaxWorkTimeBeforeBreakMin = 45,
+                    MinWorkTimeBeforeBreakMin = 20,
+                    StartTime = new TimeOnly(5, 20)
+                };
+                dbcontext.ScheduleSettings.Add(settings);
+                dbcontext.SaveChanges();
+                var daySchedule = new DaySchedule()
+                {
+                    Settings = settings,
+                    TimeFromLastBreakMin = 0
+                };
+
+
+                //act
+                await scheduleRepository.AddDayScheduleAndRemoveOld(daySchedule);
+
+                //assert
+                var result = await dbcontext.DaySchedule.FindAsync(daySchedule.Id);
+
+                result.Should().NotBeNull();
+
+
+
+            }
+
+        }
+
+
+        [Fact]
+        public async Task AddDayScheduleAndRemoveOld_DayScheduleIsInDbBefore_newDayScheduleAloneInDb()
+        {
+            using (var dbcontext = new MyDbContext(builder.Options))
+            {
+                DbTestHelper.clearDatabase(dbcontext);
+
+                IScheduleRepository scheduleRepository = new ScheduleRepository(dbcontext);
+                var settings = new ScheduleSettings()
+                {
+                    breakDurationMin = 20,
+                    FinishTime = new TimeOnly(20, 20),
+                    MaxWorkTimeBeforeBreakMin = 45,
+                    MinWorkTimeBeforeBreakMin = 20,
+                    StartTime = new TimeOnly(5, 20)
+                };
+                dbcontext.ScheduleSettings.Add(settings);
+                dbcontext.SaveChanges();
+                var daySchedule = new DaySchedule()
+                {
+                    Settings = settings,
+                    TimeFromLastBreakMin = 0
+                };
+
+                var daySchedule2 = new DaySchedule()
+                {
+                    Settings = settings,
+                    TimeFromLastBreakMin = 020
+                };
+                dbcontext.DaySchedule.Add(daySchedule2);
+                await dbcontext.SaveChangesAsync();
+
+                //act
+                await scheduleRepository.AddDayScheduleAndRemoveOld(daySchedule);
+
+                //assert
+                var result = await dbcontext.DaySchedule.FindAsync(daySchedule.Id);
+
+                result.Should().NotBeNull();
+                var list = dbcontext.DaySchedule.ToList();
+                var numberOfEntities =list.Count;
+                numberOfEntities.Should().Be(1);
+
+
+
+            }
+
+        }
         private static async Task AddTimeSlotsAndTaskToDb(SingleTask task, List<TimeSlotInSchedule> listOfTimeSlotsInSchedule, MyDbContext dbcontext)
         {
             await dbcontext.SingleTask.AddAsync(task);

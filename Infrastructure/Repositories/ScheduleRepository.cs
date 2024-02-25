@@ -17,6 +17,18 @@ namespace ScheduleHelper.Infrastructure.Repositories
         {
             _dbContext = myDbContext;
         }
+
+        public async Task AddDayScheduleAndRemoveOld(DaySchedule daySchedule)
+        {
+           var listOfDaySchedule= _dbContext.DaySchedule.ToList();
+            foreach(var oldDaySchedule in listOfDaySchedule) { 
+            
+                _dbContext.Remove(oldDaySchedule);
+            }
+            _dbContext.DaySchedule.Add(daySchedule);
+            await _dbContext.SaveChangesAsync();
+        }
+
         public async Task AddNewTimeSlot(TimeSlotInSchedule timeSlot)
         {
             _dbContext.TimeSlotsInSchedule.Add(timeSlot);
@@ -34,6 +46,11 @@ namespace ScheduleHelper.Infrastructure.Repositories
             return await _dbContext.TimeSlotsInSchedule
                 .Where(slot=>slot.Status==TimeSlotStatus.Active)
                 .ToListAsync();
+        }
+
+        public async Task<DaySchedule> GetDaySchedule()
+        {
+            return _dbContext.DaySchedule.ToList()[0];
         }
 
         public async Task<ScheduleSettings> GetScheduleSettings()
@@ -60,6 +77,18 @@ namespace ScheduleHelper.Infrastructure.Repositories
         {
             return await _dbContext.TimeSlotsInSchedule.
                 Include(slot=>slot.task).ToListAsync();
+        }
+
+        public async Task RemoveTimeSlot(TimeSlotInSchedule timeSlot)
+        {
+            _dbContext.TimeSlotsInSchedule.Remove(timeSlot);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task UpdateDaySchedule(DaySchedule daySchedule)
+        {
+            _dbContext.DaySchedule.Update(daySchedule);
+            await _dbContext.SaveChangesAsync();
         }
 
         public async Task UpdateScheduleSettings(ScheduleSettings scheduleSettingsForDb)

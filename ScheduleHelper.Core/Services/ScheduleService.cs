@@ -12,15 +12,16 @@ using ScheduleHelper.Core.Domain.Entities.Builders;
 using ScheduleHelper.Core.Extensions;
 using ScheduleHelper.Core.Domain.Entities.Helpers;
 using ScheduleHelper.Core.Domain.Entities.Enums;
+using static ScheduleHelper.Core.Services.Helpers.GenerateScheduleTools;
 
 namespace ScheduleHelper.Core.Services
 {
-    public class ScheduleService : IScheduleService
+    public class ScheduleService :ScheduleServiceBase,IScheduleService
     {
         ITaskRespository _taskRepository;
         IScheduleRepository _scheduleRepository;
-        ScheduleSettingsDTO _scheduleSettings;
-        public ScheduleService(ITaskRespository taskRepository, IScheduleRepository scheduleRepository)
+        ScheduleSettings _scheduleSettings;
+        public ScheduleService(ITaskRespository taskRepository, IScheduleRepository scheduleRepository) : base(scheduleRepository)
         {
 
             _taskRepository = taskRepository;
@@ -29,16 +30,28 @@ namespace ScheduleHelper.Core.Services
         }
         public async Task GenerateSchedule(ScheduleSettingsDTO scheduleSettings)
         {
-            _scheduleSettings = scheduleSettings;
+            
             await _scheduleRepository.CleanTimeSlotInScheduleTable();
             var tasksList = await _taskRepository.GetTasks();
             await updateScheduleSettings(scheduleSettings);
+            _scheduleSettings=await _scheduleRepository.GetScheduleSettings();
+            await updateDaySchedule();
 
-            await addElasticAndFixedTasksToSchedule(scheduleSettings, tasksList);
+            await addElasticAndFixedTasksToSchedule(_scheduleSettings, tasksList);
 
         }
 
+        private async Task updateDaySchedule()
+        {
+            var settings = await _scheduleRepository.GetScheduleSettings();
+            var daySchedule = new DaySchedule()
+            {
+                Settings = settings,
+                TimeFromLastBreakMin = 0
 
+            };
+            await _scheduleRepository.AddDayScheduleAndRemoveOld(daySchedule);
+        }
 
         public async Task<List<TimeSlotInScheduleDTO>> GetTimeSlotsList()
         {
@@ -86,111 +99,81 @@ namespace ScheduleHelper.Core.Services
             return 0;
         }
 
-        private async Task addElasticAndFixedTasksToSchedule(ScheduleSettingsDTO scheduleSettings, List<SingleTask> tasksList)
+        private async Task addElasticAndFixedTasksToSchedule(ScheduleSettings scheduleSettings, List<SingleTask> tasksList)
         {
 
             List<TimeSlotInSchedule> fixedTimeSlots = await addFixedTasksToScheduleAndGetListOfCreatedSlots(scheduleSettings, tasksList);
             var flexibleTasks = tasksList.FindAll(task => !task.HasStartTime);
-            await addElasticTasksToSchedule(scheduleSettings, flexibleTasks, fixedTimeSlots);
+            List<TimeSlotInSchedule>flexibleSlotsList= getTimeSlotsForTasks(flexibleTasks,scheduleSettings);
+            List<TimeSlotInSchedule>allTimeSlots=new List<TimeSlotInSchedule>(flexibleSlotsList);
+            allTimeSlots.AddRange(fixedTimeSlots);
+            await loopWhichBuildScheduleByAdjustingSlots(scheduleSettings.StartTime, scheduleSettings,allTimeSlots);
+
         }
 
-        private TimeSlotInSchedule makeTimeSlot(IterationStateForGenerateSchedule iterationState, double taskDuration, SingleTask? task)
+        private List<TimeSlotInSchedule> getTimeSlotsForTasks(List<SingleTask> flexibleTasks,ScheduleSettings settings)
         {
-
-
-
-
-            double slotDurationMin;
-            bool isItBreak = task == null;
-            if (isItBreak)
+            var listOfSlots= new List<TimeSlotInSchedule>();
+            foreach (var task in flexibleTasks)
             {
-                slotDurationMin = _scheduleSettings.breakLenghtMin;
-            }
-            else
-            {
-                slotDurationMin = taskDuration;
-            }
+                var finishTime = settings.StartTime.AddMinutes(task.TimeMin);
+                if (!isInRangeOfSchedule(settings.StartTime, task.TimeMin, settings))
+                    continue;
 
-
-
-
-            var currentTime = iterationState.CurrentTime;
-            TimeOnly slotStartTime = currentTime;
-            bool wasTaskSplitted = false;
-            if(!isItBreak && task.HasStartTime)
-            {
-                wasTaskSplitted = iterationState.CurrentTime>task.StartTime;
+                var slot = new TimeSlotInSchedule()
+                {
+                    StartTime = settings.StartTime,
+                    FinishTime = finishTime,
+                    Status = TimeSlotStatus.Active,
+                    IsItBreak = false,
+                    task = task,
+                    OrdinalNumber = 1
+                };
+                listOfSlots.Add(slot);
             }
-            
-            if (!isItBreak && task.HasStartTime && !wasTaskSplitted)
-            {
-                slotStartTime = task.StartTime;
-            }
-
-            TimeOnly slotFinishTime = slotStartTime.AddMinutes(slotDurationMin);
-            if (slotOverlapsWithExistingFixedTimeSlot(slotStartTime, slotFinishTime, iterationState.FixedTimeSlots))
-            {
-                TimeSlotInSchedule OverlapsingFixedTimeSlot = getOverlapsingFixedTimeSlot(slotStartTime, slotFinishTime, iterationState.FixedTimeSlots);
-                slotFinishTime = OverlapsingFixedTimeSlot.StartTime;
-                
-  
-            }
-
-            bool enoughTimeForTask = slotFinishTime.
-                CompareTo(_scheduleSettings.finishTime) < 0;
-            if (enoughTimeForTask)
-            {
-                var newTimeSlot = new TimeSlotInScheduleBuilder()
-                    .SetFinishTime(slotFinishTime)
-                    .SetStartTime(slotStartTime)
-                    .SetTimeSlotStatus(TimeSlotStatus.Active)
-                    .SetTask(task)
-                    .SetIsItBreak(isItBreak)
-                    .SetOrdinalNumber(iterationState.CurrentOrdinalNumber)
-                    .Build();
-                return newTimeSlot;
-            }
-            else
-            {
-                return null;
-            }
+            return listOfSlots;
         }
 
-        private TimeSlotInSchedule getOverlapsingFixedTimeSlot(TimeOnly slotStartTime, TimeOnly slotFinishTime, List<TimeSlotInSchedule> fixedTimeSlots)
-        {
-
-            foreach (var fixedTimeSlot in fixedTimeSlots)
-            {
-                if (slotOverlapsWithExistingFixedTimeSlot(slotStartTime,slotFinishTime,fixedTimeSlots))
-                    return fixedTimeSlot;
-            }
-            return null;
-        }
-
-        private bool slotOverlapsWithExistingFixedTimeSlot(TimeOnly slotStartTime, TimeOnly slotFinishTime, List<TimeSlotInSchedule> fixedTimeSlots)
-        {
-            TimeSlotInSchedule tempTimeSlot = new TimeSlotInSchedule()
-            {
-                StartTime = slotStartTime,
-                FinishTime = slotFinishTime,
-            };
-            foreach (var fixedTimeSlot in fixedTimeSlots)
-            {
-                if (fixedTimeSlot.TestedTimeSlotIsInsideOfTimeSlot(tempTimeSlot) || tempTimeSlot.TestedTimeSlotIsInsideOfTimeSlot(fixedTimeSlot))
-                    return true;
-            }
-            return false;
-
-        }
-
-
-        private async Task<List<TimeSlotInSchedule>> addFixedTasksToScheduleAndGetListOfCreatedSlots(ScheduleSettingsDTO scheduleSettings, List<SingleTask> tasksList)
+        private async Task<List<TimeSlotInSchedule>> addFixedTasksToScheduleAndGetListOfCreatedSlots(ScheduleSettings scheduleSettings, List<SingleTask> tasksList)
         {
             List<SingleTask> fixedTasksList = tasksList.FindAll(task => task.HasStartTime).ToList();
+            List<TimeSlotInSchedule> fixedTimeSlots = new List<TimeSlotInSchedule>();
+            foreach (var task in fixedTasksList)
+            {
+                if (!isInRangeOfSchedule(task.StartTime, task.TimeMin, scheduleSettings))
+                    continue;
+                var slotFinishTime = task.StartTime.AddMinutes(task.TimeMin);
+                if (SlotOverlapsWithExistingFixedTimeSlot(task.StartTime, slotFinishTime, fixedTimeSlots))
+                    continue;
+
+                var newTimeSlot=new TimeSlotInSchedule()
+                { 
+                    FinishTime = slotFinishTime,
+                    StartTime = task.StartTime,
+                    IsItBreak = false,
+                    task = task,
+                    OrdinalNumber = 1,
+                    Status = TimeSlotStatus.Active
+                };
+                await addNewTimeSlot(newTimeSlot);
+                fixedTimeSlots.Add(newTimeSlot);
+            }
             
-            List<TimeSlotInSchedule>fixedTimeSlots=await addEachTaskToScheduleAndReturnListOfCreatedSlots(scheduleSettings,fixedTasksList, new List<TimeSlotInSchedule>());
             return fixedTimeSlots;
 
+        }
+
+        private bool isInRangeOfSchedule(TimeOnly startTime, double timeMin, ScheduleSettings scheduleSettings)
+        {
+            if(startTime<scheduleSettings.StartTime || startTime>scheduleSettings.FinishTime)
+            {
+                return false;
+            }
+            double maxDuration = getDuartionBetweenTimes(startTime, scheduleSettings.FinishTime);
+            if(maxDuration < timeMin) {
+                return false;
+            }
+            return true;
         }
 
         private async Task<List<TimeSlotInSchedule>> addEachTaskToScheduleAndReturnListOfCreatedSlots(ScheduleSettingsDTO scheduleSettings, List<SingleTask> tasksList,List<TimeSlotInSchedule>fixedTimeSlots)
@@ -211,7 +194,7 @@ namespace ScheduleHelper.Core.Services
                 var task = tasksListForLoop[i];
                 SingleTask orginalTask = tasksList[i];
 
-                bool taskShouldBeSplitted = iterationState.TimeOfWorkFromLastBreak + task.TimeMin > scheduleSettings.MaxWorkTimeBeforeBreakMin;
+                bool taskShouldBeSplitted = iterationState.TimeOfWorkFromLastBreak + task.TimeMin > scheduleSettings.MaxWorkTimeBeforeBreakMin && !task.HasStartTime;
                 if (taskShouldBeSplitted)
                 {
                     task = splitTask(scheduleSettings, iterationState.TimeOfWorkFromLastBreak, task);
@@ -219,7 +202,7 @@ namespace ScheduleHelper.Core.Services
                 }
 
 
-                TimeSlotInSchedule timeSlotForTask = makeTimeSlot(iterationState, task.TimeMin, orginalTask);
+                TimeSlotInSchedule timeSlotForTask = makeTimeSlot(_scheduleSettings,iterationState, task.TimeMin, orginalTask);
                 bool timeSlotNotCreated = timeSlotForTask == null;
                 if (timeSlotNotCreated)
                 {
@@ -229,10 +212,6 @@ namespace ScheduleHelper.Core.Services
                 if (taskSplittedByFixedTimeSlot)
                 {
                     i = setTaskToBeContinuedAfterFixedSlot(tasksListForLoop, i, task, timeSlotForTask);
-                }
-                if (taskSplittedByFixedTimeSlot)
-                {
-
                     updateIterationStateAfterFixedTask(fixedTimeSlots, iterationState, timeSlotForTask.FinishTime);
                 }
                 else
@@ -260,7 +239,7 @@ namespace ScheduleHelper.Core.Services
                     iterationState.AddFixedTimeSlot(timeSlotForTask);
                 }
 
-                shouldBeBreak = isTimeForBreak(scheduleSettings, iterationState);
+                shouldBeBreak = isTimeForBreak(scheduleSettings, iterationState)&& !task.HasStartTime;
                 if (scheduleSettings.hasScheduledBreaks && shouldBeBreak)
                 {
                     
@@ -288,7 +267,7 @@ namespace ScheduleHelper.Core.Services
 
         private async Task<TimeSlotInSchedule> makeBreakAndUpdateIterationState(ScheduleSettingsDTO scheduleSettings, List<TimeSlotInSchedule> fixedTimeSlots, IterationStateForGenerateSchedule iterationState)
         {
-            TimeSlotInSchedule? timeSlotForBreak = makeTimeSlot(iterationState, scheduleSettings.breakLenghtMin, null);
+            TimeSlotInSchedule? timeSlotForBreak = makeTimeSlot(_scheduleSettings,iterationState, scheduleSettings.breakLenghtMin, null);
             var timeSlotNotCreated = timeSlotForBreak == null;
             if (timeSlotNotCreated)
             {
@@ -346,7 +325,7 @@ namespace ScheduleHelper.Core.Services
         private TimeOnly? getfixedTaskLastBreakFinish(List<TimeSlotInSchedule> fixedTimeSlots, TimeOnly finishTimeOfLastTask)
         {
 
-            TimeSlotInSchedule lastOverlapsingTimeSlot = getLastOverlapsingFixedTimeSlot(fixedTimeSlots,  finishTimeOfLastTask);
+            TimeSlotInSchedule lastOverlapsingTimeSlot = GetLastOverlapsingFixedTimeSlot(fixedTimeSlots,  finishTimeOfLastTask);
 
             TimeOnly lastBreakFinishTime = lastOverlapsingTimeSlot.StartTime;
             return (TimeOnly)lastBreakFinishTime;
@@ -355,26 +334,13 @@ namespace ScheduleHelper.Core.Services
         private TimeOnly getfixedTaskFinishTime(List<TimeSlotInSchedule> fixedTimeSlots, TimeOnly finishTimeOfLastTask)
         {
             TimeOnly? fixedTaskFinishTime;
-            TimeSlotInSchedule lastOverlapsingTimeSlot = getLastOverlapsingFixedTimeSlot(fixedTimeSlots, finishTimeOfLastTask);
+            TimeSlotInSchedule lastOverlapsingTimeSlot = GetLastOverlapsingFixedTimeSlot(fixedTimeSlots, finishTimeOfLastTask);
 
             fixedTaskFinishTime = lastOverlapsingTimeSlot.FinishTime;
             return (TimeOnly)fixedTaskFinishTime;
         }
 
-        private TimeSlotInSchedule getLastOverlapsingFixedTimeSlot(List<TimeSlotInSchedule> fixedTimeSlots, TimeOnly finishTimeOfLastTask)
-        {
-            TimeOnly overlapsingFinish = finishTimeOfLastTask.AddMinutes(1);
-            TimeSlotInSchedule overlapsingFixedTimeSlot = getOverlapsingFixedTimeSlot(finishTimeOfLastTask, overlapsingFinish, fixedTimeSlots);
-            List<TimeSlotInSchedule> overlapsingFixedTimeSlots = fixedTimeSlots.FindAll(slot => !slot.IsItBreak && slot.task.Id == overlapsingFixedTimeSlot.task.Id).ToList();
-            TimeSlotInSchedule lastOverlapsingTimeSlot = overlapsingFixedTimeSlots[0];
-            foreach (var slot in overlapsingFixedTimeSlots)
-            {
-                if (slot.FinishTime > lastOverlapsingTimeSlot.FinishTime)
-                    lastOverlapsingTimeSlot = slot;
-            }
 
-            return lastOverlapsingTimeSlot;
-        }
 
         private static int setTaskToBeContinuedAfterFixedSlot(List<SingleTask> tasksListForLoop, int i, SingleTask task, TimeSlotInSchedule timeSlotForTask)
         {

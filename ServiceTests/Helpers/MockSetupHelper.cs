@@ -15,5 +15,7 @@ namespace ScheduleHelper.ServiceTests.Helpers
         {
             scheduleRespositorMock.Setup(m => m.GetTimeSlotsList()).ReturnsAsync(timeSlotsList);
         }
+
+
     }
 }

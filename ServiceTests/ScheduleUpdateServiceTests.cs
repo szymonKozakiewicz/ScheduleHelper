@@ -8,326 +8,121 @@ using ScheduleHelper.Core.DTO;
 using ScheduleHelper.Core.ServiceContracts;
 using ScheduleHelper.Core.Services;
 using ScheduleHelper.ServiceTests.Helpers;
-
 using Xunit;
+using ScheduleHelper.ServiceTests.ClassData.FinaliseTimeSlot;
+using ScheduleHelper.ServiceTests.Helpers.Dto;
+using ScheduleHelper.ServiceTests.ClassData.FinaliseTimeSlot.withFixedSlots;
 
 namespace ScheduleHelper.ServiceTests
 {
-    public class ScheduleUpdateServiceTests
+    public class ScheduleUpdateServiceTests:ScheduleUpdateServiceTestsBase
     {
-        private IScheduleUpdateService _scheduleUpdateService;
-        Mock<ITaskRespository> _taskRepositoryMock;
-        Mock<IScheduleRepository> _scheduleRespositorMock;
-        ITaskRespository _taskRespository;
-        IScheduleRepository _scheduleRespository;
 
-        public ScheduleUpdateServiceTests()
+
+        [Theory]
+        [ClassData(typeof(ArgumentsFinaliseTimeSlot_forValidIdAndSlotFinishedOnTime))]
+        public async Task FinaliseTimeSlot_forValidIdAndSlotFinishedOnTime_itShouldSetTimeSlotStatusForFinished(FinaliseMethodTestSettingsDTO finaliseMethodTestSettings, ScheduleSettings settings, TimeSlotList timeSlotsWithNoFinished, TimeSlotList timeSlotsWithNoBreaks, DaySchedule daySchedule)
         {
-            _taskRepositoryMock = new Mock<ITaskRespository>();
-            _scheduleRespositorMock = new Mock<IScheduleRepository>();
-            _taskRespository = _taskRepositoryMock.Object;
-            _scheduleRespository = _scheduleRespositorMock.Object;
-            _scheduleUpdateService = new ScheduleUpdateService(_scheduleRespository);
-        }
 
 
-        [Fact]
-        public async Task FinaliseTimeSlot_forValidIdAndSlotFinishedOnTime_itShouldSetTimeSlotStatusForFinished()
-        {
-            var listOfTasks = GenerateDataHelper.GetNormalValidListOfTasks();
-            var listOfSlots = GenerateDataHelper.GetTimeSlotsListWith3TimeSlots(listOfTasks[0], listOfTasks[1]);
-            FinaliseSlotDTO model = new FinaliseSlotDTO()
-            {
-                FinishTime = listOfSlots[0].FinishTime.ToString(),
-                SlotId = (Guid)listOfSlots[0].Id
-
-            };
-            _scheduleRespositorMock.Setup(m => m.UpdateTimeSlot(listOfSlots[0]));
-            _scheduleRespositorMock.Setup(m => m.GetTimeSlot(model.SlotId))
-                    .ReturnsAsync(listOfSlots[0]);
-
-            _scheduleRespositorMock.Setup(m => m.GetActiveSlots())
-        .ReturnsAsync(listOfSlots);
-
-            //act
-            await _scheduleUpdateService.FinaliseTimeSlot(model);
-
-            //assert
-            _scheduleRespositorMock.Verify(m => m.UpdateTimeSlot(listOfSlots[0]), Times.Once);
-        }
-
-        [Fact]
-        public async Task FinaliseTimeSlot_forValidIdAndSlotFinishedAfterTime_itShouldUpdateAll()
-        {
-            int delay = 40;
-            var scheduleFinishTime = new TimeOnly(20, 0);
-            var scheduleStartTime = new TimeOnly(6, 0);
-
-            FinaliseMethodTestSettingsDTO finaliseMethodTestSettings = getFinaliseMethodTestSettings(delay,0);
-            List<TimeSlotInSchedule> listOfUpdatedTimeSlots = setupMockMethodsForFinaliseTimeSlot(finaliseMethodTestSettings, scheduleFinishTime, scheduleStartTime , 0);
+            TimeSlotList listOfUpdatedTimeSlots = setupMockMethodsForFinaliseTimeSlot(finaliseMethodTestSettings, settings, timeSlotsWithNoFinished, timeSlotsWithNoBreaks, daySchedule);
 
             //act
             await _scheduleUpdateService.FinaliseTimeSlot(finaliseMethodTestSettings.Model);
 
             //assert
-            listOfUpdatedTimeSlots.Should().HaveCount(3);
-            foreach (var updatedSlot in listOfUpdatedTimeSlots)
-            {
-                bool slotWasOnExpectedList = CheckIfSlotIsOnExpectedList(delay, finaliseMethodTestSettings, updatedSlot,0);
-                slotWasOnExpectedList.Should().BeTrue();
-            }
+            listOfUpdatedTimeSlots.Should().HaveCount(finaliseMethodTestSettings.ListOfExpectedSlots.Count);
+
+            listOfUpdatedTimeSlots.Should().BeEquivalentTo(finaliseMethodTestSettings.ListOfExpectedSlots);
         }
 
-
-
-        [Fact]
-        public async Task FinaliseTimeSlot_forValidIdAndSlotFinishedAfterTimeAndAfterMidnight_itShouldUpdateAll()
+        [Theory]
+        [ClassData(typeof(ArgumentsFinaliseTimeSlot_forValidIdAndSlotFinishedOnTime))]
+        public async Task FinaliseTimeSlot_forValidIdAndSlotFinishedAfterTime_itShouldUpdateAll(FinaliseMethodTestSettingsDTO finaliseMethodTestSettings, ScheduleSettings settings, TimeSlotList timeSlotsWithNoFinished, TimeSlotList timeSlotsWithNoBreaks, DaySchedule daySchedule)
         {
-            int delay = 60*10+20;
-            var scheduleFinishTime = new TimeOnly(23, 0);
-            var scheduleStartTime = new TimeOnly(6, 0);
-
-            FinaliseMethodTestSettingsDTO finaliseMethodTestSettings = getFinaliseMethodTestSettings(delay, 0);
-            List<TimeSlotInSchedule> listOfUpdatedTimeSlots = setupMockMethodsForFinaliseTimeSlot(finaliseMethodTestSettings, scheduleFinishTime, scheduleStartTime, 0);
-
-            foreach(var slot in finaliseMethodTestSettings.ListOfExpectedSlots)
-            {
-                slot.Status = TimeSlotStatus.Canceled;
-            }
-
-            //act
-            await _scheduleUpdateService.FinaliseTimeSlot(finaliseMethodTestSettings.Model);
-
-            //assert
-            listOfUpdatedTimeSlots.Should().HaveCount(3);
-            foreach (var updatedSlot in listOfUpdatedTimeSlots)
-            {
-                if (updatedSlot.Id == finaliseMethodTestSettings.ListOfSlots[0].Id)
-                    continue;
-
-                updatedSlot.Status.Should().Be(TimeSlotStatus.Canceled);
-            }
-        }
-
-        [Fact]
-        public async Task FinaliseTimeSlot_forValidIdAndSlotFinishedAfterTimeAndNoTimeForLastSlot_itShouldUpdateAll()
-        {
-            int delay = 60;
-            var scheduleFinishTime = new TimeOnly(15, 0);
-            var scheduleStartTime = new TimeOnly(6, 0);
-
-            FinaliseMethodTestSettingsDTO finaliseMethodTestSettings = getFinaliseMethodTestSettings(delay, 0);
-            List<TimeSlotInSchedule> listOfUpdatedTimeSlots = setupMockMethodsForFinaliseTimeSlot(finaliseMethodTestSettings, scheduleFinishTime,scheduleStartTime , 0);
-
-            finaliseMethodTestSettings.ListOfExpectedSlots[2].Status=TimeSlotStatus.Canceled;
-
-            //act
-            await _scheduleUpdateService.FinaliseTimeSlot(finaliseMethodTestSettings.Model);
-
-            //assert
-            listOfUpdatedTimeSlots.Should().HaveCount(3);
-            foreach (var updatedSlot in listOfUpdatedTimeSlots)
-            {
-                if (updatedSlot.Id == finaliseMethodTestSettings.ListOfSlots[0].Id)
-                    continue;
-                if (updatedSlot.Id == finaliseMethodTestSettings.ListOfSlots[2].Id)
-                {
-                    updatedSlot.Status.Should().Be(TimeSlotStatus.Canceled);
-                    continue;
-                }
-                updatedSlot.Status.Should().Be(TimeSlotStatus.Active);
-                bool expectedAndUpdatedAreSame =checkIfExpectedAndUpdatedAreSame(delay, updatedSlot, finaliseMethodTestSettings.ListOfExpectedSlots[1]);
-                expectedAndUpdatedAreSame.Should().BeTrue();    
-            }
-        }
-
-
-        [Fact]
-        public async Task FinaliseTimeSlot_forValidIdAndSlotFinishedTooEarlyButAfterScheduleStartTime_itShouldUpdateAll()
-        {
-            int delay = -60;
-            var scheduleFinishTime = new TimeOnly(15, 0);
-            var scheduleStartTime = new TimeOnly(6, 0);
-
-
-            FinaliseMethodTestSettingsDTO finaliseMethodTestSettings = getFinaliseMethodTestSettings(delay, 0);
-            List<TimeSlotInSchedule> listOfUpdatedTimeSlots = setupMockMethodsForFinaliseTimeSlot(finaliseMethodTestSettings, scheduleFinishTime, scheduleStartTime, 0);
-
+            TimeSlotList listOfUpdatedTimeSlots = setupMockMethodsForFinaliseTimeSlot(finaliseMethodTestSettings, settings, timeSlotsWithNoFinished, timeSlotsWithNoBreaks, daySchedule);
 
 
             //act
             await _scheduleUpdateService.FinaliseTimeSlot(finaliseMethodTestSettings.Model);
 
             //assert
-            listOfUpdatedTimeSlots.Should().HaveCount(3);
-            foreach (var updatedSlot in listOfUpdatedTimeSlots)
-            {
-                if (updatedSlot.Id == finaliseMethodTestSettings.ListOfSlots[0].Id)
-                    continue;
-                updatedSlot.Status.Should().Be(TimeSlotStatus.Active);
-                bool expectedAndUpdatedAreSame = false;
-                foreach(var expectedSlot in finaliseMethodTestSettings.ListOfExpectedSlots)
-                {
-                    if( checkIfExpectedAndUpdatedAreSame(delay, updatedSlot, expectedSlot))
-                    {
-                        expectedAndUpdatedAreSame = true;
-                    }
+            listOfUpdatedTimeSlots.Should().HaveCount(finaliseMethodTestSettings.ListOfExpectedSlots.Count);
 
-                }
-                
-                expectedAndUpdatedAreSame.Should().BeTrue();
-            }
+            listOfUpdatedTimeSlots.Should().BeEquivalentTo(finaliseMethodTestSettings.ListOfExpectedSlots);
         }
 
 
-        [Fact]
-        public async Task FinaliseTimeSlot_forValidIdAndSlotFinishedTooEarlyButBeforeScheduleStartTime_itShouldUpdateAll()
+
+        [Theory]
+        [ClassData(typeof(ArgumentsTestforValidIdAndSlotFinishedAfterTimeAndOtherSlotsShouldBeAfterMidnight))]
+        public async Task FinaliseTimeSlot_forValidIdAndSlotFinishedAfterTimeAndAfterMidnight_itShouldUpdateAll(FinaliseMethodTestSettingsDTO finaliseMethodTestSettings, ScheduleSettings settings, TimeSlotList timeSlotsWithNoFinished, TimeSlotList timeSlotsWithNoBreaks, DaySchedule daySchedule)
         {
-            int delay = -300;
-            var scheduleFinishTime = new TimeOnly(15, 0);
-            var scheduleStartTime = new TimeOnly(11, 0);
-
-
-            FinaliseMethodTestSettingsDTO finaliseMethodTestSettings = getFinaliseMethodTestSettings(delay, 0);
-            List<TimeSlotInSchedule> listOfUpdatedTimeSlots = setupMockMethodsForFinaliseTimeSlot(finaliseMethodTestSettings, scheduleFinishTime, scheduleStartTime,  0);
-
-
+            TimeSlotList listOfUpdatedTimeSlots = setupMockMethodsForFinaliseTimeSlot(finaliseMethodTestSettings, settings, timeSlotsWithNoFinished, timeSlotsWithNoBreaks, daySchedule);
 
             //act
             await _scheduleUpdateService.FinaliseTimeSlot(finaliseMethodTestSettings.Model);
 
             //assert
-            listOfUpdatedTimeSlots.Should().HaveCount(3);
-            delay = -144;
-            foreach (var updatedSlot in listOfUpdatedTimeSlots)
-            {
-                if (updatedSlot.Id == finaliseMethodTestSettings.ListOfSlots[0].Id)
-                    continue;
-                updatedSlot.Status.Should().Be(TimeSlotStatus.Active);
-                bool expectedAndUpdatedAreSame = false;
-                foreach (var expectedSlot in finaliseMethodTestSettings.ListOfExpectedSlots)
-                {
-                    if (checkIfExpectedAndUpdatedAreSame(delay, updatedSlot, expectedSlot))
-                    {
-                        expectedAndUpdatedAreSame = true;
-                    }
+            listOfUpdatedTimeSlots.Should().HaveCount(finaliseMethodTestSettings.ListOfExpectedSlots.Count);
 
-                }
-
-                expectedAndUpdatedAreSame.Should().BeTrue();
-            }
+            listOfUpdatedTimeSlots.Should().BeEquivalentTo(finaliseMethodTestSettings.ListOfExpectedSlots);
         }
 
 
-        [Fact]
-        public async Task FinaliseTimeSlot_forValidIdAndTimeSlotWhichIsNotFirstOnListslotfinishedTooEarly_itShouldUpdateSlotsAsExpected()
+        [Theory]
+        [ClassData(typeof(ArgumentsFinaliseTimeSlot_forTimeSlotWhichIsNotFirstOnListSlotfinishedTooEarly))]
+        public async Task FinaliseTimeSlot_forValidIdAndTimeSlotWhichIsNotFirstOnListslotfinishedTooEarly_itShouldUpdateSlotsAsExpected(FinaliseMethodTestSettingsDTO finaliseMethodTestSettings, ScheduleSettings settings,TimeSlotList timeSlotsWithNoFinished, TimeSlotList timeSlotsWithNoBreaks,DaySchedule daySchedule)
         {
-            int delay = -10;
-            int indexOfFinalisedSlot = 2;
-            var scheduleFinishTime = new TimeOnly(20, 0);
-            var scheduleStartTime = new TimeOnly(6, 0);
-            FinaliseMethodTestSettingsDTO finaliseMethodTestSettings = getFinaliseMethodTestSettingsWith5TimeSlots(delay, indexOfFinalisedSlot);
-            finaliseMethodTestSettings.ListOfExpectedSlots = getExpectedTimeSlotsForTest1(finaliseMethodTestSettings);
-            List<TimeSlotInSchedule> listOfUpdatedTimeSlots = setupMockMethodsForFinaliseTimeSlot(finaliseMethodTestSettings, scheduleFinishTime, scheduleStartTime, indexOfFinalisedSlot);
-
-            //act
-            await _scheduleUpdateService.FinaliseTimeSlot(finaliseMethodTestSettings.Model);
-
-            //assert
-            listOfUpdatedTimeSlots.Should().HaveCount(5);
             
-            foreach (var updatedSlot in listOfUpdatedTimeSlots)
-            {
-                if (updatedSlot.Id == finaliseMethodTestSettings.ListOfSlots[indexOfFinalisedSlot].Id)
-                {
-                    updatedSlot.Status.Should().Be(TimeSlotStatus.Finished);
-                    continue;
-                }
+            
 
-                bool isOnExpectedList = CheckIfSlotIsOnExpectedList(0, finaliseMethodTestSettings, updatedSlot,indexOfFinalisedSlot);
+            TimeSlotList listOfUpdatedTimeSlots = setupMockMethodsForFinaliseTimeSlot(finaliseMethodTestSettings, settings,timeSlotsWithNoFinished,timeSlotsWithNoBreaks,daySchedule);
 
+            //act
+            await _scheduleUpdateService.FinaliseTimeSlot(finaliseMethodTestSettings.Model);
 
+            //assert
+            listOfUpdatedTimeSlots.Should().HaveCount(finaliseMethodTestSettings.ListOfExpectedSlots.Count);
 
-                isOnExpectedList.Should().BeTrue();
-            }
+            listOfUpdatedTimeSlots.Should().BeEquivalentTo(finaliseMethodTestSettings.ListOfExpectedSlots);
             
         }
 
 
-        [Fact]
-        public async Task FinaliseTimeSlot_forValidIdAndTimeSlotWhichIsNotFirstOnListSlotfinishedBeforeScheduleStarted_itShouldUpdateSlotsAsExpected()
+   
+
+        [Theory]
+        [ClassData(typeof(ArgumentsFinaliseTimeSlot_forTimeSlotWhichIsNotFirstOnListSlotfinishedBeforeScheduleStarted))]
+        public async Task FinaliseTimeSlot_forValidIdAndTimeSlotWhichIsNotFirstOnListSlotfinishedBeforeScheduleStarted_itShouldUpdateSlotsAsExpected(FinaliseMethodTestSettingsDTO finaliseMethodTestSettings, ScheduleSettings settings, TimeSlotList timeSlotsWithNoFinished, TimeSlotList timeSlotsWithNoBreaks, DaySchedule daySchedule)
         {
-            int delay = -360;
-            int indexOfFinalisedSlot = 2;
-            var scheduleFinishTime = new TimeOnly(20, 0);
-            var scheduleStartTime = new TimeOnly(11, 0);
-            FinaliseMethodTestSettingsDTO finaliseMethodTestSettings = getFinaliseMethodTestSettingsWith5TimeSlots(delay, indexOfFinalisedSlot);
-            finaliseMethodTestSettings.ListOfExpectedSlots = getExpectedTimeSlotsForTest2(finaliseMethodTestSettings);
-            List<TimeSlotInSchedule> listOfUpdatedTimeSlots = setupMockMethodsForFinaliseTimeSlot(finaliseMethodTestSettings, scheduleFinishTime, scheduleStartTime, indexOfFinalisedSlot);
+            TimeSlotList listOfUpdatedTimeSlots = setupMockMethodsForFinaliseTimeSlot(finaliseMethodTestSettings, settings, timeSlotsWithNoFinished, timeSlotsWithNoBreaks, daySchedule);
 
             //act
             await _scheduleUpdateService.FinaliseTimeSlot(finaliseMethodTestSettings.Model);
 
             //assert
-            listOfUpdatedTimeSlots.Should().HaveCount(5);
+            listOfUpdatedTimeSlots.Should().HaveCount(finaliseMethodTestSettings.ListOfExpectedSlots.Count);
 
-            foreach (var updatedSlot in listOfUpdatedTimeSlots)
-            {
-                if (updatedSlot.Id == finaliseMethodTestSettings.ListOfSlots[indexOfFinalisedSlot].Id)
-                {
-                    updatedSlot.Status.Should().Be(TimeSlotStatus.Finished);
-                    continue;
-                }
-
-                bool isOnExpectedList = CheckIfSlotIsOnExpectedList(0, finaliseMethodTestSettings, updatedSlot, indexOfFinalisedSlot);
-
-
-
-                isOnExpectedList.Should().BeTrue();
-            }
+            listOfUpdatedTimeSlots.Should().BeEquivalentTo(finaliseMethodTestSettings.ListOfExpectedSlots);
 
         }
 
         [Theory]
-        [InlineData(16,0,1)]
-        [InlineData(15,40,2)]
-        [InlineData(15,20,3)]
-        [InlineData(14,20,4)]
-        public async Task FinaliseTimeSlot_forValidIdAndTimeSlotWhichIsNotFirstOnListNotEnoughTimeForSomeSlots_itShouldHaveExpectedNumberOfCanceledSlots(int scheduleFinishHour, int scheduleFinishMinute, int numberOfCanceledSlot)
+        [ClassData(typeof(ArgumentsFinaliseTimeSlot_NotEnoughTimeForSomeSlots))]
+        public async Task FinaliseTimeSlot_NotEnoughTimeForSomeSlots_itShouldHaveExpectedNumberOfCanceledSlots(FinaliseMethodTestSettingsDTO finaliseMethodTestSettings, ScheduleSettings settings, TimeSlotList timeSlotsWithNoFinished, TimeSlotList timeSlotsWithNoBreaks, DaySchedule daySchedule)
         {
-            int delay = -10;
-            int indexOfFinalisedSlot = 2;
-            var scheduleFinishTime = new TimeOnly(scheduleFinishHour, scheduleFinishMinute);
-            var scheduleStartTime = new TimeOnly(6, 0);
-            FinaliseMethodTestSettingsDTO finaliseMethodTestSettings = getFinaliseMethodTestSettingsWith5TimeSlots(delay, indexOfFinalisedSlot);
-            finaliseMethodTestSettings.ListOfExpectedSlots = getExpectedTimeSlotsForTest1(finaliseMethodTestSettings);
-            List<TimeSlotInSchedule> listOfUpdatedTimeSlots = setupMockMethodsForFinaliseTimeSlot(finaliseMethodTestSettings, scheduleFinishTime, scheduleStartTime, indexOfFinalisedSlot);
+
+            TimeSlotList listOfUpdatedTimeSlots = setupMockMethodsForFinaliseTimeSlot(finaliseMethodTestSettings, settings, timeSlotsWithNoFinished, timeSlotsWithNoBreaks, daySchedule);
 
             //act
             await _scheduleUpdateService.FinaliseTimeSlot(finaliseMethodTestSettings.Model);
 
             //assert
-            listOfUpdatedTimeSlots.Should().HaveCount(5);
-            var numberOfCanceledSlots = 0;
-            foreach (var updatedSlot in listOfUpdatedTimeSlots)
-            {
-                if (updatedSlot.Id == finaliseMethodTestSettings.ListOfSlots[indexOfFinalisedSlot].Id)
-                {
-                    updatedSlot.Status.Should().Be(TimeSlotStatus.Finished);
-                    continue;
-                }
-                if(updatedSlot.Status==TimeSlotStatus.Canceled)
-                {
-                    numberOfCanceledSlots++;
-                    continue;
-                }    
-                bool isOnExpectedList = CheckIfSlotIsOnExpectedList(0, finaliseMethodTestSettings, updatedSlot, indexOfFinalisedSlot);
+            listOfUpdatedTimeSlots.Should().HaveCount(finaliseMethodTestSettings.ListOfExpectedSlots.Count);
 
-
-
-                isOnExpectedList.Should().BeTrue();
-            }
-            numberOfCanceledSlots.Should().Be(numberOfCanceledSlot);
+            listOfUpdatedTimeSlots.Should().BeEquivalentTo(finaliseMethodTestSettings.ListOfExpectedSlots);
+            
 
         }
 
@@ -357,14 +152,14 @@ namespace ScheduleHelper.ServiceTests
             await action.Should().ThrowAsync<ArgumentException>();
         }
 
-        private static List<TimeSlotInSchedule> getExpectedTimeSlotsForTest1(FinaliseMethodTestSettingsDTO finaliseMethodTestSettings)
+        private static TimeSlotList getExpectedTimeSlotsForTest1(FinaliseMethodTestSettingsDTO finaliseMethodTestSettings)
         {
             var expectedTimeSlots = finaliseMethodTestSettings.ListOfExpectedSlots;
             expectedTimeSlots.Remove(expectedTimeSlots[2]);
             
             expectedTimeSlots[0].StartTime = new TimeOnly(14, 4);
-            expectedTimeSlots[0].FinishTime = new TimeOnly(14, 24);
-            expectedTimeSlots[1].StartTime = new TimeOnly(14, 24);
+            expectedTimeSlots[0].FinishTime = new TimeOnly(15, 4);
+            expectedTimeSlots[1].StartTime = new TimeOnly(15, 4);
             expectedTimeSlots[1].FinishTime = new TimeOnly(15, 24);
             expectedTimeSlots[2].StartTime = new TimeOnly(15, 24);
             expectedTimeSlots[2].FinishTime = new TimeOnly(15, 44);
@@ -373,7 +168,7 @@ namespace ScheduleHelper.ServiceTests
             return expectedTimeSlots;
         }
 
-        private static List<TimeSlotInSchedule> getExpectedTimeSlotsForTest2(FinaliseMethodTestSettingsDTO finaliseMethodTestSettings)
+        private static TimeSlotList getExpectedTimeSlotsForTest2(FinaliseMethodTestSettingsDTO finaliseMethodTestSettings)
         {
             var expectedTimeSlots = finaliseMethodTestSettings.ListOfExpectedSlots;
             expectedTimeSlots.Remove(expectedTimeSlots[2]);
@@ -418,17 +213,36 @@ namespace ScheduleHelper.ServiceTests
             return expectedAndUpdatedSlotAreSame;
         }
 
-        private static FinaliseMethodTestSettingsDTO getFinaliseMethodTestSettings(int delay,int indexSlotToFinish)
+
+        protected TimeSlotList setupMockMethodsForFinaliseTimeSlot(FinaliseMethodTestSettingsDTO finaliseMethodTestSettings, ScheduleSettings scheduleSettings,TimeSlotList slotsWithNoFinished,TimeSlotList slotsWithNotBreaks,DaySchedule daySchedule)
         {
-            var listOfSlots = getSlotsListWith3Slots();
-            var listOfExpectedSlots = getSlotsListWith3Slots();
-            FinaliseMethodTestSettingsDTO finaliseMethodTestSettings = getFinaliseTestSettingsBasedOnGivenListOfTimeSlots(delay, indexSlotToFinish, listOfSlots, listOfExpectedSlots);
-            return finaliseMethodTestSettings;
+            TimeSlotList listOfUpdatedTimeSlots = new TimeSlotList();
+            TimeSlotList listOfAddedSlots = new TimeSlotList();
+
+
+            var listOfActiveSlots = new TimeSlotList(finaliseMethodTestSettings.ListOfSlots);
+            
+            _scheduleRespositorMock.Setup(m => m.UpdateTimeSlot(It.IsAny<TimeSlotInSchedule>()))
+                .Callback((TimeSlotInSchedule slot) => listOfUpdatedTimeSlots.Add(slot));
+            _scheduleRespositorMock.Setup(m => m.GetTimeSlot(finaliseMethodTestSettings.Model.SlotId))
+                    .ReturnsAsync(finaliseMethodTestSettings.ListOfSlots[0]);
+            _scheduleRespositorMock.Setup(m => m.GetScheduleSettings())
+                .ReturnsAsync(scheduleSettings);
+            _scheduleRespositorMock.SetupSequence(m => m.GetActiveSlots())
+                .ReturnsAsync(slotsWithNoFinished)
+                .ReturnsAsync(slotsWithNoFinished)
+                .ReturnsAsync(slotsWithNotBreaks);
+            _scheduleRespositorMock.Setup(m => m.AddNewTimeSlot(It.IsAny<TimeSlotInSchedule>()))
+                    .Callback((TimeSlotInSchedule m) => listOfAddedSlots.Add(m));
+            _scheduleRespositorMock.SetupSequence(m => m.GetDaySchedule())
+                .ReturnsAsync(daySchedule.Copy())
+                .ReturnsAsync(daySchedule.Copy());
+
+            return listOfAddedSlots;
         }
 
 
-
-        private static FinaliseMethodTestSettingsDTO getFinaliseMethodTestSettingsWith5TimeSlots(int delay, int indexSlotToFinish)
+        private  FinaliseMethodTestSettingsDTO getFinaliseMethodTestSettingsWith5TimeSlots(int delay, int indexSlotToFinish)
         {
             var listOfSlots = getSlotsListWith5Slots();
             var listOfExpectedSlots = getSlotsListWith5Slots();
@@ -436,62 +250,9 @@ namespace ScheduleHelper.ServiceTests
             return finaliseMethodTestSettings;
         }
 
-        private static FinaliseMethodTestSettingsDTO getFinaliseTestSettingsBasedOnGivenListOfTimeSlots(int delay, int indexSlotToFinish, List<TimeSlotInSchedule> listOfSlots, List<TimeSlotInSchedule> listOfExpectedSlots)
-        {
-            var actualFinishTime = listOfSlots[indexSlotToFinish].FinishTime.AddMinutes(delay);
 
-            FinaliseSlotDTO model = new FinaliseSlotDTO()
-            {
-                FinishTime = actualFinishTime.ToString(),
-                SlotId = (Guid)listOfSlots[indexSlotToFinish].Id
 
-            };
-            FinaliseMethodTestSettingsDTO finaliseMethodTestSettings = new FinaliseMethodTestSettingsDTO()
-            {
-                ListOfExpectedSlots = listOfExpectedSlots,
-                ListOfSlots = listOfSlots,
-                ActualFinishTime = actualFinishTime,
-                Model = model
-            };
-            return finaliseMethodTestSettings;
-        }
-        private static List<TimeSlotInSchedule> getSlotsListWith3Slots()
-        {
-            var listOfTasks = GenerateDataHelper.GetNormalValidListOfTasks();
-            var listOfSlots = GenerateDataHelper.GetTimeSlotsListWith3TimeSlots(listOfTasks[0], listOfTasks[1]);
-            return listOfSlots;
-        }
 
-        private static List<TimeSlotInSchedule> getSlotsListWith5Slots()
-        {
-            var listOfTasks = GenerateDataHelper.GetNormalValidListOfTasks();
-            var listOfSlots = GenerateDataHelper.GetTimeSlotsListWith5TimeSlots(listOfTasks[0], listOfTasks[1]);
-            return listOfSlots;
-        }
-
-        private List<TimeSlotInSchedule> setupMockMethodsForFinaliseTimeSlot(FinaliseMethodTestSettingsDTO finaliseMethodTestSettings,TimeOnly scheduleFinishTime, TimeOnly scheduleStartTime,int indexOfFinishedSlot)
-        {
-            List<TimeSlotInSchedule> listOfUpdatedTimeSlots = new List<TimeSlotInSchedule>();
-            ScheduleSettings scheduleSettings = new ScheduleSettings()
-            {
-                FinishTime = scheduleFinishTime,
-                Id = 1,
-                StartTime = scheduleStartTime,
-            };
-
-            var listOfActiveSlots = new List<TimeSlotInSchedule>(finaliseMethodTestSettings.ListOfSlots);
-            listOfActiveSlots.Remove(finaliseMethodTestSettings.ListOfSlots[indexOfFinishedSlot]);
-            _scheduleRespositorMock.Setup(m => m.UpdateTimeSlot(It.IsAny<TimeSlotInSchedule>()))
-                .Callback((TimeSlotInSchedule slot) => listOfUpdatedTimeSlots.Add(slot));
-            _scheduleRespositorMock.Setup(m => m.GetTimeSlot(finaliseMethodTestSettings.Model.SlotId))
-                    .ReturnsAsync(finaliseMethodTestSettings.ListOfSlots[indexOfFinishedSlot]);
-            _scheduleRespositorMock.Setup(m => m.GetScheduleSettings())
-                .ReturnsAsync(scheduleSettings);
-            _scheduleRespositorMock.Setup(m => m.GetActiveSlots())
-                .ReturnsAsync(listOfActiveSlots);
-
-            return listOfUpdatedTimeSlots;
-        }
 
 
     }

@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿global using TimeSlotList = System.Collections.Generic.List<ScheduleHelper.Core.Domain.Entities.TimeSlotInSchedule>;
+using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using ScheduleHelper.Core.Domain.Entities;
@@ -9,6 +10,7 @@ using ScheduleHelper.Core.DTO;
 using ScheduleHelper.Core.ServiceContracts;
 using ScheduleHelper.Core.Services;
 using ScheduleHelper.ServiceTests.ClassData;
+using ScheduleHelper.ServiceTests.ClassData.GenerateScheduleData;
 using ScheduleHelper.ServiceTests.Helpers;
 using System;
 using System.Collections.Generic;
@@ -94,7 +96,7 @@ namespace ScheduleHelper.ServiceTests
             var listOfSlotsPassedAsArgument = new List<TimeSlotInSchedule>();
             int expectedNumberOfTimeSlots = expectedTimeSlotsList.Count;
 
-            setupMockMethods(tasksListsInMemory, listOfSlotsPassedAsArgument);
+            setupMockMethodsForGeneratingSchedule(tasksListsInMemory, listOfSlotsPassedAsArgument, testScheduleSettings);
 
 
 
@@ -234,13 +236,30 @@ namespace ScheduleHelper.ServiceTests
         }
 
 
-        private void setupMockMethods(List<SingleTask> tasksListsInMemory, List<TimeSlotInSchedule> listOfSlotsPassedAsArgument)
+        private void setupMockMethodsForGeneratingSchedule(List<SingleTask> tasksListsInMemory, List<TimeSlotInSchedule> listOfSlotsPassedAsArgument, ScheduleSettingsDTO testScheduleSettings)
         {
+            DaySchedule newDaySchedule = new DaySchedule
+            {
+                TimeFromLastBreakMin = 0
+            };
             _taskRepositoryMock.Setup(m => m.GetTasks()).ReturnsAsync(tasksListsInMemory);
             _scheduleRespositorMock.Setup(m => m.AddNewTimeSlot(It.IsAny<TimeSlotInSchedule>())).
                 Callback((TimeSlotInSchedule timeSlot) => listOfSlotsPassedAsArgument.Add(timeSlot));
             _scheduleRespositorMock.Setup(m => m.CleanTimeSlotInScheduleTable());
             _scheduleRespositorMock.Setup(m => m.UpdateScheduleSettings(It.IsAny<ScheduleSettings>()));
+            _scheduleRespositorMock.Setup(m => m.GetDaySchedule())
+                .ReturnsAsync(newDaySchedule);
+
+            ScheduleSettings mySettings = new ScheduleSettings()
+            {
+                breakDurationMin = testScheduleSettings.breakLenghtMin,
+                MaxWorkTimeBeforeBreakMin = testScheduleSettings.MaxWorkTimeBeforeBreakMin,
+                MinWorkTimeBeforeBreakMin = testScheduleSettings.MinWorkTimeBeforeBreakMin,
+                StartTime = testScheduleSettings.startTime,
+                FinishTime = testScheduleSettings.finishTime
+            };
+            _scheduleRespositorMock.Setup(m => m.GetScheduleSettings())
+                .ReturnsAsync(mySettings);
         }
     }
 }

@@ -17,6 +17,15 @@ namespace ScheduleHelper.Core.Services.Helpers
             FixedTimeSlots = fixedTimeSlots;
             AddedSlots=new List<TimeSlotInSchedule>();
         }
+
+        public IterationStateForGenerateSchedule(TimeOnly currentTime,double timeFromLastBreak, List<TimeSlotInSchedule> fixedTimeSlots)
+        {
+            _currentOrdinalNumber = 1;
+            _currentTime = currentTime;
+            TimeOfWorkFromLastBreak = timeFromLastBreak;
+            FixedTimeSlots = fixedTimeSlots;
+            AddedSlots = new List<TimeSlotInSchedule>();
+        }
         private int _currentOrdinalNumber;
         private TimeOnly _currentTime;
         public double TimeOfWorkFromLastBreak;
@@ -45,7 +54,20 @@ namespace ScheduleHelper.Core.Services.Helpers
             
         }
 
+        public void UpdateState(TimeSlotInSchedule slot)
+        {
+            _currentTime = slot.FinishTime;
+            if (slot.IsItBreak)
+            {
+                TimeOfWorkFromLastBreak = 0;
+            }
+            else
+            {
+                TimeOfWorkFromLastBreak += slot.getDurationOfSlotInMin();
+            }
 
+
+        }
         public void UpdateStateAfterBreak(TimeOnly newCurrentTime)
         {
             CurrentTime = newCurrentTime;

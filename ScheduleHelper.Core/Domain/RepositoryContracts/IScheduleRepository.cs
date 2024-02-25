@@ -18,6 +18,13 @@ namespace ScheduleHelper.Core.Domain.RepositoryContracts
         Task UpdateTimeSlot(TimeSlotInSchedule timeSlotInSchedule);
         Task<TimeSlotInSchedule?> GetTimeSlot(Guid slotId);
         Task UpdateScheduleSettings(ScheduleSettings scheduleSettingsForDb);
+
+        Task UpdateDaySchedule(DaySchedule scheduleSettingsForDb);
+        Task RemoveTimeSlot(TimeSlotInSchedule scheduleSettingsForDb);
+        Task AddDayScheduleAndRemoveOld(DaySchedule scheduleSettingsForDb);
+        
+
+        Task<DaySchedule> GetDaySchedule();
         Task<ScheduleSettings> GetScheduleSettings();
         Task<List<TimeSlotInSchedule>> GetActiveSlots();
     }

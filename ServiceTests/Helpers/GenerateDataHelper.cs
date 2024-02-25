@@ -36,6 +36,19 @@ namespace ScheduleHelper.ServiceTests.Helpers
                 MinWorkTimeBeforeBreakMin = 1
             };
         }
+        public static ScheduleSettings GetNormalValidScheduleSettings(TimeOnly startTime,TimeOnly finishTime)
+        {
+            return new ScheduleSettings()
+            {
+                StartTime = startTime,
+                FinishTime = finishTime,
+                breakDurationMin = 20,
+                MaxWorkTimeBeforeBreakMin = 60,
+                MinWorkTimeBeforeBreakMin = 45
+            };
+        }
+
+
 
         public static List<TimeSlotInSchedule> GetTimeSlotsListWith3TimeSlots(SingleTask task1, SingleTask task2)
         {

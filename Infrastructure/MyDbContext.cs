@@ -17,6 +17,7 @@ namespace ScheduleHelper.Infrastructure
         public DbSet<SingleTask> SingleTask { get; set; }
         public DbSet<TimeSlotInSchedule> TimeSlotsInSchedule { get; set; }
         public DbSet<ScheduleSettings> ScheduleSettings { get; set; }
+        public DbSet<DaySchedule> DaySchedule { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -25,6 +26,8 @@ namespace ScheduleHelper.Infrastructure
 
             modelBuilder.Entity<ScheduleSettings>()
                 .ToTable("ScheduleSettings");
+            modelBuilder.Entity<DaySchedule>()
+                .ToTable("DaySchedule");
 
             modelBuilder.Entity<SingleTask>()
                 .Property(task => task.StartTime)

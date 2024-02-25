@@ -1,3 +1,4 @@
+global using TimeSlotList = System.Collections.Generic.List<ScheduleHelper.Core.Domain.Entities.TimeSlotInSchedule>;
 using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using ScheduleHelper.Core.Domain.RepositoryContracts;

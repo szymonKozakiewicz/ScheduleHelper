@@ -6,13 +6,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ScheduleHelper.ServiceTests.Helpers
+namespace ScheduleHelper.ServiceTests.Helpers.Dto
 {
     public class FinaliseMethodTestSettingsDTO
     {
 
-        public List<TimeSlotInSchedule> ListOfSlots;
-        public List<TimeSlotInSchedule> ListOfExpectedSlots;
+        public TimeSlotList ListOfSlots;
+        public TimeSlotList ListOfExpectedSlots;
         public TimeOnly ActualFinishTime;
         public FinaliseSlotDTO Model;
     }

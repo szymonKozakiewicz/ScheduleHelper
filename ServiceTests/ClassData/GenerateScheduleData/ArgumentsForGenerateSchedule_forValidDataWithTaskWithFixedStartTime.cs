@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ScheduleHelper.ServiceTests.ClassData
+namespace ScheduleHelper.ServiceTests.ClassData.GenerateScheduleData
 {
     public class ArgumentsForGenerateSchedule_forValidDataWithTaskWithFixedStartTime : IEnumerable<object[]>
     {
@@ -185,7 +185,7 @@ namespace ScheduleHelper.ServiceTests.ClassData
 
 
             expectedStartTime = new TimeOnly(13, 30);
-            expectedFinishTime = new TimeOnly(13,40);
+            expectedFinishTime = new TimeOnly(13, 40);
             expectedTimeSlot4 = new TimeSlotInScheduleBuilder()
                 .SetStartTime(expectedStartTime)
                 .SetFinishTime(expectedFinishTime)
@@ -306,7 +306,7 @@ namespace ScheduleHelper.ServiceTests.ClassData
                 .Build();
 
             expectedStartTime = new TimeOnly(13, 40);
-            expectedFinishTime = new TimeOnly(14, 40);
+            expectedFinishTime = new TimeOnly(15, 0);
             expectedTimeSlot5 = new TimeSlotInScheduleBuilder()
                 .SetStartTime(expectedStartTime)
                 .SetFinishTime(expectedFinishTime)
@@ -315,8 +315,8 @@ namespace ScheduleHelper.ServiceTests.ClassData
                 .SetTask(task4)
                 .Build();
 
-            expectedStartTime = new TimeOnly(14, 40);
-            expectedFinishTime = new TimeOnly(15, 0);
+            expectedStartTime = new TimeOnly(15, 0);
+            expectedFinishTime = new TimeOnly(15, 20);
             expectedTimeSlot6 = new TimeSlotInScheduleBuilder()
                 .SetStartTime(expectedStartTime)
                 .SetFinishTime(expectedFinishTime)
@@ -325,22 +325,14 @@ namespace ScheduleHelper.ServiceTests.ClassData
                 .SetTask(null)
                 .Build();
 
-            expectedStartTime = new TimeOnly(15, 0);
-            expectedFinishTime = new TimeOnly(15, 20);
-            expectedTimeSlot7 = new TimeSlotInScheduleBuilder()
-                .SetStartTime(expectedStartTime)
-                .SetFinishTime(expectedFinishTime)
-                .SetIsItBreak(false)
-                .SetOrdinalNumber(1)
-                .SetTask(task4)
-                .Build();
+
 
 
 
 
             expectedStartTime = new TimeOnly(15, 20);
             expectedFinishTime = new TimeOnly(15, 40);
-            expectedTimeSlot8 = new TimeSlotInScheduleBuilder()
+            expectedTimeSlot7 = new TimeSlotInScheduleBuilder()
                 .SetStartTime(expectedStartTime)
                 .SetFinishTime(expectedFinishTime)
                 .SetIsItBreak(false)
@@ -350,8 +342,8 @@ namespace ScheduleHelper.ServiceTests.ClassData
 
 
             expectedStartTime = new TimeOnly(15, 40);
-            expectedFinishTime = new TimeOnly(16, 0);
-            var expectedTimeSlot9 = new TimeSlotInScheduleBuilder()
+            expectedFinishTime = new TimeOnly(16, 10);
+            expectedTimeSlot8 = new TimeSlotInScheduleBuilder()
                 .SetStartTime(expectedStartTime)
                 .SetFinishTime(expectedFinishTime)
                 .SetIsItBreak(false)
@@ -360,36 +352,20 @@ namespace ScheduleHelper.ServiceTests.ClassData
                 .Build();
 
 
-            expectedStartTime = new TimeOnly(16, 0);
-            expectedFinishTime = new TimeOnly(16, 20);
-            var expectedTimeSlot10 = new TimeSlotInScheduleBuilder()
-                .SetStartTime(expectedStartTime)
-                .SetFinishTime(expectedFinishTime)
-                .SetIsItBreak(true)
-                .SetOrdinalNumber(1)
-                .SetTask(null)
-                .Build();
 
-            expectedStartTime = new TimeOnly(16, 20);
-            expectedFinishTime = new TimeOnly(16, 30);
-            var expectedTimeSlot11 = new TimeSlotInScheduleBuilder()
-                .SetStartTime(expectedStartTime)
-                .SetFinishTime(expectedFinishTime)
-                .SetIsItBreak(false)
-                .SetOrdinalNumber(1)
-                .SetTask(task3)
-                .Build();
+
+
 
 
             expectedTimeSlotsList = new()
             {
-                expectedTimeSlot5, expectedTimeSlot6, expectedTimeSlot7,expectedTimeSlot1,expectedTimeSlot2, expectedTimeSlot3, expectedTimeSlot4, 
-                expectedTimeSlot8,expectedTimeSlot9,expectedTimeSlot10,expectedTimeSlot11
+                expectedTimeSlot5, expectedTimeSlot6, expectedTimeSlot7,expectedTimeSlot1,expectedTimeSlot2, expectedTimeSlot3, expectedTimeSlot4,
+                expectedTimeSlot8
             };
             yield return new object[] { testScheduleSettings, tasksListsInMemory, expectedTimeSlotsList };
 
 
-            task1= new SingleTask("test1", 60);
+            task1 = new SingleTask("test1", 60);
             task4 = new SingleTask()
             {
                 Name = "test4",

@@ -67,7 +67,9 @@ namespace ScheduleHelper.Core.Domain.Entities.Builders
 
         public TimeSlotInSchedule Build()
         {
-            return new TimeSlotInSchedule(_finishTime,_startTime,_task,_isItBreak, _ordinalNumber,_id);
+            return new TimeSlotInSchedule(_finishTime,_startTime,_task,_isItBreak, _ordinalNumber,_id,_status);
         }
+
+
     }
 }

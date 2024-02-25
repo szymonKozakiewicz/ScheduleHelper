@@ -33,6 +33,17 @@ namespace ScheduleHelper.Core.Domain.Entities
             Id = id;
         }
 
+        public TimeSlotInSchedule(TimeOnly finishTime, TimeOnly startTime, SingleTask? task, bool isItBreak, int ordinalNumber, Guid? id,TimeSlotStatus status)
+        {
+            FinishTime = finishTime;
+            StartTime = startTime;
+            this.task = task;
+            IsItBreak = isItBreak;
+            OrdinalNumber = ordinalNumber;
+            Id = id;
+            Status = status;    
+        }
+
         public TimeSlotInSchedule()
         {
             
@@ -44,7 +55,7 @@ namespace ScheduleHelper.Core.Domain.Entities
             return task.Name;
         }
        
-
+      
         public double getDurationOfSlotInMin()
         {
             return (FinishTime - StartTime).TotalMinutes;
@@ -73,7 +84,27 @@ namespace ScheduleHelper.Core.Domain.Entities
 
         public bool TestedTimeSlotIsInsideOfTimeSlot(TimeSlotInSchedule testedTimeslot)
         {
-            return testedTimeslot.StartTime.IsBetweenOpenBrackets(StartTime, FinishTime) || testedTimeslot.FinishTime.IsBetweenOpenBrackets(StartTime, FinishTime);
+            bool areSlotsSame = (testedTimeslot.FinishTime.AreTimesEqualWithTolerance(FinishTime) && testedTimeslot.StartTime.AreTimesEqualWithTolerance(StartTime));
+            return testedTimeslot.StartTime.IsBetweenOpenBrackets(StartTime, FinishTime) || testedTimeslot.FinishTime.IsBetweenOpenBrackets(StartTime, FinishTime)||areSlotsSame;
+        }
+
+        public TimeSlotInSchedule Copy()
+        {
+            return new TimeSlotInSchedule()
+            {
+                StartTime = StartTime,
+                FinishTime = FinishTime,
+                Status = Status,
+                Id = Id,
+                IsItBreak = IsItBreak,
+                OrdinalNumber = OrdinalNumber,
+                task = task
+            };
+        }
+
+        internal bool isFixed()
+        {
+            return task != null && task.HasStartTime;
         }
     }
 }

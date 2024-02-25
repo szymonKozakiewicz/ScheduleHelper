@@ -2,28 +2,23 @@
 using ScheduleHelper.Core.Domain.Entities;
 using ScheduleHelper.Core.Domain.RepositoryContracts;
 using ScheduleHelper.Core.DTO;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ScheduleHelper.Core.Domain.Entities.Helpers;
 using ScheduleHelper.Core.ServiceContracts;
-using ScheduleHelper.Core.Services.Helpers.DTO;
+using TimeSlotsList = System.Collections.Generic.List<ScheduleHelper.Core.Domain.Entities.TimeSlotInSchedule>;
+
 
 namespace ScheduleHelper.Core.Services
 {
-    public class ScheduleUpdateService:IScheduleUpdateService
+    public class ScheduleUpdateService:ScheduleServiceBase,IScheduleUpdateService
     {            
         
         
-        IScheduleRepository _scheduleRepository;
+     
 
-        public ScheduleUpdateService(IScheduleRepository scheduleRepository)
+        public ScheduleUpdateService(IScheduleRepository scheduleRepository):base(scheduleRepository) 
         {
 
 
-            _scheduleRepository = scheduleRepository;
+            
 
         }
 
@@ -31,7 +26,7 @@ namespace ScheduleHelper.Core.Services
         {
 
 
-
+            TimeOnly actualFinishTime = TimeOnly.Parse(model.FinishTime);
             TimeSlotInSchedule? timeSlot = await _scheduleRepository.GetTimeSlot(model.SlotId);
             bool isTimeSlotIdExistInDb = timeSlot != null;
             if (!isTimeSlotIdExistInDb)
@@ -41,222 +36,99 @@ namespace ScheduleHelper.Core.Services
 
 
             await changeSlotStatus(timeSlot, TimeSlotStatus.Finished);
+            await updateTimeFromLastBreak(timeSlot);
 
-            await updateTimeSlotsOnListBasedOnFinishTime(model, timeSlot);
+            await updateSlotsAfterOneSlotFinished(timeSlot, actualFinishTime);
 
         }
 
-        private async Task updateTimeSlotsOnListBasedOnFinishTime(FinaliseSlotDTO model, TimeSlotInSchedule? timeSlot)
+        private async Task updateTimeFromLastBreak(TimeSlotInSchedule? timeSlot)
         {
-            TimeOnly actualFinishTime = TimeOnly.Parse(model.FinishTime);
-            bool timeSlotFirstOnList =await checkIsTimeSlotFirstOnList(timeSlot);
+            DaySchedule daySchedule = await _scheduleRepository.GetDaySchedule();
+            if (timeSlot.IsItBreak)
+            {
+
+                daySchedule.TimeFromLastBreakMin = 0;
+            }
+            else
+            {
+                daySchedule.TimeFromLastBreakMin += timeSlot.getDurationOfSlotInMin();
+            }
+            await _scheduleRepository.UpdateDaySchedule(daySchedule);
+        }
+
+        private async Task updateSlotsAfterOneSlotFinished(TimeSlotInSchedule? finishedTimeSlot, TimeOnly actualFinishTime)
+        {
+
             var scheduleSettings = await _scheduleRepository.GetScheduleSettings();
-            if (!timeSlotFirstOnList)
-            {
-                await updateSlotsWhenfinishedSlotNotFirstOnList(timeSlot, actualFinishTime, scheduleSettings);
-                return;
-            }
 
+           
 
-            bool isTimeSlotFinishedOnTime = timeSlot.FinishTime.AreTimesEqualWithTolerance(actualFinishTime);
-            if (isTimeSlotFinishedOnTime)
-            {
-                return;
-            }
+            await cancelFixedSlotsForWhichThereIsNoTime(actualFinishTime);
 
-            
+            await removeAllBreaks();
 
-            
+            await readjustingSlotsAfterOneSlotFinished(actualFinishTime, scheduleSettings);
 
-            await updateSlotsTimesWithDelay(timeSlot, actualFinishTime, scheduleSettings);
-          
-
-            
 
         }
 
-        private async Task updateSlotsWhenfinishedSlotNotFirstOnList(TimeSlotInSchedule? finishedSlot, TimeOnly actualFinishTime, ScheduleSettings scheduleSettings)
+        protected async Task readjustingSlotsAfterOneSlotFinished(TimeOnly actualFinishTime, ScheduleSettings scheduleSettings)
         {
-            List<TimeSlotInSchedule> activeSlots = await _scheduleRepository.GetActiveSlots();
-            var slotsBeforeFinishedSlot = activeSlots.Where(slot => slot.StartTime < finishedSlot.StartTime).ToList();
-            var slotsAfterFinishedSlot = activeSlots.Where(slot => slot.StartTime >= finishedSlot.StartTime).ToList();
-
-            TimeSlotInSchedule earliestSlot = getEarliestTimeSlot(activeSlots);
-            double dely = getDelyFromStartTime(earliestSlot, actualFinishTime, scheduleSettings.StartTime);
-
-            double delyForforSlotsAfterFinshedSlot = dely - finishedSlot.getDurationOfSlotInMin();
-            UpdateSlotsAfterNotFirstFinishedDTO updateSlotsDTO = new()
-            {
-                ScheduleSettings = scheduleSettings,
-                Dely = dely,
-                TimeSlotsList = slotsBeforeFinishedSlot
-            };
-
-            await updateSlotsBeforeFinishedSlot(finishedSlot, actualFinishTime, updateSlotsDTO);
-            updateSlotsDTO = new()
-            {
-                ScheduleSettings = scheduleSettings,
-                Dely = delyForforSlotsAfterFinshedSlot,
-                TimeSlotsList = slotsAfterFinishedSlot
-            };
-            await updateSlotsAfterFinishedSlot(updateSlotsDTO);
-
+            TimeSlotsList activeSlots = await getActiveTimeSlotsSortedWithStartTime();
+            await loopWhichBuildScheduleByAdjustingSlots(actualFinishTime, scheduleSettings, activeSlots);
         }
-
-        private async Task updateSlotsAfterFinishedSlot(UpdateSlotsAfterNotFirstFinishedDTO updateSlotsDto)
+        private async Task removeAllBreaks()
         {
-            foreach (var slot in updateSlotsDto.TimeSlotsList)
-            {
-                bool enoughTimeForSlot = checkIfIsEnoughTimeForTimeSlot(updateSlotsDto.ScheduleSettings, updateSlotsDto.Dely, slot);
-                if (!enoughTimeForSlot)
-                {
-                    slot.Status = TimeSlotStatus.Canceled;
-                    await _scheduleRepository.UpdateTimeSlot(slot);
-                    continue;
-                }
-                slot.updateStartAndFinishWithDely(updateSlotsDto.Dely);
-                await _scheduleRepository.UpdateTimeSlot(slot);
-            }
-        }
 
-        private async Task updateSlotsBeforeFinishedSlot(TimeSlotInSchedule? finishedSlot, TimeOnly actualFinishTime, UpdateSlotsAfterNotFirstFinishedDTO updateSlotsDto)
-        {
-            TimeSlotInSchedule? breakBeforeFinishedSlot = null;
-            double breakDuration = 0;
-            if (!finishedSlot.IsItBreak)
-            {
-                breakBeforeFinishedSlot = getSlotBeforeTimeSlot(updateSlotsDto.TimeSlotsList, finishedSlot);
-                breakDuration = breakBeforeFinishedSlot.getDurationOfSlotInMin();
-            }
-            double delyForSlotsBeforeFinishedSlot = updateSlotsDto.Dely + breakDuration;
-            foreach (var slot in updateSlotsDto.TimeSlotsList)
-            {
-                bool enoughTimeForSlot = true;
-                if (breakBeforeFinishedSlot!=null && slot.Id == breakBeforeFinishedSlot.Id)
-                {
-
-                    double brekaDuration = slot.getDurationOfSlotInMin();
-                    var breakStartTime = actualFinishTime;
-                    if (actualFinishTime < updateSlotsDto.ScheduleSettings.StartTime)
-                        breakStartTime = updateSlotsDto.ScheduleSettings.StartTime;
-                    slot.StartTime = breakStartTime;
-                    slot.FinishTime = breakStartTime.AddMinutes(brekaDuration);
-                    enoughTimeForSlot = checkIfIsEnoughTimeForTimeSlot(updateSlotsDto.ScheduleSettings, 0, slot);
-
-                    if (!enoughTimeForSlot)
-                    {
-                        slot.Status = TimeSlotStatus.Canceled;
-                    }
-
-
-                    await _scheduleRepository.UpdateTimeSlot(slot);
-                    continue;
-                }
-                enoughTimeForSlot = checkIfIsEnoughTimeForTimeSlot(updateSlotsDto.ScheduleSettings, delyForSlotsBeforeFinishedSlot, slot);
-                if (!enoughTimeForSlot)
-                {
-                    slot.Status = TimeSlotStatus.Canceled;
-                    await _scheduleRepository.UpdateTimeSlot(slot);
-                    continue;
-                }
-                slot.updateStartAndFinishWithDely(delyForSlotsBeforeFinishedSlot);
-                await _scheduleRepository.UpdateTimeSlot(slot);
-
-            }
-        }
-
-        private double getDelyFromStartTime(TimeSlotInSchedule timeSlot, TimeOnly actualFinishTime, TimeOnly scheduleStartTime)
-        {
-            if (timeSlot.StartTime < actualFinishTime)
-                return (actualFinishTime - timeSlot.StartTime).TotalMinutes;
-
-            if (scheduleStartTime < actualFinishTime)
-                return -(timeSlot.StartTime - actualFinishTime).TotalMinutes;
-
-            return -(timeSlot.StartTime - scheduleStartTime).TotalMinutes;
-        }
-
-        private TimeSlotInSchedule getEarliestTimeSlot(List<TimeSlotInSchedule> slots)
-        {
-            TimeSlotInSchedule earliestSlot = slots[0];
-            foreach(var slot in slots) {
-                if(earliestSlot.StartTime>slot.StartTime)
-                {
-                    earliestSlot = slot;
-                }
-            }
-            return earliestSlot;
-        }
-
-        
-
-        private TimeSlotInSchedule getSlotBeforeTimeSlot(List<TimeSlotInSchedule> slotBeforeFinishedTimeSlot, TimeSlotInSchedule timeSlot)
-        {
-            var closestSlot = slotBeforeFinishedTimeSlot[0];
-            foreach (var slot in slotBeforeFinishedTimeSlot)
-            {
-                if(closestSlot.StartTime<slot.StartTime)
-                {
-                    closestSlot = slot;
-                }
-            }
-            return closestSlot;
-        }
-
-        private async Task<bool> checkIsTimeSlotFirstOnList(TimeSlotInSchedule? timeSlot)
-        {
-            List<TimeSlotInSchedule> activeSlots = await _scheduleRepository.GetActiveSlots();
-
-            return !activeSlots.Any(slot => slot.StartTime < timeSlot.StartTime);
-        }
-
-        private async Task updateSlotsTimesWithDelay(TimeSlotInSchedule? finishedTimeSlot, TimeOnly actualFinishTime, ScheduleSettings scheduleSettings)
-        {
-            double dely = getDely(finishedTimeSlot, actualFinishTime,scheduleSettings.StartTime);
-            List<TimeSlotInSchedule> activeSlots = await _scheduleRepository.GetActiveSlots();
-
-
+            TimeSlotsList activeSlots = await getActiveTimeSlotsSortedWithStartTime();
             foreach (var slot in activeSlots)
             {
-                if (slot.Id == finishedTimeSlot.Id || finishedTimeSlot.StartTime > slot.StartTime)
+                if (slot.IsItBreak)
                 {
-                    continue;
+                    await _scheduleRepository.RemoveTimeSlot(slot);
                 }
-
-                
-                bool enoughTimeToFinishSlot = checkIfIsEnoughTimeForTimeSlot(scheduleSettings, dely, slot);
-                if (!enoughTimeToFinishSlot)
-                {
-                    await changeSlotStatus(slot, TimeSlotStatus.Canceled);
-                    continue;
-                }
-
-                slot.StartTime = slot.StartTime.AddMinutes(dely);
-                slot.FinishTime = slot.FinishTime.AddMinutes(dely);
-                await _scheduleRepository.UpdateTimeSlot(slot);
-
             }
         }
 
-        private static bool checkIfIsEnoughTimeForTimeSlot(ScheduleSettings scheduleSettings, double dely, TimeSlotInSchedule slot)
+
+
+
+
+        private async Task cancelFixedSlotsForWhichThereIsNoTime(TimeOnly actualFinishTime)
         {
-            TimeSpan timeSpan = new TimeOnly(23, 59) - slot.FinishTime;
-            bool slotShouldBeFinishedInNextDay = timeSpan.TotalMinutes < dely;
-            bool notEnoughTimeToFinishSlot = slot.FinishTime.AddMinutes(dely) > scheduleSettings.FinishTime || slotShouldBeFinishedInNextDay;
-            return !notEnoughTimeToFinishSlot;
+            TimeSlotsList activeSlots=await getActiveTimeSlotsSortedWithStartTime();
+            var fixedTimeSlot=getFixedTimeSlots(activeSlots);
+            foreach(var fixedSlot in fixedTimeSlot)
+            {
+                if(fixedSlot.StartTime<actualFinishTime)
+                {
+
+                    changeSlotStatus(fixedSlot, TimeSlotStatus.Canceled);
+                }
+            }
         }
 
-        private static double getDely(TimeSlotInSchedule? timeSlot, TimeOnly actualFinishTime, TimeOnly scheduleStartTime)
+
+
+        private async Task<TimeSlotsList> getActiveTimeSlotsSortedWithStartTime()
         {
-            if (timeSlot.FinishTime < actualFinishTime)
-                return (actualFinishTime - timeSlot.FinishTime).TotalMinutes;
-            
-            if(scheduleStartTime < actualFinishTime)
-                return -(timeSlot.FinishTime - actualFinishTime).TotalMinutes;
-
-            return -(timeSlot.FinishTime - scheduleStartTime).TotalMinutes;
-
+            TimeSlotsList activeSlots = await _scheduleRepository.GetActiveSlots();
+            activeSlots = activeSlots.OrderBy(p => p.StartTime).ToList();
+            return activeSlots;
         }
+
+
+
+        private TimeSlotsList getFixedTimeSlots(TimeSlotsList activeSlots)
+        {
+         
+            return activeSlots.FindAll(slot =>slot.task!=null && slot.task.HasStartTime).ToList();
+        }
+
+
+
+
 
         private async Task changeSlotStatus(TimeSlotInSchedule? timeSlot, TimeSlotStatus newStatus)
         {
