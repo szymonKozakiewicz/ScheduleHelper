@@ -29,7 +29,7 @@ namespace ScheduleHelper.ServiceTests.ClassData
             };
             var task1 = new SingleTask("test1", 70);
             var task2 = new SingleTask("test2", 30);
-            var task3 = new SingleTask("test2", 30);
+            var task3 = new SingleTask("test3", 30);
             List<SingleTask> tasksListsInMemory = new()
             {
                 task1.Copy(),

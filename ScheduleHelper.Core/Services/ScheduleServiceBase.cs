@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using IterationState = ScheduleHelper.Core.Services.Helpers.IterationStateForGenerateSchedule;
 using TimeSlotsList = System.Collections.Generic.List<ScheduleHelper.Core.Domain.Entities.TimeSlotInSchedule>;
 using static ScheduleHelper.Core.Services.Helpers.GenerateScheduleTools;
-
+using ScheduleHelper.Core.Domain.Entities.Helpers;
 
 namespace ScheduleHelper.Core.Services
 {
@@ -55,7 +55,7 @@ namespace ScheduleHelper.Core.Services
                 double timeOfSlotToAssign = slot.getDurationOfSlotInMin();
                 do
                 {
-                    await addBreakIfItShouldBeAdded(scheduleSettings, currentTime, iterationState, slot);
+                    await addBreakIfItShouldBeAdded(scheduleSettings,  iterationState, listOfFixedTimeSlots);
                     double duration = getSlotDuration(timeOfSlotToAssign, scheduleSettings, iterationState);
                     if (duration < 0.1)
                     {
@@ -75,6 +75,7 @@ namespace ScheduleHelper.Core.Services
                     await _scheduleRepository.AddNewTimeSlot(newTimeSlot);
                     iterationState.UpdateState(newTimeSlot);
                     timeOfSlotToAssign -= newTimeSlot.getDurationOfSlotInMin();
+                    
                 } while (timeOfSlotToAssign > 0.1);
 
 
@@ -121,8 +122,10 @@ namespace ScheduleHelper.Core.Services
         }
 
 
-        private async Task addBreakIfItShouldBeAdded(ScheduleSettings scheduleSettings, TimeOnly currentTime, IterationState iterationState, TimeSlotInSchedule slot)
+        private async Task addBreakIfItShouldBeAdded(ScheduleSettings scheduleSettings,  IterationState iterationState, TimeSlotsList fixedSlots)
         {
+            dodgeFixedSlotIfItShouldBe(iterationState, fixedSlots);
+
             if (checkIfSchouldBeBreak(scheduleSettings, iterationState, iterationState.FixedTimeSlots))
             {
                 var slotForBreak = await makeSlotForBreak(scheduleSettings, iterationState);
@@ -133,6 +136,25 @@ namespace ScheduleHelper.Core.Services
                 }
 
             }
+        }
+
+        private static void dodgeFixedSlotIfItShouldBe(IterationState iterationState, TimeSlotsList fixedSlots)
+        {
+            
+            
+            var timeMinuteLaterThanCurrent = iterationState.CurrentTime.AddMinutes(1);
+            while (SlotOverlapsWithExistingFixedTimeSlot(iterationState.CurrentTime, iterationState.CurrentTime.AddMinutes(1), fixedSlots))
+            {
+                if (isOneMinuteToMidNight(iterationState))
+                    return;
+                var fixedTimeSlot = GetOverlapsingFixedTimeSlot(iterationState.CurrentTime, timeMinuteLaterThanCurrent, fixedSlots);
+                iterationState.UpdateState(fixedTimeSlot);
+            }
+        }
+
+        public static bool isOneMinuteToMidNight(IterationState iterationState)
+        {
+            return iterationState.CurrentTime.AreTimesEqualWithTolerance(new TimeOnly(23, 59));
         }
 
         private async Task<TimeSlotsList> joinSlotsWithSameTasks(TimeSlotsList activeSlots)
