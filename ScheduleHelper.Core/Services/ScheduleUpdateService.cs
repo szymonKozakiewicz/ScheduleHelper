@@ -109,26 +109,11 @@ namespace ScheduleHelper.Core.Services
             }
         }
 
-
-
-        private async Task<TimeSlotsList> getActiveTimeSlotsSortedWithStartTime()
-        {
-            TimeSlotsList activeSlots = await _scheduleRepository.GetActiveSlots();
-            activeSlots = activeSlots.OrderBy(p => p.StartTime).ToList();
-            return activeSlots;
-        }
-
-
-
         private TimeSlotsList getFixedTimeSlots(TimeSlotsList activeSlots)
         {
          
             return activeSlots.FindAll(slot =>slot.task!=null && slot.task.HasStartTime).ToList();
         }
-
-
-
-
 
         private async Task changeSlotStatus(TimeSlotInSchedule? timeSlot, TimeSlotStatus newStatus)
         {

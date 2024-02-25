@@ -176,84 +176,6 @@ namespace ScheduleHelper.Core.Services
             return true;
         }
 
-        private async Task<List<TimeSlotInSchedule>> addEachTaskToScheduleAndReturnListOfCreatedSlots(ScheduleSettingsDTO scheduleSettings, List<SingleTask> tasksList,List<TimeSlotInSchedule>fixedTimeSlots)
-        {
-            var iterationState = new IterationStateForGenerateSchedule(scheduleSettings.startTime,fixedTimeSlots);
-            TimeSlotInSchedule? timeSlotForBreak = null;
-            bool shouldBeBreak = false;
-            List<SingleTask> tasksListForLoop = new List<SingleTask>();
-
-            
-            foreach (var task in tasksList)
-            {
-
-                tasksListForLoop.Add(task.Copy());
-            }
-            for (int i = 0; i < tasksListForLoop.Count; i++)
-            {
-                var task = tasksListForLoop[i];
-                SingleTask orginalTask = tasksList[i];
-
-                bool taskShouldBeSplitted = iterationState.TimeOfWorkFromLastBreak + task.TimeMin > scheduleSettings.MaxWorkTimeBeforeBreakMin && !task.HasStartTime;
-                if (taskShouldBeSplitted)
-                {
-                    task = splitTask(scheduleSettings, iterationState.TimeOfWorkFromLastBreak, task);
-                    i--;
-                }
-
-
-                TimeSlotInSchedule timeSlotForTask = makeTimeSlot(_scheduleSettings,iterationState, task.TimeMin, orginalTask);
-                bool timeSlotNotCreated = timeSlotForTask == null;
-                if (timeSlotNotCreated)
-                {
-                    break;
-                }
-                bool taskSplittedByFixedTimeSlot = timeSlotForTask.getDurationOfSlotInMin() < task.TimeMin;
-                if (taskSplittedByFixedTimeSlot)
-                {
-                    i = setTaskToBeContinuedAfterFixedSlot(tasksListForLoop, i, task, timeSlotForTask);
-                    updateIterationStateAfterFixedTask(fixedTimeSlots, iterationState, timeSlotForTask.FinishTime);
-                }
-                else
-                {
-                    iterationState.UpdateState(timeSlotForTask.FinishTime, task.TimeMin);
-                }
-
-
-
-
-                if (shouldBeBreak)
-                {
-                    bool timeSlotAdded = await addNewTimeSlot(timeSlotForBreak);
-                    if (timeSlotAdded)
-                        iterationState.AddedSlots.Add(timeSlotForBreak);
-                    if (task.HasStartTime)
-                    {
-                        iterationState.AddFixedTimeSlot(timeSlotForBreak);
-                    }
-                }
-                if(await addNewTimeSlot(timeSlotForTask))
-                    iterationState.AddedSlots.Add(timeSlotForTask);
-                if (task.HasStartTime)
-                {
-                    iterationState.AddFixedTimeSlot(timeSlotForTask);
-                }
-
-                shouldBeBreak = isTimeForBreak(scheduleSettings, iterationState)&& !task.HasStartTime;
-                if (scheduleSettings.hasScheduledBreaks && shouldBeBreak)
-                {
-                    
-                    timeSlotForBreak =  await makeBreakAndUpdateIterationState(scheduleSettings, fixedTimeSlots, iterationState);
-                    timeSlotNotCreated = timeSlotForBreak == null;
-                    if (timeSlotNotCreated)
-                    {
-                        break;
-                    }
-                }
-
-            }
-            return iterationState.AddedSlots;
-        }
 
         private async Task<bool> addNewTimeSlot(TimeSlotInSchedule? timeSlot)
         {
@@ -341,41 +263,6 @@ namespace ScheduleHelper.Core.Services
         }
 
 
-
-        private static int setTaskToBeContinuedAfterFixedSlot(List<SingleTask> tasksListForLoop, int i, SingleTask task, TimeSlotInSchedule timeSlotForTask)
-        {
-            bool taskWasSplittedBefore = tasksListForLoop[i].Id != task.Id;
-            if (taskWasSplittedBefore)
-            {
-                double resultDuration = timeSlotForTask.getDurationOfSlotInMin();
-                tasksListForLoop[i + 1].TimeMin += task.TimeMin - resultDuration;
-
-            }
-            else
-            {
-                double resultDuration = timeSlotForTask.getDurationOfSlotInMin();
-                tasksListForLoop[i].TimeMin -= resultDuration;
-                i--;
-            }
-
-            return i;
-        }
-
-        private async Task addElasticTasksToSchedule(ScheduleSettingsDTO scheduleSettings, List<SingleTask> tasksList, List<TimeSlotInSchedule> fixedTimeSlots)
-        {
-            await addEachTaskToScheduleAndReturnListOfCreatedSlots(scheduleSettings, tasksList, fixedTimeSlots);
-        }
-
-        private SingleTask splitTask(ScheduleSettingsDTO scheduleSettings, double timeOfWorkFromLastBreak, SingleTask task)
-        {
-            var avaiableTimeUntilBreak = Math.Max(scheduleSettings.MaxWorkTimeBeforeBreakMin - timeOfWorkFromLastBreak,0);
-            var newTask = task.Copy();
-            newTask.TimeMin = avaiableTimeUntilBreak;
-            task.TimeMin = task.TimeMin - avaiableTimeUntilBreak;
-            
-            return newTask;
-            
-        }
 
         private async Task updateScheduleSettings(ScheduleSettingsDTO scheduleSettings)
         {

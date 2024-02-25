@@ -53,6 +53,42 @@ namespace ScheduleHelper.ServiceTests
         }
 
 
+        [Theory]
+        [ClassData(typeof(ArgumentsFinaliseTimeSlot_forDayScheduleWhichHasNotZeroWorkTime))]
+        public async Task FinaliseTimeSlot_forDayScheduleWhichHasNotZeroWorkTime(FinaliseMethodTestSettingsDTO finaliseMethodTestSettings, ScheduleSettings settings, TimeSlotList timeSlotsWithNoFinished, TimeSlotList timeSlotsWithNoBreaks, DaySchedule daySchedule,double expectedDayInScheduleTimeOfWork)
+        {
+            var dayInSchedule1 = new DaySchedule()
+            {
+                TimeFromLastBreakMin = expectedDayInScheduleTimeOfWork-30
+            };
+            var dayInSchedule2 = new DaySchedule()
+            {
+                TimeFromLastBreakMin = expectedDayInScheduleTimeOfWork
+            };
+            var updatedDayInSchedule = new DaySchedule();
+            TimeSlotList listOfUpdatedTimeSlots = setupMockMethodsForFinaliseTimeSlot(finaliseMethodTestSettings, settings, timeSlotsWithNoFinished, timeSlotsWithNoBreaks, daySchedule);
+            _scheduleRespositorMock.SetupSequence(m => m.GetDaySchedule())
+                .ReturnsAsync(dayInSchedule1)
+                .ReturnsAsync(dayInSchedule2);
+            _scheduleRespositorMock.Setup(m => m.GetTimeSlot(finaliseMethodTestSettings.Model.SlotId))
+                    .ReturnsAsync(finaliseMethodTestSettings.ListOfSlots[2]);
+            _scheduleRespositorMock.SetupSequence(m => m.GetDaySchedule())
+                    .ReturnsAsync(dayInSchedule1)
+                    .ReturnsAsync(dayInSchedule2);
+            _scheduleRespositorMock.Setup(m => m.UpdateDaySchedule(It.IsAny<DaySchedule>()))
+                .Callback((DaySchedule dayInSchedule) => updatedDayInSchedule = dayInSchedule);
+
+
+            //act
+            await _scheduleUpdateService.FinaliseTimeSlot(finaliseMethodTestSettings.Model);
+
+            //assert
+            listOfUpdatedTimeSlots.Should().HaveCount(finaliseMethodTestSettings.ListOfExpectedSlots.Count);
+
+            listOfUpdatedTimeSlots.Should().BeEquivalentTo(finaliseMethodTestSettings.ListOfExpectedSlots);
+            updatedDayInSchedule.TimeFromLastBreakMin.Should().BeApproximately(expectedDayInScheduleTimeOfWork,0.1);
+        }
+
 
         [Theory]
         [ClassData(typeof(ArgumentsTestforValidIdAndSlotFinishedAfterTimeAndOtherSlotsShouldBeAfterMidnight))]

@@ -81,6 +81,14 @@ namespace ScheduleHelper.Core.Services
             }
         }
 
+
+        protected async Task<TimeSlotsList> getActiveTimeSlotsSortedWithStartTime()
+        {
+            TimeSlotsList activeSlots = await _scheduleRepository.GetActiveSlots();
+            activeSlots = activeSlots.OrderBy(p => p.StartTime).ToList();
+            return activeSlots;
+        }
+
         private double getSlotDuration(double timeForSlot, ScheduleSettings scheduleSettings, IterationState iterationState)
         {
             double maxSlotDuration = scheduleSettings.MaxWorkTimeBeforeBreakMin - iterationState.TimeOfWorkFromLastBreak;
@@ -165,12 +173,7 @@ namespace ScheduleHelper.Core.Services
 
             return slotWhichRemains;
         }
-        private async Task<TimeSlotsList> getActiveTimeSlotsSortedWithStartTime()
-        {
-            TimeSlotsList activeSlots = await _scheduleRepository.GetActiveSlots();
-            activeSlots = activeSlots.OrderBy(p => p.StartTime).ToList();
-            return activeSlots;
-        }
+
 
         private TimeSlotsList getFixedTimeSlots(TimeSlotsList activeSlots)
         {
