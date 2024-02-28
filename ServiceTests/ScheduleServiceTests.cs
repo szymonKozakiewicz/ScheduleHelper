@@ -115,7 +115,7 @@ namespace ScheduleHelper.ServiceTests
         {
             //arrange
             var tasksList = GenerateDataHelper.GetNormalValidListOfTasks();
-            List<TimeSlotInSchedule> timeSlotsList = GenerateDataHelper.GetTimeSlotsListWith3TimeSlots(tasksList[0], tasksList[1]);
+            TimeSlotList timeSlotsList = GenerateDataHelper.GetTimeSlotsListWith3TimeSlots(tasksList[0], tasksList[1]);
             MockSetupHelper.SetupMockForGetTimeSlotsListMethodForGivenTimeSlotList(timeSlotsList,_scheduleRespositorMock);
             List<TimeSlotInScheduleDTO> expectedResultList = new List<TimeSlotInScheduleDTO>()
             {

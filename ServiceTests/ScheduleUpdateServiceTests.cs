@@ -25,7 +25,7 @@ namespace ScheduleHelper.ServiceTests
         {
 
 
-            TimeSlotList listOfUpdatedTimeSlots = setupMockMethodsForFinaliseTimeSlot(finaliseMethodTestSettings, settings, timeSlotsWithNoFinished, timeSlotsWithNoBreaks, daySchedule);
+            TimeSlotList listOfUpdatedTimeSlots = setupMockMethodsForFinaliseTimeSlot(finaliseMethodTestSettings, settings, timeSlotsWithNoFinished, timeSlotsWithNoBreaks, daySchedule, new List<TimeSlotInSchedule>());
 
             //act
             await _scheduleUpdateService.FinaliseTimeSlot(finaliseMethodTestSettings.Model);
@@ -40,7 +40,7 @@ namespace ScheduleHelper.ServiceTests
         [ClassData(typeof(ArgumentsFinaliseTimeSlot_forValidIdAndSlotFinishedOnTime))]
         public async Task FinaliseTimeSlot_forValidIdAndSlotFinishedAfterTime_itShouldUpdateAll(FinaliseMethodTestSettingsDTO finaliseMethodTestSettings, ScheduleSettings settings, TimeSlotList timeSlotsWithNoFinished, TimeSlotList timeSlotsWithNoBreaks, DaySchedule daySchedule)
         {
-            TimeSlotList listOfUpdatedTimeSlots = setupMockMethodsForFinaliseTimeSlot(finaliseMethodTestSettings, settings, timeSlotsWithNoFinished, timeSlotsWithNoBreaks, daySchedule);
+            TimeSlotList listOfUpdatedTimeSlots = setupMockMethodsForFinaliseTimeSlot(finaliseMethodTestSettings, settings, timeSlotsWithNoFinished, timeSlotsWithNoBreaks, daySchedule, new List<TimeSlotInSchedule>());
 
 
             //act
@@ -66,7 +66,7 @@ namespace ScheduleHelper.ServiceTests
                 TimeFromLastBreakMin = expectedDayInScheduleTimeOfWork
             };
             var updatedDayInSchedule = new DaySchedule();
-            TimeSlotList listOfUpdatedTimeSlots = setupMockMethodsForFinaliseTimeSlot(finaliseMethodTestSettings, settings, timeSlotsWithNoFinished, timeSlotsWithNoBreaks, daySchedule);
+            TimeSlotList listOfUpdatedTimeSlots = setupMockMethodsForFinaliseTimeSlot(finaliseMethodTestSettings, settings, timeSlotsWithNoFinished, timeSlotsWithNoBreaks, daySchedule, new List<TimeSlotInSchedule>());
             _scheduleRespositorMock.SetupSequence(m => m.GetDaySchedule())
                 .ReturnsAsync(dayInSchedule1)
                 .ReturnsAsync(dayInSchedule2);
@@ -94,7 +94,7 @@ namespace ScheduleHelper.ServiceTests
         [ClassData(typeof(ArgumentsTestforValidIdAndSlotFinishedAfterTimeAndOtherSlotsShouldBeAfterMidnight))]
         public async Task FinaliseTimeSlot_forValidIdAndSlotFinishedAfterTimeAndAfterMidnight_itShouldUpdateAll(FinaliseMethodTestSettingsDTO finaliseMethodTestSettings, ScheduleSettings settings, TimeSlotList timeSlotsWithNoFinished, TimeSlotList timeSlotsWithNoBreaks, DaySchedule daySchedule)
         {
-            TimeSlotList listOfUpdatedTimeSlots = setupMockMethodsForFinaliseTimeSlot(finaliseMethodTestSettings, settings, timeSlotsWithNoFinished, timeSlotsWithNoBreaks, daySchedule);
+            TimeSlotList listOfUpdatedTimeSlots = setupMockMethodsForFinaliseTimeSlot(finaliseMethodTestSettings, settings, timeSlotsWithNoFinished, timeSlotsWithNoBreaks, daySchedule, new List<TimeSlotInSchedule>());
 
             //act
             await _scheduleUpdateService.FinaliseTimeSlot(finaliseMethodTestSettings.Model);
@@ -113,7 +113,7 @@ namespace ScheduleHelper.ServiceTests
             
             
 
-            TimeSlotList listOfUpdatedTimeSlots = setupMockMethodsForFinaliseTimeSlot(finaliseMethodTestSettings, settings,timeSlotsWithNoFinished,timeSlotsWithNoBreaks,daySchedule);
+            TimeSlotList listOfUpdatedTimeSlots = setupMockMethodsForFinaliseTimeSlot(finaliseMethodTestSettings, settings,timeSlotsWithNoFinished,timeSlotsWithNoBreaks,daySchedule, new List<TimeSlotInSchedule>());
 
             //act
             await _scheduleUpdateService.FinaliseTimeSlot(finaliseMethodTestSettings.Model);
@@ -132,7 +132,7 @@ namespace ScheduleHelper.ServiceTests
         [ClassData(typeof(ArgumentsFinaliseTimeSlot_forTimeSlotWhichIsNotFirstOnListSlotfinishedBeforeScheduleStarted))]
         public async Task FinaliseTimeSlot_forValidIdAndTimeSlotWhichIsNotFirstOnListSlotfinishedBeforeScheduleStarted_itShouldUpdateSlotsAsExpected(FinaliseMethodTestSettingsDTO finaliseMethodTestSettings, ScheduleSettings settings, TimeSlotList timeSlotsWithNoFinished, TimeSlotList timeSlotsWithNoBreaks, DaySchedule daySchedule)
         {
-            TimeSlotList listOfUpdatedTimeSlots = setupMockMethodsForFinaliseTimeSlot(finaliseMethodTestSettings, settings, timeSlotsWithNoFinished, timeSlotsWithNoBreaks, daySchedule);
+            TimeSlotList listOfUpdatedTimeSlots = setupMockMethodsForFinaliseTimeSlot(finaliseMethodTestSettings, settings, timeSlotsWithNoFinished, timeSlotsWithNoBreaks, daySchedule, new List<TimeSlotInSchedule>());
 
             //act
             await _scheduleUpdateService.FinaliseTimeSlot(finaliseMethodTestSettings.Model);
@@ -149,16 +149,57 @@ namespace ScheduleHelper.ServiceTests
         public async Task FinaliseTimeSlot_NotEnoughTimeForSomeSlots_itShouldHaveExpectedNumberOfCanceledSlots(FinaliseMethodTestSettingsDTO finaliseMethodTestSettings, ScheduleSettings settings, TimeSlotList timeSlotsWithNoFinished, TimeSlotList timeSlotsWithNoBreaks, DaySchedule daySchedule)
         {
 
-            TimeSlotList listOfUpdatedTimeSlots = setupMockMethodsForFinaliseTimeSlot(finaliseMethodTestSettings, settings, timeSlotsWithNoFinished, timeSlotsWithNoBreaks, daySchedule);
+            TimeSlotList listOfAddedTimeSlots = setupMockMethodsForFinaliseTimeSlot(finaliseMethodTestSettings, settings, timeSlotsWithNoFinished, timeSlotsWithNoBreaks, daySchedule, new List<TimeSlotInSchedule>());
 
             //act
             await _scheduleUpdateService.FinaliseTimeSlot(finaliseMethodTestSettings.Model);
 
             //assert
-            listOfUpdatedTimeSlots.Should().HaveCount(finaliseMethodTestSettings.ListOfExpectedSlots.Count);
 
-            listOfUpdatedTimeSlots.Should().BeEquivalentTo(finaliseMethodTestSettings.ListOfExpectedSlots);
+            listOfAddedTimeSlots.Should().HaveCount(finaliseMethodTestSettings.ListOfExpectedSlots.Count);
+
+            listOfAddedTimeSlots.Should().BeEquivalentTo(finaliseMethodTestSettings.ListOfExpectedSlots);
             
+
+        }
+
+
+        [Theory]
+        [ClassData(typeof(ArgumentsFinaliseTimeSlot_TwoCanceledSlotsWhichShouldBeJoined))]
+        public async Task FinaliseTimeSlot_TwoCanceledSlotsWhichShouldBeJoined(FinaliseMethodTestSettingsDTO finaliseMethodTestSettings, ScheduleSettings settings, TimeSlotList timeSlotsWithNoFinished, TimeSlotList timeSlotsWithNoBreaks, DaySchedule daySchedule,TimeSlotList listOfCanceledSlots)
+        {
+
+            TimeSlotList listOfAddedSlots = setupMockMethodsForFinaliseTimeSlot(finaliseMethodTestSettings, settings, timeSlotsWithNoFinished, timeSlotsWithNoBreaks, daySchedule, listOfCanceledSlots);
+
+            //act
+            await _scheduleUpdateService.FinaliseTimeSlot(finaliseMethodTestSettings.Model);
+
+            //assert
+            var listOfCancedeSlots= listOfAddedSlots.FindAll(slot => slot.Status == TimeSlotStatus.Canceled).ToList();
+            listOfCancedeSlots.Should().HaveCount(finaliseMethodTestSettings.ListOfExpectedSlots.Count);
+
+            listOfCancedeSlots.Should().BeEquivalentTo(finaliseMethodTestSettings.ListOfExpectedSlots);
+
+
+        }
+
+        [Theory]
+        [ClassData(typeof(ArgumentsFinaliseTimeSlot_forValidIdAndTimeSlotSlotFinishedAfterScheduleFinished))]
+        public async Task FinaliseTimeSlot_forValidIdAndTimeSlotSlotFinishedAfterScheduleFinished(FinaliseMethodTestSettingsDTO finaliseMethodTestSettings, ScheduleSettings settings, TimeSlotList timeSlotsWithNoFinished, TimeSlotList timeSlotsWithNoBreaks, DaySchedule daySchedule)
+        {
+
+
+            TimeSlotList listOfAddedTimeSlots = setupMockMethodsForFinaliseTimeSlot(finaliseMethodTestSettings, settings, timeSlotsWithNoFinished, timeSlotsWithNoBreaks, daySchedule, new List<TimeSlotInSchedule>());
+
+            //act
+            await _scheduleUpdateService.FinaliseTimeSlot(finaliseMethodTestSettings.Model);
+
+            //assert
+
+            listOfAddedTimeSlots.Should().HaveCount(finaliseMethodTestSettings.ListOfExpectedSlots.Count);
+
+            listOfAddedTimeSlots.Should().BeEquivalentTo(finaliseMethodTestSettings.ListOfExpectedSlots);
+
 
         }
 
@@ -187,6 +228,9 @@ namespace ScheduleHelper.ServiceTests
             //assert
             await action.Should().ThrowAsync<ArgumentException>();
         }
+
+
+
 
         private static TimeSlotList getExpectedTimeSlotsForTest1(FinaliseMethodTestSettingsDTO finaliseMethodTestSettings)
         {
@@ -250,7 +294,7 @@ namespace ScheduleHelper.ServiceTests
         }
 
 
-        protected TimeSlotList setupMockMethodsForFinaliseTimeSlot(FinaliseMethodTestSettingsDTO finaliseMethodTestSettings, ScheduleSettings scheduleSettings,TimeSlotList slotsWithNoFinished,TimeSlotList slotsWithNotBreaks,DaySchedule daySchedule)
+        protected TimeSlotList setupMockMethodsForFinaliseTimeSlot(FinaliseMethodTestSettingsDTO finaliseMethodTestSettings, ScheduleSettings scheduleSettings,TimeSlotList slotsWithNoFinished,TimeSlotList slotsWithNotBreaks,DaySchedule daySchedule,TimeSlotList listOfCanceledSlots)
         {
             TimeSlotList listOfUpdatedTimeSlots = new TimeSlotList();
             TimeSlotList listOfAddedSlots = new TimeSlotList();
@@ -273,7 +317,8 @@ namespace ScheduleHelper.ServiceTests
             _scheduleRespositorMock.SetupSequence(m => m.GetDaySchedule())
                 .ReturnsAsync(daySchedule.Copy())
                 .ReturnsAsync(daySchedule.Copy());
-
+            _scheduleRespositorMock.Setup(m => m.GetCanceledSlots())
+                    .ReturnsAsync(listOfCanceledSlots);
             return listOfAddedSlots;
         }
 

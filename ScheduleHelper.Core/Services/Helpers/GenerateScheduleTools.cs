@@ -87,7 +87,9 @@ namespace ScheduleHelper.Core.Services.Helpers
                 newTimeSlot = adjustSlotToFixOverlapsing(iterationState, newTimeSlot, timeSlotTargetDuration);
 
                 adjustStartAndFinishToStartAndFinishOfSchedule(scheduleSettings, newTimeSlot);
-                if (newTimeSlot.getDurationOfSlotInMin() < 0.1)
+
+                bool noTimeForSlot = newTimeSlot.getDurationOfSlotInMin() < 0.1 || newTimeSlot.StartTime > newTimeSlot.FinishTime;
+                if (noTimeForSlot)
                     return null;
 
             }
@@ -116,14 +118,34 @@ namespace ScheduleHelper.Core.Services.Helpers
 
         private static void adjustStartAndFinishToStartAndFinishOfSchedule(ScheduleSettings scheduleSettings, TimeSlotInSchedule newTimeSlot)
         {
-            if (newTimeSlot.FinishTime > scheduleSettings.FinishTime)
+            newTimeSlot.StartTime=adjustTimeToStartAndFinishOfSchedule(scheduleSettings, newTimeSlot.StartTime);
+            newTimeSlot.FinishTime=adjustTimeToStartAndFinishOfSchedule(scheduleSettings, newTimeSlot.FinishTime);
+            
+        }
+
+        private static TimeOnly adjustTimeToStartAndFinishOfSchedule(ScheduleSettings scheduleSettings, TimeOnly time)
+        {
+            time = adjustToFinishTime(time, scheduleSettings.FinishTime);
+            time = adjustToStartTime(time, scheduleSettings.StartTime);
+            return time;
+        }
+
+        private static TimeOnly adjustToFinishTime(TimeOnly timeToCheck, TimeOnly finishTime)
+        {
+            if (timeToCheck > finishTime)
             {
-                newTimeSlot.FinishTime = scheduleSettings.FinishTime;
+                timeToCheck = finishTime;
             }
-            if (newTimeSlot.StartTime < scheduleSettings.StartTime)
+            return timeToCheck;
+        }
+
+        private static TimeOnly adjustToStartTime(TimeOnly timeToCheck, TimeOnly startTime)
+        {
+            if (timeToCheck < startTime)
             {
-                newTimeSlot.StartTime = scheduleSettings.StartTime;
+                timeToCheck = startTime;
             }
+            return timeToCheck;
         }
 
         public static TimeSlotInSchedule GetOverlapsingFixedTimeSlot(TimeOnly slotStartTime, TimeOnly slotFinishTime, List<TimeSlotInSchedule> fixedTimeSlots)

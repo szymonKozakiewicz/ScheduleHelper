@@ -27,5 +27,6 @@ namespace ScheduleHelper.Core.Domain.RepositoryContracts
         Task<DaySchedule> GetDaySchedule();
         Task<ScheduleSettings> GetScheduleSettings();
         Task<List<TimeSlotInSchedule>> GetActiveSlots();
+        Task<List<TimeSlotInSchedule>> GetCanceledSlots();
     }
 }
