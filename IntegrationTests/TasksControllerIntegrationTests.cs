@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using ScheduleHelper.Core.Domain.Entities;
 using ScheduleHelper.Core.DTO;
 using ScheduleHelper.Infrastructure;
+using ScheduleHelper.IntegrationTests.ClassData;
 using ScheduleHelper.IntegrationTests.Helpers;
 using ScheduleHelper.UI;
 using ScheduleHelper.UI.Controllers;
@@ -23,15 +24,11 @@ namespace ScheduleHelper.IntegrationTests
     {
         HttpClient _client;
         MyDbContext _dbContext;
-        IServiceScope scope;
+
         public TasksControllerIntegrationTests(InMemoryWebApplicationFactory factory)
         {
             _client = factory.CreateClient();
 
-
-
-
-            
             _dbContext = factory.GetDbContextInstance();
 
         }
@@ -62,17 +59,12 @@ namespace ScheduleHelper.IntegrationTests
         }
 
 
-        [Fact]
-        public async Task AddNewTask_ForValidTask_StatusShouldBeCreated()
+        [Theory]
+        [ClassData(typeof(ArgumentsAddNewTaskForFalidDataTest))]
+        public async Task AddNewTask_ForValidTask_StatusShouldBeCreated(TaskCreateDTO model)
         {
-            var model = new TaskCreateDTO()
-            {
-                Name= "Test",
-                Time=30,
-                HasStartTime=true,
-                StartTime=new TimeOnly(5,25)
 
-            };
+            
             HttpContent httpContent = PrepareHttpContentForAddNewTaksRequest(model);
             
             //act
@@ -162,7 +154,11 @@ namespace ScheduleHelper.IntegrationTests
 
         private static HttpContent PrepareHttpContentForAddNewTaksRequest(TaskCreateDTO model)
         {
-            var contentStr = $"Name={model.Name}&Time={model.Time}&HasStartTime={model.HasStartTime}&StartTime={model.StartTime}";
+            var contentStr = $"Name={model.Name}&Time={model.Time}&HasStartTime={model.HasStartTime}";
+
+            if(model.HasStartTime)
+                contentStr = $"{contentStr}&StartTime={model.StartTime}";
+
             HttpContent httpContent = new StringContent(contentStr, UnicodeEncoding.UTF8, "application/x-www-form-urlencoded");
             return httpContent;
         }

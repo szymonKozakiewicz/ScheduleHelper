@@ -18,9 +18,17 @@ namespace ScheduleHelper.UI.CustomBinders
             TaskCreateDTO? result = null;
             try
             {
-                TimeOnly startTime = TimeOnly.Parse(startTimeStr);
-                
+                TimeOnly startTime;
                 bool hasStartTime = bool.Parse(hasStartTimeStr);
+                
+                if (hasStartTime)
+                    startTime = TimeOnly.Parse(startTimeStr);
+                else
+                    startTime = new TimeOnly(8, 0);
+
+
+
+
                 double time = double.Parse(timeStr);
 
                 result = new TaskCreateDTO()
