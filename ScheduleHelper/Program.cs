@@ -14,9 +14,10 @@ builder.Services.AddTransient<IScheduleService, ScheduleService>();
 builder.Services.AddTransient<IScheduleUpdateService, ScheduleUpdateService>();
 builder.Services.AddTransient<ITaskRespository, TaskRepository>();
 builder.Services.AddTransient<IScheduleRepository, ScheduleRepository>();
+var connectionStrings = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<MyDbContext>(
 options => {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    options.UseSqlServer(connectionStrings);
 }
 );
 var app = builder.Build();
