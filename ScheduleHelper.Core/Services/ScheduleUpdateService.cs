@@ -68,8 +68,34 @@ namespace ScheduleHelper.Core.Services
             await removeAllBreaks();
 
             await readjustingSlotsAfterOneSlotFinished(actualFinishTime, scheduleSettings);
+            await joinCanceledSlotsWithSameTask();
 
+        }
 
+        private async Task joinCanceledSlotsWithSameTask()
+        {
+            TimeSlotsList canceledSlotsList= await _scheduleRepository.GetCanceledSlots();
+            var groupsOfSlotsWithSameTask = canceledSlotsList.GroupBy(slot => slot.task).ToList();
+            foreach(var group in  groupsOfSlotsWithSameTask)
+            {
+                if(group.Count()>1)
+                {
+                    await joinSlotsIntoOneRemoveRestUpdateDb(group);
+                }
+            }
+            
+        
+        }
+
+        private async Task joinSlotsIntoOneRemoveRestUpdateDb(IGrouping<SingleTask?, TimeSlotInSchedule>? group)
+        {
+            TimeSlotInSchedule joinedSlot = getJoinedSlot(group);
+            foreach (var slot in group)
+            {
+                if (slot.Id != joinedSlot.Id)
+                    await _scheduleRepository.RemoveTimeSlot(slot);
+            }
+            await _scheduleRepository.UpdateTimeSlot(joinedSlot);
         }
 
         protected async Task readjustingSlotsAfterOneSlotFinished(TimeOnly actualFinishTime, ScheduleSettings scheduleSettings)

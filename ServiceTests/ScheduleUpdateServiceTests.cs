@@ -168,16 +168,21 @@ namespace ScheduleHelper.ServiceTests
         [ClassData(typeof(ArgumentsFinaliseTimeSlot_TwoCanceledSlotsWhichShouldBeJoined))]
         public async Task FinaliseTimeSlot_TwoCanceledSlotsWhichShouldBeJoined(FinaliseMethodTestSettingsDTO finaliseMethodTestSettings, ScheduleSettings settings, TimeSlotList timeSlotsWithNoFinished, TimeSlotList timeSlotsWithNoBreaks, DaySchedule daySchedule,TimeSlotList listOfCanceledSlots)
         {
-
-            TimeSlotList listOfAddedSlots = setupMockMethodsForFinaliseTimeSlot(finaliseMethodTestSettings, settings, timeSlotsWithNoFinished, timeSlotsWithNoBreaks, daySchedule, listOfCanceledSlots);
-
+            TimeSlotList updatedSlots = new TimeSlotList();
+            TimeSlotList deletedSlots = new TimeSlotList();
+            setupMockMethodsForFinaliseTimeSlot(finaliseMethodTestSettings, settings, timeSlotsWithNoFinished, timeSlotsWithNoBreaks, daySchedule, listOfCanceledSlots);
+            _scheduleRespositorMock.Setup(m => m.UpdateTimeSlot(It.IsAny<TimeSlotInSchedule>()))
+                    .Callback((TimeSlotInSchedule m) => updatedSlots.Add(m));
+            _scheduleRespositorMock.Setup(m => m.RemoveTimeSlot(It.IsAny<TimeSlotInSchedule>()))
+                    .Callback((TimeSlotInSchedule m) => deletedSlots.Add(m));
             //act
             await _scheduleUpdateService.FinaliseTimeSlot(finaliseMethodTestSettings.Model);
 
             //assert
-            var listOfCancedeSlots= listOfAddedSlots.FindAll(slot => slot.Status == TimeSlotStatus.Canceled).ToList();
+            var listOfCancedeSlots= updatedSlots.FindAll(slot => slot.Status == TimeSlotStatus.Canceled).ToList();
+            deletedSlots= deletedSlots.FindAll(slot => slot.Status == TimeSlotStatus.Canceled).ToList();
             listOfCancedeSlots.Should().HaveCount(finaliseMethodTestSettings.ListOfExpectedSlots.Count);
-
+            deletedSlots.Should().HaveCount(1);
             listOfCancedeSlots.Should().BeEquivalentTo(finaliseMethodTestSettings.ListOfExpectedSlots);
 
 

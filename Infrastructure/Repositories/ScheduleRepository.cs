@@ -48,9 +48,11 @@ namespace ScheduleHelper.Infrastructure.Repositories
                 .ToListAsync();
         }
 
-        public Task<List<TimeSlotInSchedule>> GetCanceledSlots()
+        public async Task<List<TimeSlotInSchedule>> GetCanceledSlots()
         {
-            throw new NotImplementedException();
+            return await _dbContext.TimeSlotsInSchedule
+                .Where(slot => slot.Status == TimeSlotStatus.Canceled).Include(m => m.task)
+                .ToListAsync();
         }
 
         public async Task<DaySchedule> GetDaySchedule()

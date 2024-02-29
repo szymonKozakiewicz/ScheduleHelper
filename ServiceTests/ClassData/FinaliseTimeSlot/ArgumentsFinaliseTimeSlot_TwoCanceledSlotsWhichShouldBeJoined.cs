@@ -29,6 +29,7 @@ namespace ScheduleHelper.ServiceTests.ClassData.FinaliseTimeSlot
                 StartTime = new TimeOnly(4,0),
                 FinishTime = new TimeOnly(4,45),
                 IsItBreak=false,
+                Id=Guid.NewGuid(),
                 Status=TimeSlotStatus.Canceled,
                 task = listOfTasks[0],
                 
@@ -40,6 +41,7 @@ namespace ScheduleHelper.ServiceTests.ClassData.FinaliseTimeSlot
                 StartTime = new TimeOnly(6, 0),
                 FinishTime = new TimeOnly(7, 45),
                 IsItBreak = false,
+                Id = Guid.NewGuid(),
                 Status = TimeSlotStatus.Canceled,
                 task = listOfTasks[0],
 
@@ -50,6 +52,7 @@ namespace ScheduleHelper.ServiceTests.ClassData.FinaliseTimeSlot
                 StartTime = new TimeOnly(8, 0),
                 FinishTime = new TimeOnly(9, 0),
                 IsItBreak = false,
+                Id = Guid.NewGuid(),
                 Status = TimeSlotStatus.Canceled,
                 task = listOfTasks[1],
 
@@ -69,8 +72,8 @@ namespace ScheduleHelper.ServiceTests.ClassData.FinaliseTimeSlot
             };
             TimeSlotInSchedule slotToUpdate = new TimeSlotInSchedule()
             {
-                StartTime = new TimeOnly(6, 0),
-                FinishTime = new TimeOnly(8, 45),
+                StartTime = new TimeOnly(4, 0),
+                FinishTime = new TimeOnly(6, 30),
                 IsItBreak = false,
                 Status = TimeSlotStatus.Canceled,
                 task = listOfTasks[0],
@@ -78,7 +81,7 @@ namespace ScheduleHelper.ServiceTests.ClassData.FinaliseTimeSlot
 
             TimeSlotsList expectedTimeSlotsList = new()
             {
-                canceledTimeSlot3,slotToUpdate
+                slotToUpdate
 
             };
             var actualFinishTime = new TimeOnly(12, 0);

@@ -248,27 +248,11 @@ namespace ScheduleHelper.RepositoryTests
                 IScheduleRepository scheduleRepository = new ScheduleRepository(dbcontext);
 
                 var task = new SingleTask("testTask", 20);
+
                 List<TimeSlotInSchedule> listOfTimeSlotsInSchedule = GetListOfTimeSlotsForTest(task);
-                List<TimeSlotInSchedule>expectedResult=new List<TimeSlotInSchedule>(listOfTimeSlotsInSchedule);  
-               var finishedTimeSlot = new TimeSlotInScheduleBuilder()
-                    .SetFinishTime(new TimeOnly(22, 0))
-                    .SetTask(task)
-                    .SetStartTime(new TimeOnly(6, 0))
-                    .SetTimeSlotStatus(TimeSlotStatus.Finished)
-                    .SetOrdinalNumber(1)
-                    .SetIsItBreak(false)
-                    .Build();
-                var canceledTimeSlot = new TimeSlotInScheduleBuilder()
-                    .SetFinishTime(new TimeOnly(22, 0))
-                    .SetTask(task)
-                    .SetStartTime(new TimeOnly(6, 0))
-                    .SetTimeSlotStatus(TimeSlotStatus.Canceled)
-                    .SetOrdinalNumber(1)
-                    .SetIsItBreak(false)
-                    .Build();
-                listOfTimeSlotsInSchedule.Add(finishedTimeSlot);
-                listOfTimeSlotsInSchedule.Add(canceledTimeSlot);
-                await AddTimeSlotsAndTaskToDb(task, listOfTimeSlotsInSchedule,dbcontext);
+                List<TimeSlotInSchedule> expectedResult = new List<TimeSlotInSchedule>(listOfTimeSlotsInSchedule);
+                addCanceledAndFinishedSlotsToTimeSlotsList(task, listOfTimeSlotsInSchedule);
+                await AddTimeSlotsAndTaskToDb(task, listOfTimeSlotsInSchedule, dbcontext);
 
 
 
@@ -278,6 +262,66 @@ namespace ScheduleHelper.RepositoryTests
                 //assert
                 resultList.Should().HaveCount(2);
                 resultList.Should().Contain(expectedResult);
+
+
+            }
+
+        }
+
+        private static void addCanceledAndFinishedSlotsToTimeSlotsList(SingleTask task, List<TimeSlotInSchedule> listOfTimeSlotsInSchedule)
+        {
+            var finishedTimeSlot = new TimeSlotInScheduleBuilder()
+                 .SetFinishTime(new TimeOnly(22, 0))
+                 .SetTask(task)
+                 .SetStartTime(new TimeOnly(6, 0))
+                 .SetTimeSlotStatus(TimeSlotStatus.Finished)
+                 .SetOrdinalNumber(1)
+                 .SetIsItBreak(false)
+                 .Build();
+            var canceledTimeSlot1 = new TimeSlotInScheduleBuilder()
+                .SetFinishTime(new TimeOnly(22, 0))
+                .SetTask(task)
+                .SetStartTime(new TimeOnly(6, 0))
+                .SetTimeSlotStatus(TimeSlotStatus.Canceled)
+                .SetOrdinalNumber(1)
+                .SetIsItBreak(false)
+                .Build();
+            var canceledTimeSlot2 = new TimeSlotInScheduleBuilder()
+                .SetFinishTime(new TimeOnly(8, 0))
+                .SetTask(task)
+                .SetStartTime(new TimeOnly(7, 0))
+                .SetTimeSlotStatus(TimeSlotStatus.Canceled)
+                .SetOrdinalNumber(1)
+                .SetIsItBreak(false)
+                .Build();
+            listOfTimeSlotsInSchedule.Add(finishedTimeSlot);
+            listOfTimeSlotsInSchedule.Add(canceledTimeSlot1);
+            listOfTimeSlotsInSchedule.Add(canceledTimeSlot2);
+        }
+
+        [Fact]
+        public async Task GetCanceledSlots_ReturnsAllCanceledSlots()
+        {
+            using (var dbcontext = new MyDbContext(builder.Options))
+            {
+                DbTestHelper.clearDatabase(dbcontext);
+
+                IScheduleRepository scheduleRepository = new ScheduleRepository(dbcontext);
+
+                var task = new SingleTask("testTask", 20);
+                List<TimeSlotInSchedule> listOfTimeSlotsInSchedule = GetListOfTimeSlotsForTest(task);
+                addCanceledAndFinishedSlotsToTimeSlotsList(task, listOfTimeSlotsInSchedule);
+                List<TimeSlotInSchedule> listOfExpectedResults = listOfTimeSlotsInSchedule.FindAll(slot => slot.Status == TimeSlotStatus.Canceled).ToList();
+                await AddTimeSlotsAndTaskToDb(task, listOfTimeSlotsInSchedule, dbcontext);
+
+
+
+                //act
+                var resultList = await scheduleRepository.GetCanceledSlots();
+
+                //assert
+                resultList.Should().HaveCount(2);
+                resultList.Should().Contain(listOfExpectedResults);
 
 
             }
@@ -521,9 +565,14 @@ namespace ScheduleHelper.RepositoryTests
         {
             await dbcontext.SingleTask.AddAsync(task);
             await dbcontext.SaveChangesAsync();
-            await dbcontext.TimeSlotsInSchedule.AddAsync(listOfTimeSlotsInSchedule[0]);
-            await dbcontext.TimeSlotsInSchedule.AddAsync(listOfTimeSlotsInSchedule[1]);
-            await dbcontext.SaveChangesAsync();
+            foreach(var  timeSlot in listOfTimeSlotsInSchedule)
+            {
+                await dbcontext.TimeSlotsInSchedule.AddAsync(timeSlot);
+                await dbcontext.SaveChangesAsync();
+            }
+
+
+           
         }
         private static List<TimeSlotInSchedule> GetListOfTimeSlotsForTest(SingleTask task)
         {

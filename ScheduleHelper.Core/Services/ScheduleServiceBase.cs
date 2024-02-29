@@ -185,7 +185,7 @@ namespace ScheduleHelper.Core.Services
 
             }
         }
-        private TimeSlotInSchedule getJoinedSlot(IGrouping<SingleTask?, TimeSlotInSchedule> groupOfSlots)
+        protected TimeSlotInSchedule getJoinedSlot(IGrouping<SingleTask?, TimeSlotInSchedule> groupOfSlots)
         {
             double taskDuration = 0;
             foreach (var slot in groupOfSlots)
