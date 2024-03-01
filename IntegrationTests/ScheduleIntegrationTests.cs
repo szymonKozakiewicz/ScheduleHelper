@@ -157,6 +157,21 @@ namespace ScheduleHelper.IntegrationTests
             result.Should().BeSuccessful();
         }
 
+
+        [Fact]
+        public async Task ShowScheduleSettings_RequestShouldBeSuccessful()
+        {
+            var id = Guid.NewGuid();
+
+
+            //act
+            var result = await _client.GetAsync(RouteConstants.ShowScheduleSettings);
+
+
+            //assert
+            result.Should().BeSuccessful();
+        }
+
         [Fact]
         public async Task TimeSlotFinalise_schouldBeSuccessful()
         {
@@ -177,13 +192,19 @@ namespace ScheduleHelper.IntegrationTests
                 .SetOrdinalNumber(1)
                 .SetTimeSlotStatus(TimeSlotStatus.Active)
                 .Build();
+            var daySchedule = new DaySchedule()
+            {
+                TimeFromLastBreakMin = 0,
+                Settings = settings
+            };
             _dbContext.SingleTask.Add(task);
             await _dbContext.SaveChangesAsync();
             _dbContext.TimeSlotsInSchedule.Add(timeSlot);
             await _dbContext.SaveChangesAsync();
             _dbContext.ScheduleSettings.Add(settings);
             await _dbContext.SaveChangesAsync();
-
+            _dbContext.DaySchedule.Add(daySchedule);
+            await _dbContext.SaveChangesAsync();
             var model = new FinaliseSlotDTO()
             {
                 SlotId = (Guid)timeSlot.Id,

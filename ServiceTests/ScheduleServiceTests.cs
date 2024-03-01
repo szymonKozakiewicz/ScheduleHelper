@@ -19,7 +19,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
-using static ScheduleHelper.Core.Services.Helpers.SingleTaskConvertHelper;
+using static ScheduleHelper.Core.Services.Helpers.DtoToEnityConverter;
 
 
 namespace ScheduleHelper.ServiceTests
@@ -158,6 +158,45 @@ namespace ScheduleHelper.ServiceTests
         }
 
 
+        [Fact]
+        public async Task GetScheduleSettings_ForValidData_ReturnsTimeSlotList()
+        {
+            //arrange
+
+            var scheduleSettings = new ScheduleSettings()
+            {
+                breakDurationMin = 20,
+                FinishTime = new TimeOnly(10, 0),
+                StartTime= new TimeOnly(6, 0),
+                MaxWorkTimeBeforeBreakMin=60,
+                MinWorkTimeBeforeBreakMin=40
+
+            };
+            var expectedScheduleSettingsDto = new ScheduleSettingsDTO()
+            {
+                breakLenghtMin = 20,
+                finishTime = new TimeOnly(10, 0),
+                startTime = new TimeOnly(6, 0),
+                MaxWorkTimeBeforeBreakMin = 60,
+                MinWorkTimeBeforeBreakMin = 40
+
+            };
+            
+            _scheduleRespositorMock.Setup(m => m.GetScheduleSettings())
+                .ReturnsAsync(scheduleSettings);
+
+
+
+            //act
+            var resultDTO = await _scheduleService.GetScheduleSettings();
+
+
+            //assert
+            resultDTO.Should().BeEquivalentTo(expectedScheduleSettingsDto);
+
+
+
+        }
 
         [Fact]
         public async Task GetTimeSlotsList_ForDataWhichArenTSorted_ReturnsSortedTimeSlotList()

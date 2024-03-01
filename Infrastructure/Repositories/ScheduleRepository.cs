@@ -62,7 +62,9 @@ namespace ScheduleHelper.Infrastructure.Repositories
 
         public async Task<ScheduleSettings> GetScheduleSettings()
         {
-            return _dbContext.ScheduleSettings.ToList()[0];
+            if (_dbContext.ScheduleSettings.Count() == 0)
+                return null;
+            return await _dbContext.ScheduleSettings.FirstAsync();
         }
 
         public async Task<List<SingleTask>> GetTasksNotSetInSchedule()

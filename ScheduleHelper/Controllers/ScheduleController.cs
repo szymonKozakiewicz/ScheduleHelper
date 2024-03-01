@@ -63,6 +63,25 @@ namespace ScheduleHelper.UI.Controllers
             }); 
         }
 
+        [Route(RouteConstants.ShowScheduleSettings)]
+        [HttpGet]
+        public async Task<IActionResult> ShowScheduleSettings()
+        {
+            
+            ScheduleSettingsDTO scheduleSettingsDto = await _scheduleService.GetScheduleSettings();
+            
+
+            return View("UpdateScheduleSettings",scheduleSettingsDto);
+        }
+
+        [Route(RouteConstants.ShowScheduleSettings)]
+        [HttpPost]
+        public async Task<IActionResult> UpdateScheduleSettings(ScheduleSettingsDTO scheduleSettingsDto)
+        {
+
+            ViewBag.OperationStatus = "Settings updated!";
+            return View("OperationStatusSchedule");
+        }
 
         [Route(RouteConstants.GenerateScheduleSettings)]
         [HttpPost]

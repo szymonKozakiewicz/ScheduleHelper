@@ -67,7 +67,7 @@ namespace ScheduleHelper.Core.Services
         public async Task<List<TaskForEditListDTO>> GetTasksNotSetInSchedule()
         {
             var listOfNotSettasks= await _scheduleRepository.GetTasksNotSetInSchedule();
-            return listOfNotSettasks.Select(task=>SingleTaskConvertHelper.covertSingleTaskToTaskForEditListDTO(task))
+            return listOfNotSettasks.Select(task=>DtoToEnityConverter.covertSingleTaskToTaskForEditListDTO(task))
                 .ToList();
         }
 
@@ -277,6 +277,23 @@ namespace ScheduleHelper.Core.Services
             };
 
             await _scheduleRepository.UpdateScheduleSettings(scheduleSettingsForDb);
+        }
+
+        public async Task<ScheduleSettingsDTO> GetScheduleSettings()
+        {
+            ScheduleSettings settings=await _scheduleRepository.GetScheduleSettings();
+            if (settings != null)
+                return DtoToEnityConverter.ConvertScheduleSettingsToDto(settings);
+            else
+                return new ScheduleSettingsDTO()
+                {
+                    breakLenghtMin = 20,
+                    finishTime = new TimeOnly(12, 0),
+                    startTime = new TimeOnly(8, 0),
+                    MaxWorkTimeBeforeBreakMin = 60,
+                    MinWorkTimeBeforeBreakMin = 45
+
+                };
         }
     }
 }

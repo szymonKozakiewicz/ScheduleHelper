@@ -9,5 +9,6 @@
         public const string ShowSchedule = "/showSchedule";
         public const string GenerateScheduleSettings = "/generateScheduleSettings";
         public const string FinishTimeSlot = "/finishTimeSlot";
+        public const string ShowScheduleSettings = "/showScheduleSettings";
     }
 }

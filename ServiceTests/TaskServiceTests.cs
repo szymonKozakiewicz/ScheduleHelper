@@ -10,7 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
-using static ScheduleHelper.Core.Services.Helpers.SingleTaskConvertHelper;
+using static ScheduleHelper.Core.Services.Helpers.DtoToEnityConverter;
 
 namespace ScheduleHelper.ServiceTests
 {

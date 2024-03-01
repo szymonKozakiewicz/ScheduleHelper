@@ -15,7 +15,7 @@ namespace ScheduleHelper.Core.Domain.Entities
         public TimeOnly StartTime { get; set; }
         public TimeOnly FinishTime { get; set; }
         public double breakDurationMin { get; set; }
-
+        public bool HasScheduleBreaks { get; set; }
         public double MaxWorkTimeBeforeBreakMin { get; set; }
 
 

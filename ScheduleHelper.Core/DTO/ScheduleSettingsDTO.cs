@@ -1,4 +1,5 @@
-﻿using ScheduleHelper.Core.Validators;
+﻿using ScheduleHelper.Core.Domain.Entities;
+using ScheduleHelper.Core.Validators;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -31,5 +32,7 @@ namespace ScheduleHelper.Core.DTO
         
         [MoreThanZero(ErrorMessage = "Max time of work has to be greater than 0")]
         public double MinWorkTimeBeforeBreakMin { get; set; }
+
+        
     }
 }

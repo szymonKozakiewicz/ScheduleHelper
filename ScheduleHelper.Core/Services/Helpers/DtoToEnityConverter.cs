@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ScheduleHelper.Core.Services.Helpers
 {
-    public class SingleTaskConvertHelper
+    public class DtoToEnityConverter
     {
         public static SingleTask covertSingleTaskDtoToSingleTask(TaskCreateDTO taskDTO)
         {
@@ -41,6 +41,21 @@ namespace ScheduleHelper.Core.Services.Helpers
             };
         }
 
+        public static ScheduleSettingsDTO ConvertScheduleSettingsToDto(ScheduleSettings settings)
+        {
+            var scheduleSettingsDto = new ScheduleSettingsDTO()
+            {
+                breakLenghtMin = settings.breakDurationMin,
+                finishTime = settings.FinishTime,
+                hasScheduledBreaks = settings.HasScheduleBreaks,
+                MaxWorkTimeBeforeBreakMin = settings.MaxWorkTimeBeforeBreakMin,
+                MinWorkTimeBeforeBreakMin = settings.MinWorkTimeBeforeBreakMin,
+                startTime = settings.StartTime
+
+
+            };
+            return scheduleSettingsDto;
+        }
 
     }
 }
