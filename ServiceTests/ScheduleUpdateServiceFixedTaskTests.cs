@@ -41,7 +41,8 @@ namespace ScheduleHelper.ServiceTests
         public async Task FinaliseTimeSlot_AfterTimeThereIsFixedTimeSlotInSchedule_UpdatedShouldBeExpectedListOfSlots(FinaliseMethodTestSettingsDTO finaliseMethodTestSettings, ScheduleSettings settings,TimeSlotList slotsWithNoBreaks)
         {
             TimeSlotList listOfAddedSlots = setupMockMethodsForFinaliseTimeSlotAfterTimeTest(finaliseMethodTestSettings, settings, slotsWithNoBreaks);
-
+            _scheduleRespositorMock.Setup(m => m.GetCanceledSlots())
+                    .ReturnsAsync(new TimeSlotList());
 
             //act
             await _scheduleUpdateService.FinaliseTimeSlot(finaliseMethodTestSettings.Model);
@@ -101,6 +102,8 @@ namespace ScheduleHelper.ServiceTests
             listOfActiveSlotsWithNoBreaks.RemoveAt(2);
             _scheduleRespositorMock.Setup(m => m.GetDaySchedule())
                 .ReturnsAsync(daySchedule);
+            _scheduleRespositorMock.Setup(m => m.GetCanceledSlots())
+                    .ReturnsAsync(new TimeSlotList());
             _scheduleRespositorMock.SetupSequence(m => m.GetActiveSlots())
                 .ReturnsAsync(listOfActiveSlotsWithNoFinished)
                 .ReturnsAsync(listOfActiveSlotsWithNoCanceled)
