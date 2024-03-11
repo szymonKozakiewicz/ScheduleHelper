@@ -33,6 +33,6 @@ namespace ScheduleHelper.Core.DTO
         [MoreThanZero(ErrorMessage = "Max time of work has to be greater than 0")]
         public double MinWorkTimeBeforeBreakMin { get; set; }
 
-        
+       
     }
 }

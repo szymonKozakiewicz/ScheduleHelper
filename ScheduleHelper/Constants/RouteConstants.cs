@@ -10,5 +10,6 @@
         public const string GenerateScheduleSettings = "/generateScheduleSettings";
         public const string FinishTimeSlot = "/finishTimeSlot";
         public const string ShowScheduleSettings = "/showScheduleSettings";
+        public const string UpdateScheduleSettings = "/updateScheduleSettings";
     }
 }

@@ -4,6 +4,7 @@ using ScheduleHelper.Core.Domain.RepositoryContracts;
 using ScheduleHelper.Core.DTO;
 using ScheduleHelper.Core.ServiceContracts;
 using TimeSlotsList = System.Collections.Generic.List<ScheduleHelper.Core.Domain.Entities.TimeSlotInSchedule>;
+using ScheduleHelper.Core.Services.Helpers;
 
 namespace ScheduleHelper.Core.Services
 {
@@ -37,7 +38,7 @@ namespace ScheduleHelper.Core.Services
             await changeSlotStatus(timeSlot, TimeSlotStatus.Finished);
             await updateTimeFromLastBreak(timeSlot);
 
-            await updateSlotsAfterOneSlotFinished(timeSlot, actualFinishTime);
+            await updateSlotsWithNewCurrentTime(actualFinishTime);
 
         }
 
@@ -56,18 +57,18 @@ namespace ScheduleHelper.Core.Services
             await _scheduleRepository.UpdateDaySchedule(daySchedule);
         }
 
-        private async Task updateSlotsAfterOneSlotFinished(TimeSlotInSchedule? finishedTimeSlot, TimeOnly actualFinishTime)
+        private async Task updateSlotsWithNewCurrentTime( TimeOnly currentTime)
         {
 
             var scheduleSettings = await _scheduleRepository.GetScheduleSettings();
 
            
 
-            await cancelFixedSlotsForWhichThereIsNoTime(actualFinishTime);
+            await cancelFixedSlotsForWhichThereIsNoTime(currentTime);
 
             await removeAllBreaks();
 
-            await readjustingSlotsAfterOneSlotFinished(actualFinishTime, scheduleSettings);
+            await readjustingSlotsAfterOneSlotFinished(currentTime, scheduleSettings);
             await joinCanceledSlotsWithSameTask();
 
         }
@@ -158,6 +159,36 @@ namespace ScheduleHelper.Core.Services
         {
             timeSlot.Status = newStatus;
             await _scheduleRepository.UpdateTimeSlot(timeSlot);
+        }
+
+        public async Task UpdateSettings(ScheduleSettingsDTO scheduleSettingsDto)
+        {
+            var newScheduleSettings = new ScheduleSettings(scheduleSettingsDto);
+            await _scheduleRepository.UpdateScheduleSettings(newScheduleSettings);
+            TimeOnly currentTime = await getCurrentTime(newScheduleSettings);
+            var daySchedule=await _scheduleRepository.GetDaySchedule();
+            bool previousScheduleExist = daySchedule != null;
+            if (previousScheduleExist)
+            {
+                await updateSlotsWithNewCurrentTime(currentTime);
+            }
+
+        }
+
+        private async Task<TimeOnly> getCurrentTime(ScheduleSettings newScheduleSettings)
+        {
+            TimeOnly currentTime = newScheduleSettings.StartTime;
+            TimeSlotsList listOfSortedActiveSlots = await getActiveTimeSlotsSortedWithStartTime();
+            if (listOfSortedActiveSlots.Count > 0)
+            {
+                TimeOnly earliestSlotStartTime = listOfSortedActiveSlots[0].StartTime;
+                if (earliestSlotStartTime > currentTime)
+                {
+                    currentTime = earliestSlotStartTime;
+                }
+            }
+
+            return currentTime;
         }
     }
 }

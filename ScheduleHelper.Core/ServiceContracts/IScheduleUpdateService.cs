@@ -10,5 +10,6 @@ namespace ScheduleHelper.Core.ServiceContracts
     public interface IScheduleUpdateService
     {
         Task FinaliseTimeSlot(FinaliseSlotDTO model);
+        Task UpdateSettings(ScheduleSettingsDTO scheduleSettingsDto);
     }
 }

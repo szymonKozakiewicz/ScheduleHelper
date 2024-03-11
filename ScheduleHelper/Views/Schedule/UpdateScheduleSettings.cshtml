@@ -1,7 +1,7 @@
 ﻿@using ScheduleHelper.Core.DTO;
 @model ScheduleSettingsDTO;
-<form method="post" action=@RouteConstants.GenerateScheduleSettings>
-    <h1>Generate shedule</h1>
+<form method="post" action=@RouteConstants.UpdateScheduleSettings>
+    <h1>Schedule settings</h1>
     <label>Start time</label>
     <input asp-for=startTime type="time" />
     <br />
@@ -23,3 +23,5 @@
     </br>
     <input type="submit" value="Update settings"></input>
 </form>
+<a href=@RouteConstants.ShowSchedule>Go to shedule</a>
+<a href=@RouteConstants.ShowTasksList>Edit tasks list</a>

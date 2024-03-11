@@ -74,11 +74,13 @@ namespace ScheduleHelper.UI.Controllers
             return View("UpdateScheduleSettings",scheduleSettingsDto);
         }
 
-        [Route(RouteConstants.ShowScheduleSettings)]
+
+
+        [Route(RouteConstants.UpdateScheduleSettings)]
         [HttpPost]
         public async Task<IActionResult> UpdateScheduleSettings(ScheduleSettingsDTO scheduleSettingsDto)
         {
-
+            await _updateService.UpdateSettings(scheduleSettingsDto);
             ViewBag.OperationStatus = "Settings updated!";
             return View("OperationStatusSchedule");
         }

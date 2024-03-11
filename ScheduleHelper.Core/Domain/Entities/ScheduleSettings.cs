@@ -1,4 +1,5 @@
-﻿using ScheduleHelper.Core.Validators;
+﻿using ScheduleHelper.Core.DTO;
+using ScheduleHelper.Core.Validators;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -30,7 +31,21 @@ namespace ScheduleHelper.Core.Domain.Entities
                    MaxWorkTimeBeforeBreakMin == settings.MaxWorkTimeBeforeBreakMin &&
                    MinWorkTimeBeforeBreakMin == settings.MinWorkTimeBeforeBreakMin;
         }
+        public ScheduleSettings()
+        {
+            
+        }
+        public ScheduleSettings(ScheduleSettingsDTO scheduleSettings)
+        {
 
+            breakDurationMin = scheduleSettings.breakLenghtMin;
+            FinishTime = scheduleSettings.finishTime;
+            StartTime = scheduleSettings.startTime;
+            MaxWorkTimeBeforeBreakMin = scheduleSettings.MaxWorkTimeBeforeBreakMin;
+            MinWorkTimeBeforeBreakMin = scheduleSettings.MinWorkTimeBeforeBreakMin;
+
+
+        }
         public override int GetHashCode()
         {
             return HashCode.Combine(StartTime, FinishTime, breakDurationMin, MaxWorkTimeBeforeBreakMin, MinWorkTimeBeforeBreakMin);
