@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using ScheduleHelper.Core.Domain.Entities;
 using ScheduleHelper.Core.Domain.Entities.Enums;
 using ScheduleHelper.Core.DTO;
 using ScheduleHelper.Core.ServiceContracts;
@@ -78,12 +79,28 @@ namespace ScheduleHelper.UI.Controllers
 
         [Route(RouteConstants.UpdateScheduleSettings)]
         [HttpPost]
-        public async Task<IActionResult> UpdateScheduleSettings(ScheduleSettingsDTO scheduleSettingsDto)
+        public async Task<IActionResult> UpdateScheduleSettings([ModelBinder(typeof(ScheduleSettingsBinder))] ScheduleSettingsDTO scheduleSettingsDto)
         {
-            await _updateService.UpdateSettings(scheduleSettingsDto);
+            if (ValidationHelper.HasObjectGotValidationErrors(scheduleSettingsDto))
+            {
+                setFailedStatusAddErrorsToViewBag();
+                return View("OperationStatusSchedule");
+            }
+            try
+            {
+                await _updateService.UpdateSettings(scheduleSettingsDto);
+            }
+            catch (Exception ex)
+            {
+                ViewBag.OperationStatus = ConstantsValues.FailedOperation;
+                Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                return View("OperationStatusSchedule");
+            }
             ViewBag.OperationStatus = "Settings updated!";
             return View("OperationStatusSchedule");
         }
+
+
 
         [Route(RouteConstants.GenerateScheduleSettings)]
         [HttpPost]
@@ -94,10 +111,7 @@ namespace ScheduleHelper.UI.Controllers
 
             if(ValidationHelper.HasObjectGotValidationErrors(scheduleSettings))
             {
-                ViewBag.OperationStatus = ConstantsValues.FailedOperation;
-                Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                var errors = ValidationHelper.GetErrorsList(ModelState);
-                ViewBag.ErrorsList = errors;
+                setFailedStatusAddErrorsToViewBag();
                 return View("OperationStatusSchedule");
 
             }
@@ -141,6 +155,13 @@ namespace ScheduleHelper.UI.Controllers
             
             ViewBag.OperationStatus = "Time slot finished!";
             return View("OperationStatusSchedule");
+        }
+        private void setFailedStatusAddErrorsToViewBag()
+        {
+            ViewBag.OperationStatus = ConstantsValues.FailedOperation;
+            Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            var errors = ValidationHelper.GetErrorsList(ModelState);
+            ViewBag.ErrorsList = errors;
         }
 
 
