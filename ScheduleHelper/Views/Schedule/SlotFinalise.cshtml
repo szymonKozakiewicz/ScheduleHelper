@@ -8,9 +8,13 @@
     <form action=@RouteConstants.FinishTimeSlot method="post">
 
         <label for="FinishTime">When slot was finished</label>
-        <input asp-for=FinishTime type="time" />
+        <input class="inputWithTimeToBeSetOnCurrent" asp-for=FinishTime type="time" />
+        <button type="button" class="btn btn-primary btnSetNow">Set now</button>
         <input asp-for=SlotId hidden />
         <br />
         <input type="submit" value="Send" />
     </form>
+
 </div>
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script src="~/js/SetNow.js?v=4"></script>

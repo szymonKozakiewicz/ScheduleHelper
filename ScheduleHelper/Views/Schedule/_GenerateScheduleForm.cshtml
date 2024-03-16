@@ -3,8 +3,8 @@
 <form method="post" action=@ViewBag.actionForForm>
     <h1>Generate shedule</h1>
     <label>Start time</label>
-    <input asp-for=startTime type="time" /> 
-    <button id="btnSetNow" type="button" class="btn btn-primary">Set now</button>
+    <input class="inputWithTimeToBeSetOnCurrent" asp-for=startTime type="time" />
+    <button  type="button" class="btn btn-primary btnSetNow">Set now</button>
     <br />
     <label asp-for="finishTime">Finish time</label>
     <input asp-for=finishTime type="time" />
@@ -25,4 +25,4 @@
     <input type="submit" value="Generate schedule"></input>
 </form>
 <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-<script src="~/js/SetNow.js?v=2"></script>
+<script src="~/js/SetNow.js?v=3"></script>

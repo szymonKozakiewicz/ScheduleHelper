@@ -1,9 +1,9 @@
-﻿$("#btnSetNow").click(function () {
+﻿$(".btnSetNow").click(function () {
     var now = new Date();
-    var hour = now.getHours();
-    var minutes = now.getMinutes();
+    var hour = now.getHours().toString().padStart(2, '0');;
+    var minutes = now.getMinutes().toString().padStart(2, '0');
     var hourAndMinutesStr = hour.toString() + ":" + minutes.toString();
-    $("#startTime").val(hourAndMinutesStr)
+    $(".inputWithTimeToBeSetOnCurrent").val(hourAndMinutesStr)
 }
 
 )
