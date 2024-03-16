@@ -58,7 +58,7 @@ namespace ScheduleHelper.Infrastructure.Repositories
         public async Task<DaySchedule> GetDaySchedule()
         {
             if (_dbContext.DaySchedule.ToList().Count > 0)
-                return _dbContext.DaySchedule.ToList()[0];
+                return await _dbContext.DaySchedule.FirstAsync();
             else
             {
                 return null;
@@ -110,6 +110,14 @@ namespace ScheduleHelper.Infrastructure.Repositories
 
             bool settingsExistsInDb = _dbContext.ScheduleSettings.ToList().Capacity != 0;
             var daySchedule= await GetDaySchedule();
+            if ( daySchedule==null)
+            {
+                daySchedule = new DaySchedule()
+                {
+                    TimeFromLastBreakMin = 0,
+                };
+
+            }
             if (settingsExistsInDb)
             {
                 var oldSettings = _dbContext.ScheduleSettings.ToList()[0];
@@ -118,7 +126,6 @@ namespace ScheduleHelper.Infrastructure.Repositories
             }
             _dbContext.ScheduleSettings.Add(scheduleSettingsForDb);
             daySchedule.Settings = scheduleSettingsForDb;
-            
             await _dbContext.SaveChangesAsync();
             await _dbContext.DaySchedule.AddAsync(daySchedule);
             await _dbContext.SaveChangesAsync();

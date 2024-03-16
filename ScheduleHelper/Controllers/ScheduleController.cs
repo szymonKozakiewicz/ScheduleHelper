@@ -51,17 +51,8 @@ namespace ScheduleHelper.UI.Controllers
         {
 
             ViewBag.Title = "Schedule settings";
-            return View("GenerateScheduleSettings", new ScheduleSettingsDTO()
-
-            {
-                hasScheduledBreaks = true,
-                breakLenghtMin = 20,
-                startTime = new TimeOnly(8,0),
-                finishTime= new TimeOnly(22,0),
-                MaxWorkTimeBeforeBreakMin = 60,
-                MinWorkTimeBeforeBreakMin=45
-
-            }); 
+            var settingsDTO=await _scheduleService.GetScheduleSettings();
+            return View("GenerateScheduleSettings", settingsDTO); 
         }
 
         [Route(RouteConstants.ShowScheduleSettings)]
@@ -104,7 +95,7 @@ namespace ScheduleHelper.UI.Controllers
 
         [Route(RouteConstants.GenerateScheduleSettings)]
         [HttpPost]
-        public async Task<IActionResult> GenerateScheduleSettings([ModelBinder(typeof(ScheduleSettingsBinder))] ScheduleSettingsDTO scheduleSettings)
+        public async Task<IActionResult> GenerateSchedule([ModelBinder(typeof(ScheduleSettingsBinder))] ScheduleSettingsDTO scheduleSettings)
         {
 
             
