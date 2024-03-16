@@ -52,6 +52,7 @@ namespace ScheduleHelper.UI.Controllers
 
             ViewBag.Title = "Schedule settings";
             var settingsDTO=await _scheduleService.GetScheduleSettings();
+            ViewBag.actionForForm = RouteConstants.GenerateScheduleSettings;
             return View("GenerateScheduleSettings", settingsDTO); 
         }
 
@@ -61,7 +62,7 @@ namespace ScheduleHelper.UI.Controllers
         {
             
             ScheduleSettingsDTO scheduleSettingsDto = await _scheduleService.GetScheduleSettings();
-            
+            ViewBag.actionForForm = RouteConstants.UpdateScheduleSettings;
 
             return View("UpdateScheduleSettings",scheduleSettingsDto);
         }

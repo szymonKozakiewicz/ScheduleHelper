@@ -1,27 +1,6 @@
-﻿@using ScheduleHelper.Core.DTO;
-@model ScheduleSettingsDTO;
-<form method="post" action=@RouteConstants.UpdateScheduleSettings>
-    <h1>Schedule settings</h1>
-    <label>Start time</label>
-    <input asp-for=startTime type="time" />
-    <br />
-    <label asp-for="finishTime">Finish time</label>
-    <input asp-for=finishTime type="time" />
-    <br />
-    <label>Breaks</label>
-    <input asp-for=hasScheduledBreaks type="checkbox" />
-    <br />
-    <label>Break lenght(minutes)</label>>
-    <input asp-for=breakLenghtMin type="number" />
-    </br>
-    <label>Minimal time between breaks</label>>
+﻿<div class="container">
+    <partial name="_GenerateScheduleForm">
 
-    <input asp-for="MinWorkTimeBeforeBreakMin"></input>
-    <br />
-    <label>Max time between breaks</label>>
-    <input asp-for="MaxWorkTimeBeforeBreakMin"></input>
-    </br>
-    <input type="submit" value="Update settings"></input>
-</form>
-<a href=@RouteConstants.ShowSchedule>Go to shedule</a>
-<a href=@RouteConstants.ShowTasksList>Edit tasks list</a>
+        <a href=@RouteConstants.ShowSchedule>Go to shedule</a>
+        <a href=@RouteConstants.ShowTasksList>Edit tasks list</a>
+</div>

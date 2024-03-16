@@ -1,0 +1,10 @@
+﻿body {
+table
+{
+    border-collapse: collapse; 
+}
+
+td, th {
+    padding: 0 0.5rem;
+}
+}
