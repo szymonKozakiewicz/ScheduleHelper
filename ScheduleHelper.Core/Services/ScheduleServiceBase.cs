@@ -36,8 +36,8 @@ namespace ScheduleHelper.Core.Services
 
 
 
-            TimeOnly currentTime = getFirstAvaiableStartTime(scheduleSettings, actualFinishTime);
-            IterationState iterationState = new IterationState(currentTime, daySchedule.TimeFromLastBreakMin, listOfFixedTimeSlots);
+            TimeOnly startTimeForIterationState = getFirstAvaiableStartTime(scheduleSettings, actualFinishTime);
+            IterationState iterationState = new IterationState(startTimeForIterationState, daySchedule.TimeFromLastBreakMin, listOfFixedTimeSlots);
 
             bool noTimeForRestSlots = false;
             foreach (var slot in listOfSlotsWithOneSlotPerOneTask)

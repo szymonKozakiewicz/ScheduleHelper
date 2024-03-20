@@ -150,10 +150,14 @@ namespace ScheduleHelper.Core.Services.Helpers
 
         public static TimeSlotInSchedule GetOverlapsingFixedTimeSlot(TimeOnly slotStartTime, TimeOnly slotFinishTime, List<TimeSlotInSchedule> fixedTimeSlots)
         {
-
+            TimeSlotInSchedule tempSlot = new TimeSlotInSchedule()
+            {
+                StartTime = slotStartTime,
+                FinishTime = slotFinishTime,
+            };
             foreach (var fixedTimeSlot in fixedTimeSlots)
             {
-                if (SlotOverlapsWithExistingFixedTimeSlot(slotStartTime, slotFinishTime, fixedTimeSlots))
+                if (TimeSlotOverlapsTools.DoTimeSlotsOverlaps(tempSlot,fixedTimeSlot))
                     return fixedTimeSlot;
             }
             return null;
