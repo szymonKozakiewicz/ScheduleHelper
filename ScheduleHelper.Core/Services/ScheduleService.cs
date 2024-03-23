@@ -21,11 +21,14 @@ namespace ScheduleHelper.Core.Services
         ITaskRespository _taskRepository;
         IScheduleRepository _scheduleRepository;
         ScheduleSettings _scheduleSettings;
+
+
         public ScheduleService(ITaskRespository taskRepository, IScheduleRepository scheduleRepository) : base(scheduleRepository)
         {
 
             _taskRepository = taskRepository;
             _scheduleRepository = scheduleRepository;
+
 
         }
         public async Task GenerateSchedule(ScheduleSettingsDTO scheduleSettings)
@@ -294,6 +297,11 @@ namespace ScheduleHelper.Core.Services
                     MinWorkTimeBeforeBreakMin = 45
 
                 };
+        }
+
+        public Task<double> CalculateAvaiableFreeTimeBasedOnExistingTasks()
+        {
+            throw new NotImplementedException();
         }
     }
 }

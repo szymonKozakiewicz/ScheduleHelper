@@ -10,7 +10,7 @@ namespace ScheduleHelper.Core.ServiceContracts
 {
     public interface IScheduleService
     {
-        
+        Task<double> CalculateAvaiableFreeTimeBasedOnExistingTasks();
         public Task GenerateSchedule(ScheduleSettingsDTO scheduleSettings);
         Task<ScheduleSettingsDTO> GetScheduleSettings();
         public Task<int> GetShareOfTimeOfSlotsWithStatus(TimeSlotStatus status);

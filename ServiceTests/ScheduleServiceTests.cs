@@ -90,6 +90,30 @@ namespace ScheduleHelper.ServiceTests
             await testGenerateSchedule(testScheduleSettings, tasksListsInMemory, expectedTimeSlotsList);
         }
 
+        [Theory]
+        [ClassData(typeof(ArgumentsCalculateAvaiableFreeTimeBasedOnExistingTasks_ExpectToReturnExpectedTime))]
+        public async Task CalculateAvaiableFreeTimeBasedOnExistingTasks_ExpectToReturnExpectedTime(List<SingleTask>listOfTasks,double expectedFreeTimeLeft,ScheduleSettings scheduleSettings, TimeSlotList expectedSlots)
+        {
+
+            //arrange
+            TimeSlotList listOfAddedSlots = new TimeSlotList();
+            _taskRepositoryMock.Setup(a => a.GetTasks())
+                .ReturnsAsync(listOfTasks);
+            _scheduleRespositorMock.Setup(a => a.GetScheduleSettings())
+                .ReturnsAsync(scheduleSettings);
+            _scheduleRespositorMock.Setup(a => a.AddNewTimeSlot(It.IsAny<TimeSlotInSchedule>()))
+                .Callback((TimeSlotInSchedule addedTimeSlot) => listOfAddedSlots.Add(addedTimeSlot));
+            _scheduleRespositorMock.Setup(a => a.GetActiveSlots())
+                .ReturnsAsync(expectedSlots);
+
+            //act
+            double avaiableFreeTime= await _scheduleService.CalculateAvaiableFreeTimeBasedOnExistingTasks();
+
+            //assert
+            listOfAddedSlots.Should().BeEquivalentTo(expectedSlots);
+            avaiableFreeTime.Should().Be(expectedFreeTimeLeft); 
+        }
+
 
         private async Task testGenerateSchedule(ScheduleSettingsDTO testScheduleSettings, List<SingleTask> tasksListsInMemory, List<TimeSlotInSchedule> expectedTimeSlotsList)
         {
