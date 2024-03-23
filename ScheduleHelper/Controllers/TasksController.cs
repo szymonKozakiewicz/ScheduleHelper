@@ -13,10 +13,12 @@ namespace ScheduleHelper.UI.Controllers
 
         string _taskslistTitle = "Tasks list";
         ITaskService _taskService;
+        IScheduleService _scheduleService;
 
-        public TasksController(ITaskService taskService)
+        public TasksController(ITaskService taskService, IScheduleService scheduleService)
         {
             _taskService = taskService;
+            _scheduleService = scheduleService;
         }
 
         [Route(RouteConstants.ShowTasksList)]
@@ -24,7 +26,8 @@ namespace ScheduleHelper.UI.Controllers
         {
             List<TaskForEditListDTO> tasks=await _taskService.GetTasksList();
 
-
+            double freeTime=await _scheduleService.CalculateAvaiableFreeTimeBasedOnExistingTasks();
+            ViewBag.EstimatedFreeTime = freeTime;
             ViewBag.Title = _taskslistTitle;
             return View(tasks);
         }
