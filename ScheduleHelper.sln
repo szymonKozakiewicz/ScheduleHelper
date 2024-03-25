@@ -19,7 +19,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScheduleHelper.Core", "Sche
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScheduleHelper.Infrastructure", "Infrastructure\ScheduleHelper.Infrastructure.csproj", "{EAF8F033-7274-4137-A2C8-32A8606301AF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScheduleHelper.RepositoryTests", "ScheduleHelper.RepositoryTests\ScheduleHelper.RepositoryTests.csproj", "{9A212FA0-912E-4024-993B-F1FFBA19F463}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScheduleHelper.RepositoryTests", "ScheduleHelper.RepositoryTests\ScheduleHelper.RepositoryTests.csproj", "{9A212FA0-912E-4024-993B-F1FFBA19F463}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

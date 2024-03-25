@@ -1,33 +1,27 @@
 ﻿using ScheduleHelper.Core.Domain.Entities;
 using ScheduleHelper.Core.Domain.Entities.Enums;
 using ScheduleHelper.Core.Domain.RepositoryContracts;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using System.Text;
-using System.Threading.Tasks;
 using TimeSlotsList = System.Collections.Generic.List<ScheduleHelper.Core.Domain.Entities.TimeSlotInSchedule>;
 namespace ScheduleHelper.Infrastructure.Repositories
 {
-    public class InMemoryScheduleRepository : IScheduleRepository
+    public class InMemoryScheduleRepository : IDbInMemory
     {
         DaySchedule _daySchedule;
         TimeSlotsList _timeSlotsList;
         ScheduleSettings _scheduleSettings;
 
-        public InMemoryScheduleRepository(ScheduleSettings scheduleSettings)
+        public InMemoryScheduleRepository()
         {
-            _scheduleSettings = scheduleSettings;
+            _scheduleSettings = new ScheduleSettings();
             _daySchedule = new DaySchedule()
             {
                 TimeFromLastBreakMin = 0
             };
             _timeSlotsList = new TimeSlotsList();
         }
-        public async Task AddDayScheduleAndRemoveOld(DaySchedule scheduleSettingsForDb)
+        public async Task AddDayScheduleAndRemoveOld(DaySchedule newDaySchedule)
         {
-            _daySchedule = scheduleSettingsForDb;
+            _daySchedule = newDaySchedule;
         }
 
         public async Task AddNewTimeSlot(TimeSlotInSchedule timeSlot)
@@ -93,7 +87,7 @@ namespace ScheduleHelper.Infrastructure.Repositories
             _scheduleSettings = scheduleSettingsForDb;
         }
 
-        public Task UpdateTimeSlot(TimeSlotInSchedule timeSlotToUpdate)
+        public async Task UpdateTimeSlot(TimeSlotInSchedule timeSlotToUpdate)
         {
             var timeSlotToRemove=_timeSlotsList.Find(a=>a.Id == timeSlotToUpdate.Id);
             _timeSlotsList.Remove(timeSlotToRemove);

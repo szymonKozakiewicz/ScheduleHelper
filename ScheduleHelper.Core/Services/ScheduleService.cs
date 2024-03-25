@@ -13,21 +13,24 @@ using ScheduleHelper.Core.Extensions;
 using ScheduleHelper.Core.Domain.Entities.Helpers;
 using ScheduleHelper.Core.Domain.Entities.Enums;
 using static ScheduleHelper.Core.Services.Helpers.GenerateScheduleTools;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ScheduleHelper.Core.Services
 {
     public class ScheduleService :ScheduleServiceBase,IScheduleService
     {
         ITaskRespository _taskRepository;
-        IScheduleRepository _scheduleRepository;
+
         ScheduleSettings _scheduleSettings;
+        IDbInMemory _inMemoryScheduleRepository;
 
 
-        public ScheduleService(ITaskRespository taskRepository, IScheduleRepository scheduleRepository) : base(scheduleRepository)
+        public ScheduleService(ITaskRespository taskRepository, IScheduleRepository scheduleRepository, IDbInMemory inMemoryScheduleRepository) : base(scheduleRepository)
         {
 
             _taskRepository = taskRepository;
             _scheduleRepository = scheduleRepository;
+            _inMemoryScheduleRepository = inMemoryScheduleRepository;
 
 
         }
@@ -102,6 +105,81 @@ namespace ScheduleHelper.Core.Services
             return 0;
         }
 
+
+        public async Task<ScheduleSettingsDTO> GetScheduleSettings()
+        {
+            ScheduleSettings settings = await _scheduleRepository.GetScheduleSettings();
+            if (settings != null)
+                return EntityToDtoConverter.ConvertScheduleSettingsToDto(settings);
+            else
+                return new ScheduleSettingsDTO()
+                {
+                    breakLenghtMin = 20,
+                    finishTime = new TimeOnly(12, 0),
+                    startTime = new TimeOnly(8, 0),
+                    MaxWorkTimeBeforeBreakMin = 60,
+                    MinWorkTimeBeforeBreakMin = 45
+
+                };
+        }
+
+        public async Task<double> CalculateAvaiableFreeTimeBasedOnExistingTasks()
+        {
+            IScheduleRepository sqlServerRepository = _scheduleRepository;
+            await replaceSqlScheduleRepositoryWithInMemoryRepository(_inMemoryScheduleRepository);
+
+            await generateScheduleForInMemoryDb();
+
+            List<TimeSlotInSchedule> tempSlotsList = await _scheduleRepository.GetActiveSlots();
+
+            double timeRequiredForTasks = getSumOfDurationOfAllSlots(tempSlotsList);
+
+            var scheduleSettings = await _scheduleRepository.GetScheduleSettings();
+            var maxTimeOfSchedule = GetMaxTimeOfSchedule(scheduleSettings);
+
+            double avaiableFreeTime = maxTimeOfSchedule - timeRequiredForTasks;
+
+            setSqlRepositoryAsRepository(sqlServerRepository);
+            return avaiableFreeTime;
+        }
+
+        private void setSqlRepositoryAsRepository(IScheduleRepository sqlServerRepository)
+        {
+            _scheduleRepository = sqlServerRepository;
+        }
+
+        private static double getSumOfDurationOfAllSlots(List<TimeSlotInSchedule> tempSlotsList)
+        {
+            double timeRequiredForSlots = 0;
+            foreach (var slot in tempSlotsList)
+            {
+                timeRequiredForSlots += slot.getDurationOfSlotInMin();
+            }
+
+            return timeRequiredForSlots;
+        }
+
+        private static double GetMaxTimeOfSchedule(ScheduleSettings scheduleSettings)
+        {
+            return (scheduleSettings.FinishTime - scheduleSettings.StartTime).TotalMinutes;
+        }
+
+        private async Task generateScheduleForInMemoryDb()
+        {
+            var scheduleSettings = await _scheduleRepository.GetScheduleSettings();
+            ScheduleSettingsDTO settingsDto = EntityToDtoConverter.ConvertScheduleSettingsToDto(scheduleSettings);
+            await GenerateSchedule(settingsDto);
+        }
+
+        private async Task replaceSqlScheduleRepositoryWithInMemoryRepository(IDbInMemory inMemoryScheduleRepository)
+        {
+
+            await inMemoryScheduleRepository.CleanTimeSlotInScheduleTable();
+            var scheduleSettings = await _scheduleRepository.GetScheduleSettings();
+            await inMemoryScheduleRepository.UpdateScheduleSettings(scheduleSettings);
+            _scheduleRepository = inMemoryScheduleRepository;
+        }
+
         private async Task addElasticAndFixedTasksToSchedule(ScheduleSettings scheduleSettings, List<SingleTask> tasksList)
         {
 
@@ -110,6 +188,7 @@ namespace ScheduleHelper.Core.Services
             List<TimeSlotInSchedule>flexibleSlotsList= getTimeSlotsForTasks(flexibleTasks,scheduleSettings);
             List<TimeSlotInSchedule>allTimeSlots=new List<TimeSlotInSchedule>(flexibleSlotsList);
             allTimeSlots.AddRange(fixedTimeSlots);
+
             await loopWhichBuildScheduleByAdjustingSlots(scheduleSettings.StartTime, scheduleSettings,allTimeSlots);
 
         }
@@ -269,39 +348,12 @@ namespace ScheduleHelper.Core.Services
 
         private async Task updateScheduleSettings(ScheduleSettingsDTO scheduleSettings)
         {
-            var scheduleSettingsForDb = new ScheduleSettings()
-            {
-                breakDurationMin = scheduleSettings.breakLenghtMin,
-                FinishTime = scheduleSettings.finishTime,
-                StartTime = scheduleSettings.startTime,
-                MaxWorkTimeBeforeBreakMin = scheduleSettings.MaxWorkTimeBeforeBreakMin,
-                MinWorkTimeBeforeBreakMin = scheduleSettings.MinWorkTimeBeforeBreakMin,
+            var scheduleSettingsForDb = new ScheduleSettings(scheduleSettings);
 
-            };
 
             await _scheduleRepository.UpdateScheduleSettings(scheduleSettingsForDb);
         }
 
-        public async Task<ScheduleSettingsDTO> GetScheduleSettings()
-        {
-            ScheduleSettings settings=await _scheduleRepository.GetScheduleSettings();
-            if (settings != null)
-                return DtoToEnityConverter.ConvertScheduleSettingsToDto(settings);
-            else
-                return new ScheduleSettingsDTO()
-                {
-                    breakLenghtMin = 20,
-                    finishTime = new TimeOnly(12, 0),
-                    startTime = new TimeOnly(8, 0),
-                    MaxWorkTimeBeforeBreakMin = 60,
-                    MinWorkTimeBeforeBreakMin = 45
 
-                };
-        }
-
-        public Task<double> CalculateAvaiableFreeTimeBasedOnExistingTasks()
-        {
-            throw new NotImplementedException();
-        }
     }
 }

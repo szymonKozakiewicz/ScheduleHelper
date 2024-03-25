@@ -29,6 +29,7 @@ namespace ScheduleHelper.Core.Services
 
         protected async Task loopWhichBuildScheduleByAdjustingSlots(TimeOnly actualFinishTime, ScheduleSettings scheduleSettings, TimeSlotsList slotsList)
         {
+
             TimeSlotsList listOfFixedTimeSlots = getFixedTimeSlots(slotsList);
             TimeSlotsList listOfSlotsWithOneSlotPerOneTask = await joinSlotsWithSameTasksAndRomevePreviousSlotsFromDb(slotsList);
 
@@ -37,6 +38,7 @@ namespace ScheduleHelper.Core.Services
 
 
             TimeOnly startTimeForIterationState = getFirstAvaiableStartTime(scheduleSettings, actualFinishTime);
+
             IterationState iterationState = new IterationState(startTimeForIterationState, daySchedule.TimeFromLastBreakMin, listOfFixedTimeSlots);
 
             bool noTimeForRestSlots = false;

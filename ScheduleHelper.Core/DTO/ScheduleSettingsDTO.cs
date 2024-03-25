@@ -12,6 +12,8 @@ namespace ScheduleHelper.Core.DTO
 {
     public class ScheduleSettingsDTO
     {
+        public ScheduleSettingsDTO() { }
+
         [Required]
         [StartTimeNotLaterThanFinish]
         public TimeOnly startTime { get; set; }

@@ -31,14 +31,18 @@ namespace ScheduleHelper.ServiceTests
         Mock<IScheduleRepository> _scheduleRespositorMock;
         ITaskRespository _taskRespository;
         IScheduleRepository _scheduleRespository;
+        Mock<IDbInMemory> _inMemoryscheduleRespositorMock;
+        IDbInMemory _inMemoryscheduleRepositor;
 
         public ScheduleServiceTests()
         {
             _taskRepositoryMock = new Mock<ITaskRespository>();
             _scheduleRespositorMock=new Mock<IScheduleRepository>();
+            _inMemoryscheduleRespositorMock = new Mock<IDbInMemory>();
+            _inMemoryscheduleRepositor = _inMemoryscheduleRespositorMock.Object;
             _taskRespository = _taskRepositoryMock.Object;
             _scheduleRespository = _scheduleRespositorMock.Object;
-            _scheduleService = new ScheduleService(_taskRespository,_scheduleRespository);
+            _scheduleService = new ScheduleService(_taskRespository,_scheduleRespository,_inMemoryscheduleRepositor);
         }
 
 
@@ -94,6 +98,10 @@ namespace ScheduleHelper.ServiceTests
         [ClassData(typeof(ArgumentsCalculateAvaiableFreeTimeBasedOnExistingTasks_ExpectToReturnExpectedTime))]
         public async Task CalculateAvaiableFreeTimeBasedOnExistingTasks_ExpectToReturnExpectedTime(List<SingleTask>listOfTasks,double expectedFreeTimeLeft,ScheduleSettings scheduleSettings, TimeSlotList expectedSlots)
         {
+            var daySchedule = new DaySchedule()
+            {
+                TimeFromLastBreakMin = 0
+            };
 
             //arrange
             TimeSlotList listOfAddedSlots = new TimeSlotList();
@@ -101,10 +109,15 @@ namespace ScheduleHelper.ServiceTests
                 .ReturnsAsync(listOfTasks);
             _scheduleRespositorMock.Setup(a => a.GetScheduleSettings())
                 .ReturnsAsync(scheduleSettings);
-            _scheduleRespositorMock.Setup(a => a.AddNewTimeSlot(It.IsAny<TimeSlotInSchedule>()))
+            _inMemoryscheduleRespositorMock.Setup(a => a.GetScheduleSettings())
+                .ReturnsAsync(scheduleSettings);
+            _inMemoryscheduleRespositorMock.Setup(a => a.AddNewTimeSlot(It.IsAny<TimeSlotInSchedule>()))
                 .Callback((TimeSlotInSchedule addedTimeSlot) => listOfAddedSlots.Add(addedTimeSlot));
-            _scheduleRespositorMock.Setup(a => a.GetActiveSlots())
+            _inMemoryscheduleRespositorMock.Setup(a => a.GetActiveSlots())
                 .ReturnsAsync(expectedSlots);
+            _inMemoryscheduleRespositorMock.Setup(a => a.GetDaySchedule())
+                .ReturnsAsync(daySchedule);
+
 
             //act
             double avaiableFreeTime= await _scheduleService.CalculateAvaiableFreeTimeBasedOnExistingTasks();

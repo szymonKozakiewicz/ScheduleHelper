@@ -266,7 +266,7 @@ namespace ScheduleHelper.ServiceTests
             _scheduleRespositorMock.Setup(m => m.UpdateScheduleSettings(It.IsAny<ScheduleSettings>()))
                 .Callback((ScheduleSettings n)=>updatedSettings=n);
 
-            var settingsDto=DtoToEnityConverter.ConvertScheduleSettingsToDto(settings);
+            var settingsDto=EntityToDtoConverter.ConvertScheduleSettingsToDto(settings);
             await _scheduleUpdateService.UpdateSettings(settingsDto);
 
 

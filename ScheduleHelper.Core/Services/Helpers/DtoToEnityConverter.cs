@@ -41,21 +41,7 @@ namespace ScheduleHelper.Core.Services.Helpers
             };
         }
 
-        public static ScheduleSettingsDTO ConvertScheduleSettingsToDto(ScheduleSettings settings)
-        {
-            var scheduleSettingsDto = new ScheduleSettingsDTO()
-            {
-                breakLenghtMin = settings.breakDurationMin,
-                finishTime = settings.FinishTime,
-                hasScheduledBreaks = settings.HasScheduleBreaks,
-                MaxWorkTimeBeforeBreakMin = settings.MaxWorkTimeBeforeBreakMin,
-                MinWorkTimeBeforeBreakMin = settings.MinWorkTimeBeforeBreakMin,
-                startTime = settings.StartTime
 
-
-            };
-            return scheduleSettingsDto;
-        }
 
     }
 }

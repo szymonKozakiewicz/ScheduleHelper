@@ -14,6 +14,7 @@ builder.Services.AddTransient<IScheduleService, ScheduleService>();
 builder.Services.AddTransient<IScheduleUpdateService, ScheduleUpdateService>();
 builder.Services.AddTransient<ITaskRespository, TaskRepository>();
 builder.Services.AddTransient<IScheduleRepository, ScheduleRepository>();
+builder.Services.AddTransient<IDbInMemory, InMemoryScheduleRepository>();
 var connectionStrings = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<MyDbContext>(
 options => {

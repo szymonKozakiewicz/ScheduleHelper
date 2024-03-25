@@ -1,4 +1,5 @@
 ﻿using ScheduleHelper.Core.Domain.Entities.Enums;
+using ScheduleHelper.Core.Domain.RepositoryContracts;
 using ScheduleHelper.Core.DTO;
 using System;
 using System.Collections.Generic;

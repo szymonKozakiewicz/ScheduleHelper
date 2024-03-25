@@ -5,6 +5,8 @@ using Moq;
 using ScheduleHelper.ControllerTests.Helpers;
 using ScheduleHelper.Core.DTO;
 using ScheduleHelper.Core.ServiceContracts;
+using ScheduleHelper.Core.Services;
+using ScheduleHelper.Infrastructure.Repositories;
 using ScheduleHelper.UI.Controllers;
 using System;
 using System.Collections.Generic;
@@ -20,19 +22,23 @@ namespace ScheduleHelper.ControllerTests
     {
 
         ITaskService _taskService;
-        
+        IScheduleService _scheduleService;
         Mock<ITaskService> _taskServiceMock;
+        Mock<IScheduleService> _scheduleServiceMock;
 
         public TaskControllerTests()
         {
             _taskServiceMock = new Mock<ITaskService>();
+            _scheduleServiceMock=new Mock<IScheduleService>();
+            _scheduleService = _scheduleServiceMock.Object;
             _taskService = _taskServiceMock.Object;
         }
 
         [Fact]
         public async Task AddNewTask_IsModelCorrect()
         {
-            var controller=new TasksController(_taskService);
+            
+            var controller=new TasksController(_taskService, _scheduleService);
 
             //act
             var result=(ViewResult)await controller.AddNewTask();
@@ -46,7 +52,7 @@ namespace ScheduleHelper.ControllerTests
         {
             SetupMockForAddNewTaskMethodFromService();
 
-            var controller = new TasksController(_taskService);
+            var controller = new TasksController(_taskService, _scheduleService);
             var model = new TaskCreateDTO()
             {
                 Name = "test",
@@ -74,7 +80,7 @@ namespace ScheduleHelper.ControllerTests
         {
             SetupMockForAddNewTaskMethodFromService();
 
-            var controller = new TasksController(_taskService);
+            var controller = new TasksController(_taskService, _scheduleService);
             var model = new TaskCreateDTO()
             {
                 Name = "test",
@@ -99,7 +105,7 @@ namespace ScheduleHelper.ControllerTests
             _taskServiceMock.Setup(mock => mock.RemoveTaskWithId(It.IsAny<Guid>()));
             
             var idToDelete = new Guid("05EB870B-B102-4E5F-B04F-17671345E956");
-            var controller = new TasksController(_taskService);
+            var controller = new TasksController(_taskService, _scheduleService);
             ServiceTestHelpers.setMockForResponseStatus(controller, HttpStatusCode.OK);
 
             //act
