@@ -25,5 +25,17 @@ namespace ScheduleHelper.Core.Services.Helpers
             };
             return scheduleSettingsDto;
         }
+
+        public static TaskCreateDTO ConvertSingleTaskToTaskCreatDTO(SingleTask taskWitId)
+        {
+            return new TaskCreateDTO()
+            {
+                HasStartTime = taskWitId.HasStartTime,
+                StartTime = taskWitId.StartTime,
+                Id = taskWitId.Id,
+                Name = taskWitId.Name,
+                Time = taskWitId.TimeMin
+            };
+        }
     }
 }

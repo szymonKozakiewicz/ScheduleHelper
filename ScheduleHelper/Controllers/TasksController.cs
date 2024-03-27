@@ -98,12 +98,22 @@ namespace ScheduleHelper.UI.Controllers
         }
 
         [Route(RouteConstants.UpdateTask)]
-        public async Task<IActionResult> EditTask(TaskCreateDTO taskToUpdate)
+        [HttpGet]
+        public async Task<IActionResult> EditTask(Guid taskToEditId)
         {
             ViewBag.Title = _taskslistTitle;
+            ViewBag.formHref = RouteConstants.UpdateTask;
+            TaskCreateDTO taskToEdit;
+            try
+            {
+                taskToEdit = await _taskService.GetTaskCreateDTOWithId(taskToEditId);
+            }
+            catch(Exception ex) {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return View("OperationStatus");
+            }
 
-           
-            return RedirectToAction(nameof(TasksController.TasksList));
+            return View("EditTask", taskToEdit);
         }
 
 
@@ -130,5 +140,7 @@ namespace ScheduleHelper.UI.Controllers
 
 
         }
+
+
     }
 }

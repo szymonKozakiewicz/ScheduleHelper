@@ -30,7 +30,17 @@ namespace ScheduleHelper.Core.Services
             await _taskRepository.AddNewTask(newTask);
         }
 
-
+        public async Task<TaskCreateDTO> GetTaskCreateDTOWithId(Guid taskId)
+        {
+            var tasks=await _taskRepository.GetTasks();
+            var taskWitId=tasks.Find(t=>t.Id==taskId); 
+            if (taskWitId==null)
+            {
+                throw new Exception("TaskWith such id doesn't exists");
+            }
+            TaskCreateDTO taskCreateDTO= EntityToDtoConverter.ConvertSingleTaskToTaskCreatDTO(taskWitId);
+            return taskCreateDTO;
+        }
 
         public async Task<List<TaskForEditListDTO>> GetTasksList()
         {

@@ -14,7 +14,7 @@
             @foreach (var task in Model)
             {
 
-                var editRoute = RouteConstants.UpdateTask + "?id=" + task.Id;
+                var editRoute = RouteConstants.UpdateTask + "?taskToEditId=" + task.Id;
                 var deleteRoute = RouteConstants.DeleteTask + "?taskToDeleteId=" + task.Id;
 
                 <tr>

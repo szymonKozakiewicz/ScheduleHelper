@@ -24,6 +24,7 @@ namespace ScheduleHelper.Core.DTO
             Name = "";
             Time = 1;
         }
+        public Guid Id { get; set; }
 
         public override bool Equals(object? obj)
         {

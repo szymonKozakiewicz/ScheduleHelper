@@ -45,6 +45,23 @@ namespace ScheduleHelper.IntegrationTests
 
             
         }
+        [Fact]
+        public async Task UpdateTask_ShouldBeSuccessful()
+        {
+
+            var testTask = new SingleTask("Test", 234);
+
+            _dbContext.Add(testTask);
+            _dbContext.SaveChanges();
+            string route = RouteConstants.UpdateTask + "?taskToEditId=" + testTask.Id.ToString();
+            //act
+            HttpResponseMessage response = await _client.GetAsync(route);
+
+            //assert
+            response.Should().BeSuccessful();
+
+
+        }
 
         [Fact]
         public async Task AddNewTask_ShouldReturnView()

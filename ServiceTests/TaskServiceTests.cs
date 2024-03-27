@@ -105,7 +105,49 @@ namespace ScheduleHelper.ServiceTests
 
         }
 
+        [Fact]
+        public async Task GetTaskCreateDTOWithId_forValidId_ExpectThatItWillReturnExpectedTask()
+        {
+            //arrange
+            SingleTask taskToReturn = new SingleTask()
+            {
+                Id = Guid.NewGuid(),
+                HasStartTime = true,
+                Name = "testTask",
+                StartTime = new TimeOnly(1, 2),
+                TimeMin = 20
+            };
+            TaskCreateDTO expectedTaskCreateDTO = new TaskCreateDTO()
+            {
+                Id = taskToReturn.Id,
+                HasStartTime = true,
+                Name = "testTask",
+                StartTime = new TimeOnly(1, 2),
+                Time = 20
+            };
+            SingleTask secoundTask = new SingleTask()
+            {
+                Id = Guid.NewGuid(),
+                HasStartTime = true,
+                Name = "testTask2",
+                StartTime = new TimeOnly(1, 50),
+                TimeMin = 30
+            };
+            List<SingleTask> tasks = new List<SingleTask>()
+            {
+                secoundTask,taskToReturn
+            };
+            repositoryMock.Setup(a=>a.GetTasks())
+                .ReturnsAsync(tasks);
 
+            //act
+            TaskCreateDTO result=await _taskService.GetTaskCreateDTOWithId(taskToReturn.Id);
+
+            //assert
+            result.Should().Be(expectedTaskCreateDTO);
+            result.Id.Should().Be(taskToReturn.Id);
+            
+        }
 
 
     }
