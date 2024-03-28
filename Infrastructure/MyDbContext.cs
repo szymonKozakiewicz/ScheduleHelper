@@ -65,6 +65,17 @@ namespace ScheduleHelper.Infrastructure
                 );
             modelBuilder.Entity<TimeSlotInSchedule>()
                 .ToTable("TimeSlots");
+            ScheduleSettings initScheduleSettings = new ScheduleSettings()
+            {
+                breakDurationMin = 20,
+                FinishTime = new TimeOnly(21, 0),
+                HasScheduleBreaks = false,
+                MaxWorkTimeBeforeBreakMin = 60,
+                MinWorkTimeBeforeBreakMin = 45,
+                StartTime = new TimeOnly(10, 09),
+                Id=1
+            };
+            modelBuilder.Entity<ScheduleSettings>().HasData(initScheduleSettings);
         }
         public MyDbContext(DbContextOptions options) :base(options)
         {

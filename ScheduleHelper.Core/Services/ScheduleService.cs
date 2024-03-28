@@ -176,6 +176,20 @@ namespace ScheduleHelper.Core.Services
 
             await inMemoryScheduleRepository.CleanTimeSlotInScheduleTable();
             var scheduleSettings = await _scheduleRepository.GetScheduleSettings();
+            if(scheduleSettings == null)
+            {
+                scheduleSettings = new ScheduleSettings()
+                {
+                    breakDurationMin = 20,
+                    MaxWorkTimeBeforeBreakMin = 60,
+                    MinWorkTimeBeforeBreakMin = 45,
+                    HasScheduleBreaks = false,
+                    FinishTime = new TimeOnly(21, 0),
+                    StartTime = new TimeOnly(9, 0)
+
+                };
+                
+            }
             await inMemoryScheduleRepository.UpdateScheduleSettings(scheduleSettings);
             _scheduleRepository = inMemoryScheduleRepository;
         }
