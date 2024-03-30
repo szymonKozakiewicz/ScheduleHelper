@@ -14,5 +14,6 @@ namespace ScheduleHelper.Core.Domain.RepositoryContracts
         public Task AddNewTask(SingleTask task);
         public Task<List<SingleTask>> GetTasks();
         public Task RemoveTaskWithId(Guid id);
+        public Task UpdateTask(SingleTask singleTask);
     }
 }

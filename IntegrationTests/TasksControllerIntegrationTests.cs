@@ -46,7 +46,7 @@ namespace ScheduleHelper.IntegrationTests
             
         }
         [Fact]
-        public async Task UpdateTask_ShouldBeSuccessful()
+        public async Task UpdateTaskGet_ShouldBeSuccessful()
         {
 
             var testTask = new SingleTask("Test", 234);
@@ -56,6 +56,34 @@ namespace ScheduleHelper.IntegrationTests
             string route = RouteConstants.UpdateTask + "?taskToEditId=" + testTask.Id.ToString();
             //act
             HttpResponseMessage response = await _client.GetAsync(route);
+
+            //assert
+            response.Should().BeSuccessful();
+
+
+        }
+
+        [Fact]
+        public async Task UpdateTaskPost_ShouldBeSuccessful()
+        {
+
+            var testTask = new SingleTask("Test", 234);
+
+            _dbContext.Add(testTask);
+            _dbContext.SaveChanges();
+            TaskCreateDTO model = new TaskCreateDTO()
+            {
+
+                Id = testTask.Id,
+                HasStartTime = false,
+                Name = testTask.Name,
+                StartTime = testTask.StartTime,
+                Time = testTask.TimeMin
+            };
+            HttpContent httpContent = PrepareHttpContentForAddNewTaksRequest(model);
+
+            //act
+            HttpResponseMessage response = await _client.PostAsync(RouteConstants.UpdateTask,httpContent);
 
             //assert
             response.Should().BeSuccessful();

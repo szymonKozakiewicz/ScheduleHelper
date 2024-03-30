@@ -46,6 +46,11 @@ namespace Infrastructure.Repositories
             await _dbContext.SaveChangesAsync();
         }
 
+        public async Task UpdateTask(SingleTask singleTask)
+        {
+            throw new NotImplementedException();
+        }
+
         private async Task removeTimeSlotsRelatedToTask(Guid id)
         {
             var relatedTimeSlots = _dbContext.TimeSlotsInSchedule.Where(ts => ts.task.Id == id).ToList();

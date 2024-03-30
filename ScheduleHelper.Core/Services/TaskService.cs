@@ -54,5 +54,10 @@ namespace ScheduleHelper.Core.Services
         {
             await _taskRepository.RemoveTaskWithId(taskToDeleteId);
         }
+
+        public Task UpdateTask(TaskCreateDTO newVersionOfTask)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

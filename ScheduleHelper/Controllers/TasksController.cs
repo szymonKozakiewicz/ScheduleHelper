@@ -117,6 +117,28 @@ namespace ScheduleHelper.UI.Controllers
         }
 
 
+        [Route(RouteConstants.UpdateTask)]
+        [HttpPost]
+        public async Task<IActionResult> EditTask([ModelBinder(typeof(TaskCreateBinder))] TaskCreateDTO newVersionOfTask)
+        {
+            ViewBag.Title = _taskslistTitle;
+            ViewBag.formHref = RouteConstants.UpdateTask;
+            TaskCreateDTO taskToEdit;
+            try
+            {
+                await _taskService.UpdateTask(newVersionOfTask);
+                Response.StatusCode = (int)HttpStatusCode.OK;
+                ViewBag.OperationStatus = "Task created!";
+            }
+            catch (Exception ex)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return View("OperationStatus");
+            }
+
+            return View("OperationStatus");
+        }
+
         [Route(RouteConstants.DeleteTask)]
         public async Task<IActionResult> DeleteTask(Guid taskToDeleteId)
         {

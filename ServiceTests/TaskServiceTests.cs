@@ -105,6 +105,44 @@ namespace ScheduleHelper.ServiceTests
 
         }
 
+
+        [Fact]
+        public async Task UpdateTask_ForValidId_RepositoryMehodUpdateTaskShouldBeCalled()
+        {
+            SingleTask? result = null;
+            repositoryMock.Setup(mock => mock.UpdateTask(It.IsAny<SingleTask>()))
+                .Callback((SingleTask task) => result = task);
+
+
+            var model = new TaskCreateDTO()
+            {
+                Name = "Test",
+                Time = 23,
+                HasStartTime = true,
+                StartTime = new TimeOnly(8, 0),
+                Id= Guid.NewGuid()
+
+            };
+
+            SingleTask expectedResult = new SingleTask()
+            {
+                Name = "Test",
+                HasStartTime = true,
+                TimeMin = 23,
+                StartTime = new TimeOnly(8, 0),
+                Id = Guid.NewGuid()
+
+            };
+
+            await _taskService.UpdateTask(model);
+
+
+            //assert
+
+            result.Should().Be(expectedResult);
+
+
+        }
         [Fact]
         public async Task GetTaskCreateDTOWithId_forValidId_ExpectThatItWillReturnExpectedTask()
         {

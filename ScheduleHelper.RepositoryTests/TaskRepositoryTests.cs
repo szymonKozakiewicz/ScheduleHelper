@@ -59,6 +59,44 @@ namespace ScheduleHelper.RepositoryTests
 
 
         [Fact]
+        public async Task UpdateTask_ForValidTask_ExpectThatTaskWillBeAddedToDatabase()
+        {
+
+            using (var dbcontext = new MyDbContext(builder.Options))
+            {
+                DbTestHelper.clearDatabase(dbcontext);
+                ITaskRespository taskRespository = new TaskRepository(dbcontext);
+                var taskToUpdate = new SingleTask
+                {
+                    HasStartTime = true,
+                    Name = "test1",
+                    TimeMin = 23,
+                    StartTime = new TimeOnly(22, 0)
+                };
+                dbcontext.Add(taskToUpdate);
+                dbcontext.SaveChanges();
+                var newVersionOfTask = new SingleTask
+                {
+                    HasStartTime = true,
+                    Name = "test1",
+                    TimeMin = 24,
+                    StartTime = new TimeOnly(22, 0),
+                    Id=taskToUpdate.Id
+                };
+
+
+                //act
+                await taskRespository.UpdateTask(taskToUpdate);
+                var updatedTask = dbcontext.SingleTask.FirstOrDefault(t => t.Name == "test1");
+
+                //assert
+                updatedTask.Should().Be(newVersionOfTask);
+
+            }
+
+        }
+
+        [Fact]
         public async Task GetTasks_ForGivenTasksInDb_ShouldReturnsTasksFromDb()
         {
            

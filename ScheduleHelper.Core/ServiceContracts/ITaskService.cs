@@ -10,5 +10,6 @@ namespace ScheduleHelper.Core.ServiceContracts
         Task<TaskCreateDTO> GetTaskCreateDTOWithId(Guid taskToDeleteId);
         public Task<List<TaskForEditListDTO>> GetTasksList();
         Task RemoveTaskWithId(Guid taskToDeleteId);
+        Task UpdateTask(TaskCreateDTO newVersionOfTask);
     }
 }
