@@ -110,13 +110,17 @@ namespace ScheduleHelper.Infrastructure.Repositories
 
             bool settingsExistsInDb = _dbContext.ScheduleSettings.ToList().Capacity != 0;
             var daySchedule= await GetDaySchedule();
-            if ( daySchedule==null)
+            if (daySchedule == null)
             {
                 daySchedule = new DaySchedule()
                 {
                     TimeFromLastBreakMin = 0,
                 };
 
+            }
+            else
+            {
+                _dbContext.DaySchedule.Remove(daySchedule);
             }
             if (settingsExistsInDb)
             {
