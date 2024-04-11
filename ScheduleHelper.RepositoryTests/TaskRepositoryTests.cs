@@ -59,7 +59,7 @@ namespace ScheduleHelper.RepositoryTests
 
 
         [Fact]
-        public async Task UpdateTask_ForValidTask_ExpectThatTaskWillBeAddedToDatabase()
+        public async Task UpdateTask_ForValidTask_ExpectThatTaskWillBeUpdatedInDatabase()
         {
 
             using (var dbcontext = new MyDbContext(builder.Options))
@@ -75,6 +75,7 @@ namespace ScheduleHelper.RepositoryTests
                 };
                 dbcontext.Add(taskToUpdate);
                 dbcontext.SaveChanges();
+                dbcontext.Entry(taskToUpdate).State = EntityState.Detached;
                 var newVersionOfTask = new SingleTask
                 {
                     HasStartTime = true,
@@ -86,7 +87,7 @@ namespace ScheduleHelper.RepositoryTests
 
 
                 //act
-                await taskRespository.UpdateTask(taskToUpdate);
+                await taskRespository.UpdateTask(newVersionOfTask);
                 var updatedTask = dbcontext.SingleTask.FirstOrDefault(t => t.Name == "test1");
 
                 //assert

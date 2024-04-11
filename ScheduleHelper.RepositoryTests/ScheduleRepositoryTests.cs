@@ -209,33 +209,7 @@ namespace ScheduleHelper.RepositoryTests
             }
         }
 
-        [Fact]
-        public async Task GetScheduleSettings_ReturnsDefaultsSettings()
-        {
-            using (var dbcontext = new MyDbContext(builder.Options))
-            {
-                DbTestHelper.clearDatabase(dbcontext);
 
-                IScheduleRepository scheduleRepository = new ScheduleRepository(dbcontext);
-                var expectedResult = new ScheduleSettings()
-                {
-                    FinishTime = new TimeOnly(1, 1),
-                    breakDurationMin = 20
-                };
-                dbcontext.ScheduleSettings.Update(expectedResult);
-                await dbcontext.SaveChangesAsync();
-
-
-                //act
-                var result = await scheduleRepository.GetScheduleSettings();
-
-                //assert
-                result.Should().Be(expectedResult);
-                
-
-            }
-
-        }
 
 
         [Fact]

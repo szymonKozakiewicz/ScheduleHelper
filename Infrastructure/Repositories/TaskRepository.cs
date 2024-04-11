@@ -48,7 +48,19 @@ namespace Infrastructure.Repositories
 
         public async Task UpdateTask(SingleTask singleTask)
         {
-            throw new NotImplementedException();
+
+            var taskToUpdate = await _dbContext.SingleTask.AsNoTracking().Where(a => a.Id == singleTask.Id)
+            .FirstAsync();
+            if (taskToUpdate != null)
+            {
+                _dbContext.SingleTask.Update(singleTask);
+                await _dbContext.SaveChangesAsync();
+
+            }
+            else
+            {
+                throw new ArgumentException("Task not exists in db");
+            }
         }
 
         private async Task removeTimeSlotsRelatedToTask(Guid id)
@@ -56,7 +68,7 @@ namespace Infrastructure.Repositories
             var relatedTimeSlots = _dbContext.TimeSlotsInSchedule.Where(ts => ts.task.Id == id).ToList();
             if (relatedTimeSlots.Any())
             {
-                // Jeśli istnieją powiązane rekordy, możesz je usunąć lub zaktualizować w zależności od wymagań biznesowych
+
                 _dbContext.TimeSlotsInSchedule.RemoveRange(relatedTimeSlots);
                 await _dbContext.SaveChangesAsync();
             }
