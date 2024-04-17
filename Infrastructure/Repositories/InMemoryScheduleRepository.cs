@@ -29,6 +29,11 @@ namespace ScheduleHelper.Infrastructure.Repositories
             _timeSlotsList.Add(timeSlot);
         }
 
+        public async Task AddScheduleSettings(ScheduleSettings scheduleSettings)
+        {
+            _scheduleSettings=scheduleSettings;
+        }
+
         public async Task CleanTimeSlotInScheduleTable()
         {
             _timeSlotsList=new TimeSlotsList();

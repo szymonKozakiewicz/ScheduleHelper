@@ -39,6 +39,7 @@ namespace ScheduleHelper.Core.Services
             
             await _scheduleRepository.CleanTimeSlotInScheduleTable();
             var tasksList = await _taskRepository.GetTasks();
+
             await updateScheduleSettings(scheduleSettings);
             _scheduleSettings=await _scheduleRepository.GetScheduleSettings();
             await updateDaySchedule();
@@ -202,7 +203,7 @@ namespace ScheduleHelper.Core.Services
             List<TimeSlotInSchedule>flexibleSlotsList= getTimeSlotsForTasks(flexibleTasks,scheduleSettings);
             List<TimeSlotInSchedule>allTimeSlots=new List<TimeSlotInSchedule>(flexibleSlotsList);
             allTimeSlots.AddRange(fixedTimeSlots);
-
+            
             await loopWhichBuildScheduleByAdjustingSlots(scheduleSettings.StartTime, scheduleSettings,allTimeSlots);
 
         }
@@ -359,14 +360,6 @@ namespace ScheduleHelper.Core.Services
         }
 
 
-
-        private async Task updateScheduleSettings(ScheduleSettingsDTO scheduleSettings)
-        {
-            var scheduleSettingsForDb = new ScheduleSettings(scheduleSettings);
-
-
-            await _scheduleRepository.UpdateScheduleSettings(scheduleSettingsForDb);
-        }
 
 
     }

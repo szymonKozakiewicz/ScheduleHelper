@@ -10,6 +10,7 @@ using IterationState = ScheduleHelper.Core.Services.Helpers.IterationStateForGen
 using TimeSlotsList = System.Collections.Generic.List<ScheduleHelper.Core.Domain.Entities.TimeSlotInSchedule>;
 using static ScheduleHelper.Core.Services.Helpers.GenerateScheduleTools;
 using ScheduleHelper.Core.Domain.Entities.Helpers;
+using ScheduleHelper.Core.DTO;
 
 namespace ScheduleHelper.Core.Services
 {
@@ -84,7 +85,22 @@ namespace ScheduleHelper.Core.Services
             }
         }
 
+        protected async Task updateScheduleSettings(ScheduleSettingsDTO scheduleSettings)
+        {
+            var scheduleSettingsForDb = new ScheduleSettings(scheduleSettings);
+            await addOrUpdateScheduleSettings(scheduleSettingsForDb);
 
+        }
+
+        protected async Task addOrUpdateScheduleSettings(ScheduleSettings scheduleSettingsForDb)
+        {
+            var currentScheduleSettings = await _scheduleRepository.GetScheduleSettings();
+            bool isAnyScheduleSettingsInDb = currentScheduleSettings != null;
+            if (isAnyScheduleSettingsInDb)
+                await _scheduleRepository.UpdateScheduleSettings(scheduleSettingsForDb);
+            else
+                await _scheduleRepository.AddScheduleSettings(scheduleSettingsForDb);
+        }
         protected async Task<TimeSlotsList> getActiveTimeSlotsSortedWithStartTime()
         {
             TimeSlotsList activeSlots = await _scheduleRepository.GetActiveSlots();

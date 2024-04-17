@@ -45,7 +45,7 @@ namespace ScheduleHelper.Core.Services
         public async Task UpdateSettings(ScheduleSettingsDTO scheduleSettingsDto)
         {
             var newScheduleSettings = new ScheduleSettings(scheduleSettingsDto);
-            await _scheduleRepository.UpdateScheduleSettings(newScheduleSettings);
+            await updateScheduleSettings(scheduleSettingsDto);
             TimeOnly currentTime = await getCurrentTime(newScheduleSettings);
             var daySchedule = await _scheduleRepository.GetDaySchedule();
             bool previousScheduleExist = daySchedule != null;
