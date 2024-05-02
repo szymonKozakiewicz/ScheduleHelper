@@ -1,5 +1,66 @@
-﻿.btnSetNow
-{
-    margin-left: 1rem;
-    padding: 0.3rem
+﻿.btnSetNow {
+    padding: 0.3rem;
+    width: 30%;
+    --bs-btn-font-size: 0.9rem;
+    margin-left: 0.5rem;
+    min-width: fit-content;
+}
+
+.checkBoxDiv {
+    min-height: 3rem
+}
+
+@media screen and (min-width: 768px) { 
+    .checkBoxBreaks {
+        margin-top: 1rem;
+        margin-bottom: 0.7rem
+    }
+}
+
+@media screen and (max-width: 767px) {
+    .checkBoxBreaks {
+        margin-top: .45rem;
+        
+    }
+}
+
+
+
+
+.btnSubmit {
+    width: 13.5rem;
+    background-color: #2998FF;
+    --bs-btn-border-color: #2998FF;
+    --bs-btn-font-size: 1.3rem
+}
+.btnBack {
+
+    --bs-btn-font-size: 1.3rem ;
+    width: 13.5rem;
+
+}
+
+
+
+.btnBack:hover {
+    border-color: #DE8F6E;
+    background-color: #DE8F6E;
+    color: white;
+}
+
+
+.formContainer {
+
+    width:50rem;
+    background-color: #FFFFFF;
+}
+
+
+
+.inputText{
+    height:2.3rem
+}
+
+.inputWithTimeToBeSetOnCurrent{
+    width:70.65555%
 }

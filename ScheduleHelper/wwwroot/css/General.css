@@ -1,0 +1,31 @@
+﻿.btn-primary {
+    --bs-btn-bg: #2998FF;
+    --bs-btn-border-color: #2998FF;
+}
+
+
+.form-check-input:checked {
+    background-color: #2998FF;
+    border-color: #2998FF;
+}
+
+.btnSecondary {
+    border-color: #DE8F6E;
+    background-color: white;
+    color: #DE8F6E;
+}
+
+.btnSecondary:hover {
+    border-color: #DE8F6E;
+    background-color: #DE8F6E;
+    color: white;
+}
+
+.blueFont {
+    color: #2998ff;
+}
+
+body {
+    
+    font-family: "Plus Jakarta Sans", sans-serif;
+}

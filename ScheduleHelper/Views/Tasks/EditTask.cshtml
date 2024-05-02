@@ -1,28 +1,52 @@
 ﻿@using ScheduleHelper.Core.DTO;
-
+@{
+    Layout = "~/Views/Shared/_LayaoutForms.cshtml";
+}
 @model TaskCreateDTO
-<div class="container">
-    <form action=@ViewBag.formHref method="post">
-        <label for="Name">Taks name:</label>
-        <input asp-for="Name" />
+<partial name="_Logo">
+<div class="container-fluid d-flex justify-content-center mt-5">
+   <div class="formContainer rounded-4 d-flex flex-column">
+        <h2 class="blueFont mb-5 text-center">New task</h2>
+        <form action=@ViewBag.formHref method="post">
+            <div class="col-12  d-flex flex-column mt-3">
+            <label for="Name">Task name:</label>
+            <input class="form-control" asp-for="Name" />
+            </div>
 
-        <br />
+            <div class="col-12  d-flex flex-column mt-3">
+            <label>Task duration:</label>
+            <input class="form-control" type="number" step="0.5" asp-for="Time" />
+            </div>
 
-        <label>Task duration:</label>
-        <input type="number" step="0.5" asp-for="Time" />
-        <br />
-        <label>Has start time</label>
-        <input asp-for=HasStartTime type="checkbox" />
-        <br />
-        <label>Start time</label>
-        <input asp-for=StartTime type="time" disabled />
-        <br />
-        <input type="submit" value="Save" />
-    </form>
+            <div class="col-12  d-flex flex-column mt-3">
+            <label>Has start time</label>
+            <input class="form-check-input" asp-for=HasStartTime type="checkbox" />
+            </div>
 
-    <a href="/">back</a>
+            <div class="col-12  d-flex flex-column mt-3">
+                <label>Start time</label>
+                <input class="form-control" asp-for=StartTime type="time" disabled />
+            </div>
+
+            <div class="col-12  mt-4 d-flex flex-column flex-md-row justify-content-center">
+                <div class="d-flex   justify-content-md-end justify-content-center">
+                    <input class="btn btn-primary btnSubmit rounded-4 " type="submit" value="Save"></input>
+                </div>
+                <div class="d-flex mt-md-0 mt-2 ms-md-4 btnBackDiv justify-content-center justify-content-md-start">
+                    <a class="btn btnSecondary btn-primary rounded-4 btnBack" href=@RouteConstants.ShowTasksList>Cancel</a>
+                </div>
+
+            </div>
+        </form>
+    </div>
+
 @section js
 {
     <script src="~/js/ToggleAvaiableStatusWhenCheckBoxChange.js?v=7.0"></script>
+}
+@section css
+    {
+    <link rel="stylesheet" href="css/AddTaskStyles.css">
+
 }
 </div>

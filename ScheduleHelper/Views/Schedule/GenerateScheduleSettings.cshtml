@@ -1,12 +1,20 @@
-﻿<div class="container">
-    <partial name="_GenerateScheduleForm">
+﻿@{
+    Layout = "~/Views/Shared/_LayaoutForms.cshtml";
+}
+<partial name="_Logo">
+<div class="container-fluid d-flex justify-content-center mt-5">
+    <div class="formContainer p-5 rounded-4">
+        <h2 class="blueFont mb-5 text-center">Generate shedule</h2>
+        <partial name="_GenerateScheduleForm">
+    </div>
 </div>
 @section js
-{
+    {
     <script src="~/js/SetNow.js?v=3"></script>
 }
 
 @section css
-{
+    {
     <link rel="stylesheet" href="css/GenerateScheduleForm.css">
+
 }

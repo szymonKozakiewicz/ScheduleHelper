@@ -1,26 +1,50 @@
 ﻿@using ScheduleHelper.Core.DTO;
 @model ScheduleSettingsDTO;
-<form method="post" action=@ViewBag.actionForForm>
-    <h1>Generate shedule</h1>
-    <label>Start time</label>
-    <input class="inputWithTimeToBeSetOnCurrent" asp-for=startTime type="time" />
-    <button  type="button" class="btn btn-primary btnSetNow">Set now</button>
-    <br />
-    <label asp-for="finishTime">Finish time</label>
-    <input asp-for=finishTime type="time" />
-    <br />
-    <label>Breaks</label>
-    <input asp-for=hasScheduledBreaks type="checkbox" />
-    <br />
-    <label>Break lenght(minutes)</label>>
-    <input asp-for=breakLenghtMin type="number" />
-    </br>
-    <label>Minimal time between breaks</label>>
 
-    <input asp-for="MinWorkTimeBeforeBreakMin"></input>
-    <br />
-    <label>Max time between breaks</label>>
-    <input asp-for="MaxWorkTimeBeforeBreakMin"></input>
-    </br>
-    <input type="submit" value="Generate schedule"></input>
+
+
+
+<form method="post" action=@ViewBag.actionForForm>
+    <div class="row">
+
+        <div class="col-12 col-md-6 d-flex flex-column mt-3">
+            <label>Star time</label>
+            <div class="form-element-conatiner d-flex flex-row justify-content-between">
+                <input class="inputWithTimeToBeSetOnCurrent inputText col-8 form-control" asp-for=startTime type="time" />
+                <button type="button" class="btn btn-primary btnSetNow ">Set now</button>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6  d-flex flex-column mt-3">
+            <label asp-for="finishTime">Finish time</label>
+            <input class="inputText form-element-conatiner form-control" asp-for=finishTime type="time" />
+        </div>
+        <div class="checkBoxDiv col-12 col-md-6  d-flex flex-column align-content-start mt-3">
+            <label>Breaks</label>
+            <input class="checkBoxBreaks col form-check-input" asp-for=hasScheduledBreaks type="checkbox" />
+        </div>
+        <div class="col-12 col-md-6  d-flex flex-column mt-3">
+            <label>Break lenght(minutes)</label>
+            <input class="inputText form-element-conatiner form-control" asp-for=breakLenghtMin type="number" />
+        </div>
+        <div class="col-12 col-md-6  d-flex flex-column mt-3">
+            <label>Minimal time between breaks</label>
+            <input class="inputText form-element-conatiner form-control" asp-for="MinWorkTimeBeforeBreakMin"></input>
+        </div>
+        <div class="col-12 col-md-6  d-flex flex-column mt-3">
+            <label>Max time between breaks</label>
+            <input class="inputText form-element-conatiner form-control" asp-for="MaxWorkTimeBeforeBreakMin"></input>
+        </div>
+
+        <div class="col-12  mt-4 d-flex flex-column flex-md-row justify-content-center">
+            <div class="d-flex   justify-content-md-end justify-content-center">
+                <input class="btn btn-primary btnSubmit rounded-4 " type="submit" value="Generate schedule"></input>
+            </div>
+            <div class="d-flex mt-md-0 mt-2 ms-md-4 btnBackDiv justify-content-center justify-content-md-start">
+                <a class="btn btnSecondary btn-primary rounded-4 btnBack" href=@RouteConstants.ShowTasksList>Cancel</a>
+            </div>
+
+        </div>
+
+    </div>
 </form>
