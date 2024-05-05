@@ -4,6 +4,7 @@ using ScheduleHelper.Core.Domain.Entities;
 using ScheduleHelper.Core.Domain.RepositoryContracts;
 using ScheduleHelper.Core.DTO;
 using ScheduleHelper.Core.Services;
+using ScheduleHelper.Core.Services.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -83,9 +84,9 @@ namespace ScheduleHelper.ServiceTests
 
             //assert
             resultList.Count.Should().Be(3);
-            resultList.Should().Contain(covertSingleTaskToTaskForEditListDTO(task1));
-            resultList.Should().Contain(covertSingleTaskToTaskForEditListDTO(task2));
-            resultList.Should().Contain(covertSingleTaskToTaskForEditListDTO(task3));
+            resultList.Should().Contain(EntityToDtoConverter.ConvertSingleTaskToTaskCreatDTO((task1)));
+            resultList.Should().Contain(EntityToDtoConverter.ConvertSingleTaskToTaskCreatDTO((task2)));
+            resultList.Should().Contain(EntityToDtoConverter.ConvertSingleTaskToTaskCreatDTO((task3)));
 
         }
 

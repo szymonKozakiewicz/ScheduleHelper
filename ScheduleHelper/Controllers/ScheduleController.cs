@@ -73,6 +73,7 @@ namespace ScheduleHelper.UI.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateScheduleSettings([ModelBinder(typeof(ScheduleSettingsBinder))] ScheduleSettingsDTO scheduleSettingsDto)
         {
+            ViewBag.ShowBtnBackToSchedule = false;
             if (ValidationHelper.HasObjectGotValidationErrors(scheduleSettingsDto))
             {
                 setFailedStatusAddErrorsToViewBag();
@@ -85,6 +86,7 @@ namespace ScheduleHelper.UI.Controllers
             catch (Exception ex)
             {
                 ViewBag.OperationStatus = ConstantsValues.FailedOperation;
+                
                 Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 return View("OperationStatusSchedule");
             }
@@ -99,9 +101,9 @@ namespace ScheduleHelper.UI.Controllers
         public async Task<IActionResult> GenerateSchedule([ModelBinder(typeof(ScheduleSettingsBinder))] ScheduleSettingsDTO scheduleSettings)
         {
 
-            
 
-            if(ValidationHelper.HasObjectGotValidationErrors(scheduleSettings))
+            ViewBag.ShowBtnBackToSchedule = true;
+            if (ValidationHelper.HasObjectGotValidationErrors(scheduleSettings))
             {
                 setFailedStatusAddErrorsToViewBag();
                 return View("OperationStatusSchedule");
@@ -135,6 +137,7 @@ namespace ScheduleHelper.UI.Controllers
         [HttpPost]
         public async Task<IActionResult> FinaliseTimeSlot(FinaliseSlotDTO model)
         {
+            ViewBag.ShowBtnBackToSchedule = true;
             try
             {
                 await _updateService.FinaliseTimeSlot(model);

@@ -1,0 +1,25 @@
+﻿.formContainer {
+    padding-top: 6rem;
+    padding-bottom: 6rem;
+    padding-left: 15%;
+    padding-right: 15%;
+}
+
+@media screen and (min-width: 1100px){
+    .formContainer {
+        padding-left: 9rem;
+        padding-right: 9rem;
+    }
+}
+
+.btnSetNow {
+    padding: 0.3rem;
+
+    --bs-btn-font-size: 0.9rem;
+    margin-left: 0.5rem;
+    min-width: 6rem;
+}
+
+.btnFinishAndCancel{
+
+}

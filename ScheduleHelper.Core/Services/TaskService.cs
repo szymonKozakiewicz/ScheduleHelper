@@ -42,10 +42,10 @@ namespace ScheduleHelper.Core.Services
             return taskCreateDTO;
         }
 
-        public async Task<List<TaskForEditListDTO>> GetTasksList()
+        public async Task<List<TaskCreateDTO>> GetTasksList()
         {
            var tasksList =await _taskRepository.GetTasks();
-           var tasksDTOList=tasksList.Select(task=>covertSingleTaskToTaskForEditListDTO(task))
+           var tasksDTOList=tasksList.Select(task=> EntityToDtoConverter.ConvertSingleTaskToTaskCreatDTO(task))
                 .ToList();
             return tasksDTOList;
         }

@@ -3,10 +3,34 @@
     --bs-btn-border-color: #2998FF;
 }
 
+.btnAddTask {
+
+    padding-top: 0.85rem;
+}
+
+
+a {
+    text-decoration: none;
+    
+}
+.roundedBlueBtn {
+    --bs-btn-bg: #2998FF;
+    --bs-btn-border-color: #2998FF;
+    border-radius: 2rem;
+}
 
 .form-check-input:checked {
     background-color: #2998FF;
     border-color: #2998FF;
+}
+
+.secondaryTitle {
+    margin-left: 0.3rem;
+    opacity: 70%;
+}
+
+.mainTitle{
+    font-size:2rem;
 }
 
 .btnSecondary {
@@ -25,7 +49,15 @@
     color: #2998ff;
 }
 
+.blueFont:hover {
+    color: #2381D9
+}
+
+.nav-link {
+    font-size: 1.3rem;
+    font-weight: 500;
+}
+
 body {
-    
     font-family: "Plus Jakarta Sans", sans-serif;
 }

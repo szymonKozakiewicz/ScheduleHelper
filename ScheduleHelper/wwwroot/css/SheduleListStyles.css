@@ -1,0 +1,27 @@
+﻿.generateScheduleBtn {
+    font-weight: 500;
+    border-color: #2998FF;
+    background-color: #2998FF;
+    color: white;
+    border-radius: 1.5rem;
+    font-size:1.1rem
+}
+
+.slotStatus {
+    width: 5rem;
+}
+
+
+.finishButton {
+    letter-spacing: 0.1rem;
+    font-weight: 500;
+
+
+}
+td {
+    height: 3.5rem;
+    vertical-align:middle
+}
+.td {
+    font-size: 1.2rem;
+}

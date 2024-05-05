@@ -24,7 +24,7 @@ namespace ScheduleHelper.UI.Controllers
         [Route(RouteConstants.ShowTasksList)]
         public async Task<IActionResult> TasksList()
         {
-            List<TaskForEditListDTO> tasks=await _taskService.GetTasksList();
+            List<TaskCreateDTO> tasks=await _taskService.GetTasksList();
 
             double freeTime=await _scheduleService.CalculateAvaiableFreeTimeBasedOnExistingTasks();
             ViewBag.EstimatedFreeTime = freeTime;

@@ -2,18 +2,34 @@
 @using ScheduleHelper.Core.Domain.Entities.Enums;
 @model List<TimeSlotInScheduleDTO>
 
-<div class="container">
-
-    <h1>Schedule</h1>
+<div class="mt-5">
 
 
+    
+    <div class="col-7 d-flex flex-column justify-content-between ">
+        <div>
+            <h1 class="mainTitle">Schedule</h1>
+            <p class="secondaryTitle mb-5">View all setps in schedule</p>
+        </div>
 
-    <table>
+    </div>
+
+
+
+
+    <div class="d-flex justify-content-start w-100">
+        <a class=" btn btn-primary generateScheduleBtn mb-2" href=@RouteConstants.GenerateScheduleSettings>Generate new schedule</a>
+    </div>
+    
+    <table class="table">
         <thead>
             <tr>
-                <th>Task name</th>
-                <th>Start</th>
-                <th>Finish</th>
+                <th class="col colBlue">Task name</th>
+                <th class="col colBlue">Start</th>
+                <th class="col colBlue">End</th>
+                <th class="col colBlue"></th>
+
+
             </tr>
         </thead>
         <tbody>
@@ -33,48 +49,50 @@
                     <td class=@statusClass>@slot.FinishTime</td>
                     @if (slot.Status == TimeSlotStatus.Active)
                     {
-                        <td><a href="@RouteConstants.FinishTimeSlot?slotId=@slot.Id&finishTime=@slot.FinishTime">finish</a></td>
-                    }
+                        <td class="text-center">
+                            <a class="btnSecondary btn slotStatus finishButton" href="@RouteConstants.FinishTimeSlot?slotId=@slot.Id&finishTime=@slot.FinishTime">Finish</a>
+                        </td>
+                    }else
+                    {
+                        @if (slot.Status == TimeSlotStatus.Canceled)
+                        {
+                            <td class="d-flex justify-content-center">
+                                <div class="d-flex justify-content-center slotStatus">
+                                    <i class="bi bi-x-lg canceledIcon"></i>
+                                </div>
+                            </td>
+                        }
+                        else
+                        {
+
+                            <td class="d-flex justify-content-center">
+                                <div class="d-flex justify-content-center slotStatus">
+                                        <i class="bi bi-check-lg finishedIcon"></i>
+                                    </div>
+                                </td>
+                           
+
+                        }
+
+                }
 
                 </tr>
             }
         </tbody>
     </table>
 
-
-    @if (ViewBag.tasksNotInSchedule.Count != 0)
-    {
-        <h2>Tasks not set in schedule:</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Task name</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var slot in ViewBag.tasksNotInSchedule)
-                {
-
-                    <tr>
-                        <td>@slot.Name</td>
-
-                    </tr>
-                }
-            </tbody>
-        </table>
-    }
-
-    <div class="chart-container">
-        <canvas id="myChart" width="400" height="400"></canvas>
+    <h2 class="mt-5 mb-3 text-center">Statistics</h2>
+    <div class="d-flex justify-content-center mb-4">
+        <div class="  chart-container">
+            <canvas id="myChart" width="250" height="250"></canvas>
+        </div>
     </div>
+ 
 
 
-    <div class="links">
-        <a href=@RouteConstants.ShowTasksList>Edit tasks list</a>
-        <a href=@RouteConstants.GenerateScheduleSettings>Generate schedule</a>
-        <a href=@RouteConstants.ShowScheduleSettings>Show settings</a>
-    </div>
 </div>
+
+
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -102,4 +120,5 @@
 {
     <link rel="stylesheet" href="css/ChartStyles.css">
     <link rel="stylesheet" href="css/SlotsStyles.css">
+    <link rel="stylesheet" href="css/SheduleListStyles.css">
 }

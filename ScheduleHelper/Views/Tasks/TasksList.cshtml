@@ -1,13 +1,22 @@
 ﻿@using ScheduleHelper.Core.DTO;
-@model List<TaskForEditListDTO>
-<div class="container">
-    <h1>Tasks List</h1>
-    <table>
-        <thead>
+@model List<TaskCreateDTO>
+<div class="mt-5">
+    <h1 class="mainTitle">Tasks List</h1>
+    <p class="secondaryTitle mb-5">View all tasks in schedule</p>
+    <div class="w-100 d-flex justify-content-between" ">
+        <div>
+            <span class="labAvaiableTime">Avaiable free time</span><span class="avaiableTime">: @ViewBag.EstimatedFreeTime min</span>
+            <p class="avaiableTimeDownLabel">To change base amount of time <a class="blueFont" href=@RouteConstants.ShowScheduleSettings>update settings</a></p>
+        </div>
+        <a class="mb-2 btn btnAddTask btn-primary roundedBlueBtn" href=@RouteConstants.AddNewTask>add new task+</a>
+    </div>
+    <table class="table">
+        <thead class="table-dark">
             <tr>
-                <th>Task name</th>
-                <th></th>
-                <th></th>
+                <th class="col colBlue">Task name</th>
+                <th class="col colBlue">Duration</th>
+                <th class="col colBlue d-none d-sm-table-cell">Fixed start</th>
+                <th class="col colBlue"></th>
             </tr>
         </thead>
         <tbody>
@@ -19,15 +28,33 @@
 
                 <tr>
                     <td>@task.Name</td>
-                    <td> <a href=@editRoute style="color: blue">Edit</a> </td>
-                    <td> <a href=@deleteRoute style="color: red">Delete</a> </td>
+                    <td>@task.Time</td>
+                    @if(task.HasStartTime)
+                    {
+                        <td class="d-none d-sm-table-cell">@task.StartTime</td>
+                    }
+                    else
+                    {
+                        <td class="d-none d-sm-table-cell">No</td>
+                    }
+                    <td class="justify-content-end d-flex">
+                        <a href=@editRoute class="bi bi-pencil-square me-3"></a>
+                        <a href=@deleteRoute class="bi bi-x-circle me-3"></a>
+                    </td>
+
                 </tr>
             }
         </tbody>
     </table>
-    <p><span class="fw-bold">Free time left:</span> @ViewBag.EstimatedFreeTime minutes</p>
-    <a href=@RouteConstants.AddNewTask>Add new task</a>
-    <a href=@RouteConstants.ShowSchedule>Go to shedule</a>
-    <a href=@RouteConstants.ShowScheduleSettings>Show settings</a>
+    <div class="d-flex justify-content-center">
+        <a class="mb-5 mt-2 btn btnSecondary generateScheduleBtn" href=@RouteConstants.GenerateScheduleSettings>Generate Schedule</a>
+    </div>
 </div>
+
+
+@section css
+{
+    <link rel="stylesheet" href="css/TasksListStyles.css">
+
+}
 

@@ -1,6 +1,25 @@
-﻿<div class="container">
-    <h1>@ViewBag.OperationStatus</h1>
-    <partial name="_errorList">
+﻿@{
+    Layout = "~/Views/Shared/_LayaoutForms.cshtml";
+}
+<partial name="_Logo">
+<div class="container-fluid d-flex justify-content-center mt-5">
+    <div class="formContainer rounded-4 d-flex flex-column ">
+        <h1>@ViewBag.OperationStatus</h1>
+        <partial name="_errorList">
+        @if (ViewBag.ShowBtnBackToSchedule)
+        {
+            <a class="btn btn-primary rounded-4 mb-2 mt-5" href=@RouteConstants.ShowSchedule>Go to schedule</a>
+        }
+        else
+        {
+                    <a class="btn btn-primary rounded-4 mb-2 mt-5" href=@RouteConstants.ShowTasksList>Go to tasks list</a>
+        }
 
-        <a href=@RouteConstants.ShowSchedule>Go to schedule</a>
+
+    </div>
 </div>
+@section css
+    {
+    <link rel="stylesheet" href="css/OperationStatusStyles.css">
+
+}

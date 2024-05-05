@@ -1,4 +1,18 @@
-﻿<h1>@ViewBag.OperationStatus</h1>
-<partial name="_errorList">
-<a href=@RouteConstants.ShowTasksList>Back to task lists</a>
-<a href=@RouteConstants.AddNewTask>Create new task</a>
+﻿@{
+    Layout = "~/Views/Shared/_LayaoutForms.cshtml";
+}
+<partial name="_Logo">
+<div class="container-fluid d-flex justify-content-center mt-5">
+        <div class="formContainer rounded-4 d-flex flex-column ">
+    <h1>@ViewBag.OperationStatus</h1>
+    <partial name="_errorList">
+
+        <a class="btn btn-primary rounded-4 mb-2 mt-5" href=@RouteConstants.ShowTasksList>Back to task lists</a>
+        <a class="btn btnSecondary rounded-4" href=@RouteConstants.AddNewTask>Create new task</a>
+</div>
+
+@section css
+{
+    <link rel="stylesheet" href="css/OperationStatusStyles.css">
+
+}

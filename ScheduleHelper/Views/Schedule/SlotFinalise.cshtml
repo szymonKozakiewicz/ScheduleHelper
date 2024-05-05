@@ -1,23 +1,40 @@
 ﻿@model FinaliseSlotDTO;
 @using ScheduleHelper.Core.DTO
 
+@{
+    Layout = "~/Views/Shared/_LayaoutForms.cshtml";
+}
+<partial name="_Logo">
+<div class="container-fluid d-flex justify-content-center mt-5">
+        <div class="formContainer rounded-4 d-flex flex-column ">
+            <h1>Finish time slot</h1>
 
-<div class="container">
-    <h1>Finish time slot</h1>
-
-    <form action=@RouteConstants.FinishTimeSlot method="post">
-
-        <label for="FinishTime">When slot was finished</label>
-        <input class="inputWithTimeToBeSetOnCurrent" asp-for=FinishTime type="time" />
-        <button type="button" class="btn btn-primary btnSetNow">Set now</button>
-        <input asp-for=SlotId hidden />
-        <br />
-        <input type="submit" value="Send" />
-    </form>
-
+            <form class="mt-4" action=@RouteConstants.FinishTimeSlot method="post">
+                <label  for="FinishTime">When slot was finished</label>
+                <div class="d-flex mb-4 mt-2">
+                    
+                        
+                    <input class="inputWithTimeToBeSetOnCurrent form-control" asp-for=FinishTime type="time" />
+                    
+                    <button type="button" class="btn btn-primary btnSetNow">Set now</button>
+                </div>
+                <input asp-for=SlotId hidden />
+                <br />
+                <div class="d-flex justify-content-center">
+                    <input class="btn-primary btn rounded-4 me-2 btnFinishAndCancel  w-100" type="submit" value="Finalise" />
+                    <a href=@RouteConstants.ShowSchedule class ="btnSecondary btn rounded-4 btnFinishAndCancel w-100">Cancel</a>
+                </div>
+            </form>
+        </div>
 </div>
 
 @section js
 {
     <script src="~/js/SetNow.js?v=4"></script>
+}
+
+@section css
+    {
+    <link rel="stylesheet" href="css/OperationStatusStyles.css">
+
 }

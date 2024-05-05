@@ -1,0 +1,35 @@
+﻿.labAvaiableTime
+{
+    font-weight:600;
+}
+.avaiableTimeDownLabel {
+    font-size: 0.85rem;
+    opacity: 0.8;
+}
+
+
+
+.generateScheduleBtn {
+    font-weight: 500;
+    border-color: #DE8F6E;
+    background-color: #DE8F6E;
+    color: white;
+    border-radius: 1.5rem;
+    letter-spacing: 0.1rem;
+}
+
+.generateScheduleBtn:hover {
+    border-color: #d76535;
+    background-color: #d76535;
+    
+}
+    
+.bi-pencil-square {
+    color: #2998FF;
+    font-size: 1.2rem;
+}
+
+.bi-x-circle {
+    color: #CD2035;
+    font-size:1.2rem;
+}

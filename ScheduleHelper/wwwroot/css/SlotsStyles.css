@@ -1,12 +1,17 @@
-﻿.finished
-{
-    color:green
+﻿.finished:not(caption) {
+    color: green;
+    
 }
 
-.canceled {
+
+
+.canceled:not(caption) {
     color: red;
     text-decoration: line-through;
+    font-size: 1.2rem
 }
+
+
 
 
 
