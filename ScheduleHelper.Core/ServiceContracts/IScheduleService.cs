@@ -17,6 +17,6 @@ namespace ScheduleHelper.Core.ServiceContracts
         public Task<int> GetShareOfTimeOfSlotsWithStatus(TimeSlotStatus status);
         Task<List<TaskForEditListDTO>> GetTasksNotSetInSchedule();
         public Task<List<TimeSlotInScheduleDTO>> GetTimeSlotsList();
-
+        public Task<bool> IsTaskFixed(Guid? slotId);
     }
 }

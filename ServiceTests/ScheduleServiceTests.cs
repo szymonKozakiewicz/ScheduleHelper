@@ -312,6 +312,31 @@ namespace ScheduleHelper.ServiceTests
         }
 
 
+        [Fact]
+        public async Task IsTaskFixed_forValidId_ShouldGetSlotFromRepositoryAndReturnIsTaskIsFixed()
+        {
+            SingleTask task = new SingleTask()
+            {
+                HasStartTime = true,
+                Name = "test task",
+                StartTime = new TimeOnly(1, 0),
+                TimeMin = 20
+                
+            };
+           
+            var timeSlot=new TimeSlotInSchedule() {Id=Guid.NewGuid(), task=task, StartTime = new TimeOnly(1, 0), FinishTime = new TimeOnly(2, 0), Status = TimeSlotStatus.Active };
+            this._scheduleRespositorMock.Setup(m => m.GetTimeSlot(It.IsAny<Guid>()))
+               .ReturnsAsync(timeSlot);
+
+            //act
+            bool result=await _scheduleService.IsTaskFixed(timeSlot.Id);
+
+            //assert
+            result.Should().BeTrue();
+            _scheduleRespositorMock.Verify(x => x.GetTimeSlot(It.IsAny<Guid>()), Times.Once);
+
+
+        }
         private void setupMockMethodsForGeneratingSchedule(List<SingleTask> tasksListsInMemory, List<TimeSlotInSchedule> listOfSlotsPassedAsArgument, ScheduleSettingsDTO testScheduleSettings)
         {
             DaySchedule newDaySchedule = new DaySchedule

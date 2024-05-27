@@ -10,13 +10,24 @@
             <h1>Finish time slot</h1>
 
             <form class="mt-4" action=@RouteConstants.FinishTimeSlot method="post">
-                <label  for="FinishTime">When slot was finished</label>
-                <div class="d-flex mb-4 mt-2">
+                <div>
+                    <label  for="FinishTime">When slot was finished</label>
+                    <div class="d-flex mb-4 mt-2">
                     
                         
-                    <input class="inputWithTimeToBeSetOnCurrent form-control" asp-for=FinishTime type="time" />
+                        <input class="inputWithTimeToBeSetOnCurrent form-control" asp-for=FinishTime type="time" />
                     
-                    <button type="button" class="btn btn-primary btnSetNow">Set now</button>
+                        <button type="button" class="btn btn-primary btnSetNow">Set now</button>
+                    </div>
+                </div>
+                <div @if (ViewBag.isTaskFixed) {<text>style="display: none;"</text>}>
+                    <label for="ComplitedShareOfTask">What share of task was complited</label>
+                    
+                    <div  class="d-flex mb-4 mt-2">
+
+                        <input class="form-range rangeSlider " value="100" type="range" min="0" max="100" asp-for=ComplitedShareOfTask />
+                        <label class="rangeLabel text-end sucessColor" id="labShareOfComplited" asp-for="ComplitedShareOfTask">100%</label>
+                    </div>
                 </div>
                 <input asp-for=SlotId hidden />
                 <br />
@@ -31,10 +42,12 @@
 @section js
 {
     <script src="~/js/SetNow.js?v=4"></script>
+        <script src="~/js/UpdateRange.js?v=4"></script>
 }
 
 @section css
     {
     <link rel="stylesheet" href="css/OperationStatusStyles.css">
+        <link rel="stylesheet" href="css/FinaliseStyles.css">
 
 }

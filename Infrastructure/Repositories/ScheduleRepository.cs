@@ -90,7 +90,13 @@ namespace ScheduleHelper.Infrastructure.Repositories
 
         public async Task<TimeSlotInSchedule?> GetTimeSlot(Guid slotId)
         {
-            return await _dbContext.TimeSlotsInSchedule.FindAsync(slotId);
+
+            var timeSlot= await _dbContext.TimeSlotsInSchedule.FindAsync(slotId);
+            if (timeSlot != null)
+            {
+                await _dbContext.Entry(timeSlot).Reference(ts => ts.task).LoadAsync();
+            }
+            return timeSlot;
         }
 
         public async Task<List<TimeSlotInSchedule>> GetTimeSlotsList()

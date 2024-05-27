@@ -34,12 +34,28 @@ namespace ScheduleHelper.Core.Services
                 throw new ArgumentException("time slot with such id isn't present on list");
             }
 
-
+            bool shouldSlotBeDivided = (timeSlot.IsItBreak || !timeSlot.task.HasStartTime) && model.ComplitedShareOfTask < 100;
+            if (shouldSlotBeDivided)
+            {
+                await createDbSlotForNotFinishedPartOfTask(model.ComplitedShareOfTask, timeSlot);
+            }
             await changeSlotStatus(timeSlot, TimeSlotStatus.Finished);
             await updateTimeFromLastBreak(timeSlot);
 
             await updateSlotsWithNewCurrentTime(actualFinishTime);
 
+        }
+
+        private async Task createDbSlotForNotFinishedPartOfTask(int complitedShareOfTask, TimeSlotInSchedule timeSlot)
+        {
+            double slotDuration=timeSlot.getDurationOfSlotInMin();
+            double notComplitedShareOfTask = (100 - complitedShareOfTask) / 100.0;
+            double durationOfNewSlot = slotDuration * notComplitedShareOfTask;
+            var newTimeSlot=timeSlot.Copy();
+            newTimeSlot.FinishTime=newTimeSlot.StartTime.AddMinutes(durationOfNewSlot);
+            newTimeSlot.Id = null;
+            await _scheduleRepository.AddNewTimeSlot(newTimeSlot);
+            
         }
 
         public async Task UpdateSettings(ScheduleSettingsDTO scheduleSettingsDto)

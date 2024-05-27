@@ -1,6 +1,5 @@
 ﻿.finished:not(caption) {
-    color: green;
-    
+    color: #2dbb2d;
 }
 
 
@@ -8,8 +7,9 @@
 .canceled:not(caption) {
     color: red;
     text-decoration: line-through;
-    font-size: 1.2rem
 }
+
+
 
 
 

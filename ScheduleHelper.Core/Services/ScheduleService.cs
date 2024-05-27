@@ -144,6 +144,16 @@ namespace ScheduleHelper.Core.Services
             return avaiableFreeTime;
         }
 
+        public async Task<bool> IsTaskFixed(Guid? slotId)
+        {
+            var timeSlot=await _scheduleRepository.GetTimeSlot((Guid)slotId);
+            if (timeSlot == null)
+                throw new ArgumentException();
+            if(timeSlot.IsItBreak)
+                return false;
+
+            return timeSlot.task.HasStartTime;
+        }
         private void setSqlRepositoryAsRepository(IScheduleRepository sqlServerRepository)
         {
             _scheduleRepository = sqlServerRepository;
@@ -386,8 +396,6 @@ namespace ScheduleHelper.Core.Services
             fixedTaskFinishTime = lastOverlapsingTimeSlot.FinishTime;
             return (TimeOnly)fixedTaskFinishTime;
         }
-
-
 
 
     }

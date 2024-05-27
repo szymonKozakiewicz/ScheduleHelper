@@ -129,7 +129,18 @@ namespace ScheduleHelper.UI.Controllers
         [HttpGet]
         public async Task<IActionResult> GetTimeSlotFinalisePage(FinaliseSlotDTO model)
         {
-            
+            try
+            {
+                bool isTaskFixed=await _scheduleService.IsTaskFixed(model.SlotId);
+                ViewBag.isTaskFixed = isTaskFixed;
+            }
+            catch (ArgumentException ex)
+            {
+                ViewBag.OperationStatus = ConstantsValues.FailedOperation;
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                ViewBag.ErrorsList = new List<string>() { "Time slot not exists" };
+                return View("OperationStatus");
+            }
             return View("SlotFinalise",model);
         }
 
@@ -138,6 +149,14 @@ namespace ScheduleHelper.UI.Controllers
         public async Task<IActionResult> FinaliseTimeSlot(FinaliseSlotDTO model)
         {
             ViewBag.ShowBtnBackToSchedule = true;
+            if (ValidationHelper.HasObjectGotValidationErrors(model))
+            {
+                ViewBag.OperationStatus = ConstantsValues.FailedOperation;
+                var errors = ValidationHelper.GetErrorsList(ModelState);
+                ViewBag.ErrorsList = errors;
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return View("OperationStatus");
+            }
             try
             {
                 await _updateService.FinaliseTimeSlot(model);
