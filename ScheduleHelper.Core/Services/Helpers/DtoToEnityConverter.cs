@@ -17,7 +17,8 @@ namespace ScheduleHelper.Core.Services.Helpers
                 Name = taskDTO.Name,
                 TimeMin = taskDTO.Time,
                 HasStartTime = taskDTO.HasStartTime,
-                StartTime = taskDTO.StartTime
+                StartTime = taskDTO.StartTime,
+                Id = taskDTO.Id
             };
      
         }

@@ -119,20 +119,30 @@ namespace ScheduleHelper.UI.Controllers
 
         [Route(RouteConstants.UpdateTask)]
         [HttpPost]
-        public async Task<IActionResult> EditTask([ModelBinder(typeof(TaskCreateBinder))] TaskCreateDTO newVersionOfTask)
+        public async Task<IActionResult> EditTask([ModelBinder(typeof(TaskUpdateBinder))] TaskCreateDTO newVersionOfTask)
         {
             ViewBag.Title = _taskslistTitle;
             ViewBag.formHref = RouteConstants.UpdateTask;
             TaskCreateDTO taskToEdit;
+            if (ValidationHelper.HasObjectGotValidationErrors(newVersionOfTask))
+            {
+                ViewBag.OperationStatus = ConstantsValues.FailedOperation;
+                var errors = ValidationHelper.GetErrorsList(ModelState);
+                ViewBag.ErrorsList = errors;
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return View("OperationStatus");
+            }
+
             try
             {
                 await _taskService.UpdateTask(newVersionOfTask);
                 Response.StatusCode = (int)HttpStatusCode.OK;
-                ViewBag.OperationStatus = "Task created!";
+                ViewBag.OperationStatus = "Task updated!";
             }
             catch (Exception ex)
             {
                 Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                ViewBag.OperationStatus = ex.Message;
                 return View("OperationStatus");
             }
 

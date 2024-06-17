@@ -116,7 +116,8 @@ namespace ScheduleHelper.ServiceTests.ClassData.FinaliseTimeSlot
             FinaliseSlotDTO model = new FinaliseSlotDTO()
             {
                 FinishTime = actualFinishTime.ToString(),
-                SlotId = (Guid)initTimeSlotsList[finishedIndex].Id
+                SlotId = (Guid)initTimeSlotsList[finishedIndex].Id,
+                ComplitedShareOfTask=100
 
             };
             FinaliseMethodTestSettingsDTO finaliseMethodTestSettings = new FinaliseMethodTestSettingsDTO()
@@ -225,7 +226,8 @@ namespace ScheduleHelper.ServiceTests.ClassData.FinaliseTimeSlot
             model = new FinaliseSlotDTO()
             {
                 FinishTime = actualFinishTime.ToString(),
-                SlotId = (Guid)initTimeSlotsList[finishedIndex].Id
+                SlotId = (Guid)initTimeSlotsList[finishedIndex].Id,
+                ComplitedShareOfTask = 100
 
             };
             finaliseMethodTestSettings = new FinaliseMethodTestSettingsDTO()
@@ -334,7 +336,8 @@ namespace ScheduleHelper.ServiceTests.ClassData.FinaliseTimeSlot
             model = new FinaliseSlotDTO()
             {
                 FinishTime = actualFinishTime.ToString(),
-                SlotId = (Guid)initTimeSlotsList[finishedIndex].Id
+                SlotId = (Guid)initTimeSlotsList[finishedIndex].Id,
+                ComplitedShareOfTask = 100
 
             };
             finaliseMethodTestSettings = new FinaliseMethodTestSettingsDTO()
@@ -351,7 +354,7 @@ namespace ScheduleHelper.ServiceTests.ClassData.FinaliseTimeSlot
             yield return new object[] { finaliseMethodTestSettings, scheduleSettings, timeSlotsWithNoFinished, timeSlotsWithNoBreaks, daySchedule };
 
 
-            scheduleFinishTime = new TimeOnly(15,50);
+            scheduleFinishTime = new TimeOnly(15, 50);
             scheduleStartTime = new TimeOnly(12, 24);
             finishedIndex = 2;
 
@@ -436,7 +439,8 @@ namespace ScheduleHelper.ServiceTests.ClassData.FinaliseTimeSlot
             model = new FinaliseSlotDTO()
             {
                 FinishTime = actualFinishTime.ToString(),
-                SlotId = (Guid)initTimeSlotsList[finishedIndex].Id
+                SlotId = (Guid)initTimeSlotsList[finishedIndex].Id,
+                ComplitedShareOfTask = 100
 
             };
             finaliseMethodTestSettings = new FinaliseMethodTestSettingsDTO()
@@ -548,7 +552,8 @@ namespace ScheduleHelper.ServiceTests.ClassData.FinaliseTimeSlot
             model = new FinaliseSlotDTO()
             {
                 FinishTime = actualFinishTime.ToString(),
-                SlotId = (Guid)initTimeSlotsList[finishedIndex].Id
+                SlotId = (Guid)initTimeSlotsList[finishedIndex].Id,
+                ComplitedShareOfTask = 100
 
             };
             finaliseMethodTestSettings = new FinaliseMethodTestSettingsDTO()

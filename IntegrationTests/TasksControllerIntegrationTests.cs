@@ -80,7 +80,7 @@ namespace ScheduleHelper.IntegrationTests
                 StartTime = testTask.StartTime,
                 Time = testTask.TimeMin
             };
-            HttpContent httpContent = PrepareHttpContentForAddNewTaksRequest(model);
+            HttpContent httpContent = PrepareHttpContentForUpdateTaksRequest(model);
 
             //act
             HttpResponseMessage response = await _client.PostAsync(RouteConstants.UpdateTask,httpContent);
@@ -202,6 +202,17 @@ namespace ScheduleHelper.IntegrationTests
             var contentStr = $"Name={model.Name}&Time={model.Time}&HasStartTime={model.HasStartTime}";
 
             if(model.HasStartTime)
+                contentStr = $"{contentStr}&StartTime={model.StartTime}";
+
+            HttpContent httpContent = new StringContent(contentStr, UnicodeEncoding.UTF8, "application/x-www-form-urlencoded");
+            return httpContent;
+        }
+
+        private static HttpContent PrepareHttpContentForUpdateTaksRequest(TaskCreateDTO model)
+        {
+            var contentStr = $"Name={model.Name}&Time={model.Time}&HasStartTime={model.HasStartTime}&Id={model.Id}";
+
+            if (model.HasStartTime)
                 contentStr = $"{contentStr}&StartTime={model.StartTime}";
 
             HttpContent httpContent = new StringContent(contentStr, UnicodeEncoding.UTF8, "application/x-www-form-urlencoded");

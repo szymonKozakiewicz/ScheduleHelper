@@ -111,8 +111,6 @@ namespace ScheduleHelper.ServiceTests
         public async Task UpdateTask_ForValidId_RepositoryMehodUpdateTaskShouldBeCalled()
         {
             SingleTask? result = null;
-            repositoryMock.Setup(mock => mock.UpdateTask(It.IsAny<SingleTask>()))
-                .Callback((SingleTask task) => result = task);
 
 
             var model = new TaskCreateDTO()
@@ -131,16 +129,22 @@ namespace ScheduleHelper.ServiceTests
                 HasStartTime = true,
                 TimeMin = 23,
                 StartTime = new TimeOnly(8, 0),
-                Id = Guid.NewGuid()
+                Id = model.Id
 
             };
-
+            repositoryMock.Setup(mock => mock.UpdateTask(It.IsAny<SingleTask>()))
+                .Callback((SingleTask task) => result = task);
+            repositoryMock.Setup(mock => mock.GetTask(It.IsAny<Guid>()))
+                .ReturnsAsync(expectedResult);
+            
+            //act
             await _taskService.UpdateTask(model);
 
 
             //assert
 
             result.Should().Be(expectedResult);
+            repositoryMock.Verify(a=>a.UpdateTask(It.IsAny<SingleTask>()),Times.Once);
 
 
         }

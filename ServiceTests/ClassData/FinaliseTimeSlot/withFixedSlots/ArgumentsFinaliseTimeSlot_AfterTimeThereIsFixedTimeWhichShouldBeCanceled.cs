@@ -236,7 +236,8 @@ namespace ScheduleHelper.ServiceTests.ClassData.FinaliseTimeSlot.withFixedSlots
             FinaliseSlotDTO model = new FinaliseSlotDTO()
             {
                 FinishTime = actualFinishTime.ToString(),
-                SlotId = (Guid)initTimeSlot1.Id
+                SlotId = (Guid)initTimeSlot1.Id,
+                ComplitedShareOfTask = 100
 
             };
             FinaliseMethodTestSettingsDTO finaliseMethodTestSettings = new FinaliseMethodTestSettingsDTO()
@@ -462,7 +463,8 @@ namespace ScheduleHelper.ServiceTests.ClassData.FinaliseTimeSlot.withFixedSlots
             FinaliseSlotDTO model = new FinaliseSlotDTO()
             {
                 FinishTime = actualFinishTime.ToString(),
-                SlotId = (Guid)initTimeSlot1.Id
+                SlotId = (Guid)initTimeSlot1.Id,
+                ComplitedShareOfTask = 100
 
             };
             FinaliseMethodTestSettingsDTO finaliseMethodTestSettings = new FinaliseMethodTestSettingsDTO()

@@ -24,6 +24,11 @@ namespace Infrastructure.Repositories
             await _dbContext.SaveChangesAsync();
         }
 
+        public async Task<SingleTask> GetTask(Guid id)
+        {
+            return await _dbContext.SingleTask.AsNoTracking().FirstAsync(x=>x.Id==id);
+        }
+
         public async Task<List<SingleTask>> GetTasks()
         {
             return await _dbContext.SingleTask.ToListAsync();
@@ -33,7 +38,8 @@ namespace Infrastructure.Repositories
         public async Task RemoveTaskWithId(Guid id)
         {
 
-            var taskToRemove = await _dbContext.SingleTask.FindAsync(id);
+            var taskToRemove = await _dbContext.SingleTask.Where(a => a.Id == id)
+            .FirstOrDefaultAsync();
             var list = _dbContext.SingleTask.ToList();
             if (taskToRemove == null)
             {

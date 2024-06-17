@@ -19,7 +19,7 @@ using Xunit;
 
 namespace ScheduleHelper.IntegrationTests
 {
-    public class ScheduleIntegrationTests:IClassFixture<InMemoryWebApplicationFactory>
+    public class ScheduleIntegrationTests : IClassFixture<InMemoryWebApplicationFactory>
     {
         HttpClient _client;
         MyDbContext _dbContext;
@@ -28,7 +28,7 @@ namespace ScheduleHelper.IntegrationTests
         {
             _client = factory.CreateClient();
 
-            _dbContext=factory.GetDbContextInstance();
+            _dbContext = factory.GetDbContextInstance();
 
         }
 
@@ -37,7 +37,7 @@ namespace ScheduleHelper.IntegrationTests
         {
             //act
             HttpResponseMessage response = await _client.GetAsync(RouteConstants.ShowSchedule);
-            
+
             //assert
             response.Should().BeSuccessful();
         }
@@ -67,14 +67,14 @@ namespace ScheduleHelper.IntegrationTests
 
 
         [Theory]
-        [InlineData("2","true", "02:12","blablaasdasd")]
-        [InlineData("2","true", "blablaasdasd", "05:12")]
+        [InlineData("2", "true", "02:12", "blablaasdasd")]
+        [InlineData("2", "true", "blablaasdasd", "05:12")]
         [InlineData("2", "blablaasdasd", "02:12", "05:12")]
         [InlineData("blablaasdasd", "true", "02:12", "05:12")]
-        public async Task GenerateScheduleSettings_ForNotValidData_shouldReturnsBadRequest(string breakLenghtMin,string hasScheduledBreaks,string startTime,string finishTime)
+        public async Task GenerateScheduleSettings_ForNotValidData_shouldReturnsBadRequest(string breakLenghtMin, string hasScheduledBreaks, string startTime, string finishTime)
         {
-   
-            
+
+
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.Append($"breakLenghtMin={hasScheduledBreaks}");
             stringBuilder.Append($"&hasScheduledBreaks={hasScheduledBreaks}");
@@ -113,12 +113,12 @@ namespace ScheduleHelper.IntegrationTests
                 hasScheduledBreaks = true,
                 startTime = new TimeOnly(12, 24),
                 finishTime = new TimeOnly(21, 24),
-                MaxWorkTimeBeforeBreakMin=60,
-                MinWorkTimeBeforeBreakMin=10
-                
+                MaxWorkTimeBeforeBreakMin = 60,
+                MinWorkTimeBeforeBreakMin = 10
+
             };
 
-            var contetMessage=generateContentMessage(testModel);
+            var contetMessage = generateContentMessage(testModel);
 
             //act
             HttpResponseMessage response = await _client.PostAsync(RouteConstants.GenerateScheduleSettings, contetMessage);
@@ -148,9 +148,11 @@ namespace ScheduleHelper.IntegrationTests
         {
             var id = Guid.NewGuid();
             var finishTime = new TimeOnly(12, 23).ToString();
-
+            int complitedShareOfTask = 100;
+            SingleTask task = new SingleTask("test", 23);
+            TimeSlotInSchedule timeSlot = await prepareDbWithTaskAndOneSlote(task);
             //act
-            var result=await _client.GetAsync(RouteConstants.FinishTimeSlot+"?slotId="+id+"&finishTime="+finishTime);
+            var result = await _client.GetAsync(RouteConstants.FinishTimeSlot + "?slotId=" + timeSlot.Id + "&finishTime=" + finishTime + "&complitedShareOfTask=" + complitedShareOfTask);
 
 
             //assert
@@ -175,9 +177,27 @@ namespace ScheduleHelper.IntegrationTests
         [Fact]
         public async Task TimeSlotFinalise_schouldBeSuccessful()
         {
-            
+
             var finishTime = new TimeOnly(12, 23).ToString();
             SingleTask task = new SingleTask("test", 23);
+            TimeSlotInSchedule timeSlot = await prepareDbWithTaskAndOneSlote(task);
+            var model = new FinaliseSlotDTO()
+            {
+                SlotId = (Guid)timeSlot.Id,
+                FinishTime = finishTime
+            };
+            var contentMessage = generateContentMessage(model);
+
+            //act
+            var result = await _client.PostAsync(RouteConstants.FinishTimeSlot, contentMessage);
+
+
+            //assert
+            result.Should().BeSuccessful();
+        }
+
+        private async Task<TimeSlotInSchedule> prepareDbWithTaskAndOneSlote(SingleTask task)
+        {
             var settings = new ScheduleSettings()
             {
                 breakDurationMin = 20,
@@ -205,25 +225,8 @@ namespace ScheduleHelper.IntegrationTests
             await _dbContext.SaveChangesAsync();
             _dbContext.DaySchedule.Add(daySchedule);
             await _dbContext.SaveChangesAsync();
-            var model = new FinaliseSlotDTO()
-            {
-                SlotId = (Guid)timeSlot.Id,
-                FinishTime = finishTime
-            };
-            var contentMessage = generateContentMessage(model);
-
-            //act
-            var result = await _client.PostAsync(RouteConstants.FinishTimeSlot,contentMessage);
-
-
-            //assert
-            result.Should().BeSuccessful();
+            return timeSlot;
         }
-
-
-
-
-
 
         public static IEnumerable<object[]> GetSampleOfInvalidDataForGenerateScheduleSettingsTest()
         {

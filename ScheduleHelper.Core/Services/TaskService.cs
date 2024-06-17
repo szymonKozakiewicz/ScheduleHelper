@@ -55,9 +55,13 @@ namespace ScheduleHelper.Core.Services
             await _taskRepository.RemoveTaskWithId(taskToDeleteId);
         }
 
-        public Task UpdateTask(TaskCreateDTO newVersionOfTask)
+        public async Task UpdateTask(TaskCreateDTO newVersionOfTask)
         {
-            throw new NotImplementedException();
+            var oldTask=await _taskRepository.GetTask(newVersionOfTask.Id);
+            if (oldTask == null)
+                throw new ArgumentException("Task with such id doesn't exists");
+            SingleTask newTask = covertSingleTaskDtoToSingleTask(newVersionOfTask);
+            await _taskRepository.UpdateTask(newTask);
         }
     }
 }

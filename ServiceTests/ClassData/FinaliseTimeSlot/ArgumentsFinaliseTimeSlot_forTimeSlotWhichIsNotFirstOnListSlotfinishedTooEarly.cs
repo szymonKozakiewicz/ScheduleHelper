@@ -78,7 +78,9 @@ namespace ScheduleHelper.ServiceTests.ClassData.FinaliseTimeSlot
             FinaliseSlotDTO model = new FinaliseSlotDTO()
             {
                 FinishTime = actualFinishTime.ToString(),
-                SlotId = (Guid)initTimeSlotsList[finishedIndex].Id
+                SlotId = (Guid)initTimeSlotsList[finishedIndex].Id,
+                ComplitedShareOfTask = 100
+
 
             };
             FinaliseMethodTestSettingsDTO finaliseMethodTestSettings = new FinaliseMethodTestSettingsDTO()
