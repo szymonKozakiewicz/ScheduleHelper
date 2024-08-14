@@ -33,3 +33,12 @@
     color: #CD2035;
     font-size:1.2rem;
 }
+
+
+.table-hover tbody tr:hover td, .table-hover tbody tr:hover th {
+    background-color: #fac05e;
+}
+
+.table-hover tbody tr td, .table-hover tbody tr th {
+    transition: background-color 1s ease;
+}
